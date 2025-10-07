@@ -23,8 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-3=6%maae$cf0-x_3a+12ht++$=2ta#3uc%%mr152_l3fcy2r*&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = ['medink-testing.onrender.com', 'localhost', '127.0.0.1']
+DEBUG = True
+ALLOWED_HOSTS = ['*']
+
 
 
 
