@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Patient Report</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- CropperJS CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+<!-- CropperJS JS -->
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+
+  <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+  <style>
+    body { margin:0; padding:0; display:flex; height:100vh; font-family: Arial, sans-serif;  }
+    .left-panel { width:50%; background:#f4f4f4; display:flex; align-items:center; justify-content:center; border-right:2px solid #ddd; }
+    .left-panel img { max-width:90%; max-height:30%; border-radius:8px; border:2px solid #ccc; }
+    .right-panel { width:50%; padding:20px; box-sizing:border-box; display:flex; flex-direction:column; gap:10px; }
+    .controls { display:flex; gap:10px; margin-top:8px; }
+    .controls button { padding:8px 14px; border:none; border-radius:6px; cursor:pointer; font-weight:600; }
+    #saveDraftBtn { background:#00aaff; color:white; }
+    #finalBtn { background:green; color:white; }
+    #backBtn {  padding: 7px; color:#f6f4f4; border-radius: 5px; border: none; }
+    h2 { margin:0 0 8px 0; }
+
+    .fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: black;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.fullscreen img {
+  max-width: 100%;
+  max-height: 100%;
+  border: none;
+}
+
+  </style>
+</head>
+<body>
+
+ <div class="left-panel">
+    <div style="text-align:center;">
+      <img id="xrayImage" src="" alt="Patient Scan" />
+      <button id="fullscreen">⛶</button>
+
+      <!-- Image control buttons niche -->
+      <div class="controls" style="margin-top:10px; justify-content:center;">
+        <button id="zoomIn">🔍+</button>
+        <button id="zoomOut">🔍-</button>
+        <button id="rotate">⟳ Rotate</button>
+        <button id="reset">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 id="patientName">Patient Report</h2>
+      <div>
+        <button id="backBtn" onclick="window.location.href='/home/'">❌ </button>
+      </div> 
+    </div>
+
+    <textarea id="editor">Loading editor...</textarea>
+
+    <!-- Report save buttons yahan -->
+    <div class="controls">
+      <button id="saveDraftBtn">Save Draft</button>
+      <button id="finalBtn">Finalize & Save</button>
+    </div>
+  </div>
+
+
+  <script>
+    // --- get index passed from Django view (context variable) ---
+    const index = "{{ id }}"; // Django will render the integer here
+
+    // load patients array from localStorage
+    let patients = JSON.parse(localStorage.getItem('patients')) || [];
+
+    // ensure index exists
+    if (typeof patients[index] === 'undefined') {
+      document.getElementById('patientName').innerText = 'Patient not found';
+      document.getElementById('xrayImage').style.display = 'none';
+    } else {
+      const patient = patients[index] || {};
+const name = patient.name || 'Unknown';
+const history = patient.history || 'No history';
+document.getElementById('patientName').innerText = `${name} — ${history}`;
+
+      // use the same key you stored: 'scan'
+      document.getElementById('xrayImage').src = patient.scan || '';
+    }
+
+    // Initialize CKEditor and load any previously saved report
+    const editorInstance = CKEDITOR.replace('editor');
+    editorInstance.on('instanceReady', function() {
+      const existing = (patients[index] && patients[index].report) ? patients[index].report : '';
+      editorInstance.setData(existing);
+    });
+
+    // Save helper
+    function saveReport(status) {
+      if (!patients[index]) {
+        alert('Patient not found — cannot save.');
+        return;
+      }
+      const content = editorInstance.getData(); // HTML string
+      patients[index].report = content;
+      patients[index].status = status; // 'DRAFT' or 'FINAL'
+      localStorage.setItem('patients', JSON.stringify(patients));
+      alert('Report saved (' + status + ').');
+      // Optionally navigate back to home when finalizing:
+      // if (status === 'FINAL') window.location.href = '/home/';
+    }
+
+    document.getElementById('saveDraftBtn').addEventListener('click', function(){ saveReport('DRAFT'); });
+    
+
+
+document.getElementById('finalBtn').addEventListener('click', function(){
+  saveReport('FINAL');   // pehle save karo
+  window.location.href = '/home/'; // home page redirect
+});
+
+
+    // --- CropperJS initialize ---
+const image = document.getElementById('xrayImage');
+let cropper;
+
+image.addEventListener("load", () => {
+  if (cropper) {
+    cropper.destroy(); // agar dobara load ho to purana destroy
+  }
+  cropper = new Cropper(image, {
+    viewMode: 2,
+    dragMode: 'move',
+    autoCrop: false,
+    background: false,
+    movable: true,
+    zoomable: true,
+    rotatable: true,
+    scalable: true
+  });
+});
+// Buttons actions
+document.getElementById("zoomIn").addEventListener("click", () => {
+  cropper.zoom(0.1);
+});
+document.getElementById("zoomOut").addEventListener("click", () => {
+  cropper.zoom(-0.1);
+});
+document.getElementById("rotate").addEventListener("click", () => {
+  cropper.rotate(90);
+});
+document.getElementById("reset").addEventListener("click", () => {
+  cropper.reset();
+});
+
+
+
+const leftPanel = document.querySelector(".left-panel");
+document.getElementById("fullscreen").addEventListener("click", () => {
+  leftPanel.classList.toggle("fullscreen");
+});
+
+  </script>
+
+
+  <script>
+
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // Get CKEditor content
+    const content = editorInstance.getData();
+
+    // Convert image to base64
+    const img = document.getElementById('xrayImage');
+    if(img.src){
+        const imgWidth = 180; // PDF page width
+        const imgHeight = (img.height / img.width) * imgWidth;
+
+        // Add image first
+        doc.addImage(img.src, 'PNG', 10, 10, imgWidth, imgHeight);
+
+        // Then add report below image
+        doc.html(content, {
+            callback: function(doc){
+                const patientName = patients[index]?.name || 'Patient';
+                doc.save(`${patientName}_Report.pdf`);
+                window.location.href = '/home/';
+            },
+            x: 10,
+            y: 10 + imgHeight + 5,
+            width: 190,
+            windowWidth: 800
+        });
+    } else {
+        // Agar image nahi hai to sirf report
+        doc.html(content, {
+            callback: function(doc){
+                const patientName = patients[index]?.name || 'Patient';
+                doc.save(`${patientName}_Report.pdf`);
+                window.location.href = '/home/';
+            },
+            x: 10,
+            y: 10,
+            width: 190,
+            windowWidth: 800
+        });
+    }
+});
+
+</script>
+
+</body>
+</html>
