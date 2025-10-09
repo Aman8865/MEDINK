@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Same Layout</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
 
   <style>
     body {
@@ -168,15 +169,95 @@
   font-weight: bold;
   cursor: pointer;
 }
+/* .bbtn {
+  background-color: white;
+  border: 1px solid #0072ff;
+  padding: 8px;
+  border-radius: 4px;
+
+} */
+
+/* === LOGIN BUTTONS BAR === */
+.login-buttons {
+  display: flex;
+  margin-top: -10px;
+  justify-content: flex-start; /* left aligned; change to center for center alignment */
+  gap: 10px;
+  /* margin: 8px 0 18px 0; */
+  background-color: rgb(225, 225, 227);
+  width: 97%;
+  padding: 6px;
+  border-radius: 30px;
+}
+
+.login-buttons button {
+  /* background-color: transparent; */
+  /* border: 1.5px solid #1c9aca; */
+  color: #1d1d1e;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background-color: rgb(225, 225, 227);
+}
+
+/* Active (selected) button */
+.login-buttons button.active {
+  background-color: #368dc7;
+  color: white;
+  box-shadow: 0 2px 6px rgba(28, 154, 202, 0.4);
+}
+
+/* Hover effect */
+/* .login-buttons button:hover {
+  background-color: #1c9aca;
+  color: white;
+  box-shadow: 0 2px 6px rgba(28, 154, 202, 0.4);
+} */
 
   </style>
 </head>
 <body>
   <div class="container">
+    
+  
     <form id="detailForm" class="form-sections">
+      
       <!-- LEFT SIDE -->
+       
       <div class="section">
-        <h3>LOGIN DETAILS:-</h3>
+        <!-- <h3>LOGIN DETAILS:-</h3> -->
+             
+<!-- Button Group -->
+<div class="login-buttons">
+  <button type="button" class="tab-btn active" data-target="details-fields">Details</button>
+  <button type="button" class="tab-btn" data-target="modality-fields">Modality</button>
+  <button type="button" class="tab-btn" data-target="payment-fields">Payment</button>
+  <button type="button" class="tab-btn" data-target="personal-fields">Personal</button>
+  <button type="button" class="tab-btn" data-target="assigned-fields">Assigned</button>
+  <button type="button" class="tab-btn" data-target="rads-fields">Rads</button>
+</div>
+<br>
+
+
+<script>
+/* === Active Button Logic === */
+const buttons = document.querySelectorAll('.login-buttons button');
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    buttons.forEach(b => b.classList.remove('active')); // sabse active hatao
+    btn.classList.add('active'); // clicked button active karo
+  });
+});
+</script>
+          
 
         <div class="row">
           <div class="field">
@@ -345,33 +426,79 @@ document.getElementById("updatePasswordBtn").addEventListener("click", function 
     // Django ka URL tag use karke redirect
     window.location.href = "{% url 'profile' %}";
   });
+
+  const tabButtons = document.querySelectorAll('.tab-btn');
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Remove active from all buttons
+    tabButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Hide all sections
+    document.querySelectorAll('#details-fields, #personal-fields, #modality-fields, #payment-fields, #assigned-fields, #rads-fields')
+      .forEach(sec => sec.style.display = 'none');
+
+    // Show targeted section
+    const targetId = btn.getAttribute('data-target');
+    const targetDiv = document.getElementById(targetId);
+    if (targetDiv) targetDiv.style.display = 'block';
+  });
+});
+
 </script>
 
 
       <!-- RIGHT SIDE -->
    <div class="section">
-        <h3>PERSONAL DETAILS:-</h3>
+        <!-- <h3>PERSONAL DETAILS:-</h3> -->
+         <!-- <button style="margin-left: -80px;" class="bbtn" type="button">Assign RADS</button><br><br> -->
+<br><br><br>
+   <!-- Details Fields -->
+<div id="details-fields">
+  <!-- Add all your account details fields here -->
+  <!-- <div class="row">
+    <div class="field">
+      <label for="accountName">ACCOUNT </label>
+      <input type="text" id="accountName">
+    </div>
+    <div class="field">
+      <label for="registrationDate">REGISTRATION DATE</label>
+      <input type="text" id="registrationDate" readonly>
+    </div>
+  </div> -->
+  <!-- Add remaining fields if needed -->
+</div>
 
-        <div class="row">
-          <div class="field">
-            <label style="margin-left: -90px;" for="personName">PERSON NAME</label>
-            <input style="margin-left: -90px; width: 50%;" type="text" id="personName" value="" />
-          </div>
-        </div>
+<!-- Personal Fields -->
+ 
+  
+<div  id="personal-fields" style="display:none;">
+  <fieldset style="margin-left: -100px; width: 60%;" >
+    <legend style="color: blue;">Personal Details</legend>
+  <div  class="row">
+    <div style="margin-left: 0px;"  class="field">
+      <label for="personName">PERSON NAME</label>
+      <input style="width: 70%;" type="text" id="personName">
+    </div>
+  </div>
+  <div class="row">
+    <div style="margin-left: 0px;"  class="field">
+      <label for="mobileNo">MOBILE NO.</label>
+      <input style="width: 70%;" type="text" id="mobileNo">
+    </div>
+  </div>
+  <div class="row">
+    <div style="margin-left: 0px;"  class="field">
+      <label for="email">E-MAIL ID</label>
+      <input style="width: 70%;" type="email" id="email">
+    </div>
+  </div>
+</div>
 
-        <div class="row">
-          <div class="field">
-            <label style="margin-left: -90px; " for="mobileNo">MOBILE NO.</label>
-            <input style="margin-left: -90px; width: 50%;" type="text" id="mobileNo" value="" />
-          </div>
-        </div>
+</fieldset>
 
-        <div class="row">
-          <div class="field">
-            <label style="margin-left: -90px; ;" for="email">E-MAIL ID</label>
-            <input style="margin-left: -90px; width: 50%;" type="email" id="email" value="" />
-          </div>
-        </div>
+
       </div>
     </form>
 

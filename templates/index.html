@@ -8,58 +8,12 @@
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-
     <style>
     body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;  /* Horizontal scroll hatao */
 }
-/* Sidebar */
-.sidebar {
-  width: 30px;
-  background-color:rgb(191, 191, 240);
-  color: white;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  height: 20px;  
-  margin-top: -10px;
-  margin-left: -7px;
-}
-.sidebar1 {
-  width: 30px;
-  background-color:rgb(191, 191, 240);
-  color: white;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  height: 10px;  
-  margin-top: 2px;
-  margin-left: -7px;
-}
-.sidebar img {
-  height: 70px;
-  width: 70px;
-  border-radius: 50%;
-  margin-bottom: 20px;
-}
-.sidebar  a {
-  color: white;
-  text-decoration: none;
-}
-/* .sidebar button {
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  background-color: #34495e;
-  cursor: pointer;
-  transition: 0.2s;
-} */
-/* .sidebar button:hover { background-color: #18bc9c; } */
-
 
 /* Top Navbar */
 .top-navbar {
@@ -69,7 +23,7 @@
   /* width: calc(200% - 220px); */
   width: 97%;
   height: 60px;
-  background-color:rgb(191, 191, 240);
+  background-color: rgb(176, 176, 243);
   display: flex;
   /* justify-content: space-between; */
   align-items: center;
@@ -96,7 +50,7 @@
   left: 0;
   height: 100%;          
   width: 60px;           /* expand width */
-  background-color: rgb(191, 191, 240);
+  background-color: rgb(182, 182, 245);
   overflow-x: hidden;
   transition: transform 0.3s; /* smooth slide */
 }
@@ -156,7 +110,7 @@
   position: fixed;
   top: 500px;           /* top navbar ke niche */
   left: 10px;         /* sidebar ke edge ke paas */
-  background-color: rgb(191, 191, 240);
+  background-color: rgb(190, 190, 193);
   color: black;
   width: 30px;
   height: 30px;
@@ -492,7 +446,7 @@
     <a href="{% url 'index' %}"><i class="fas fa-home"></i><span>Home</span></a>
     <a href="{% url 'profile' %}"><i class="fas fa-user"></i><span>Profile</span></a>
     <a href="#"><i class="fas fa-cog"></i><span>Settings</span></a>
-    <a href="#"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+    <a href="{% url 'invoice' %}"><i class="fa-solid fa-file-invoice"></i><span>Invoice</span></a>
   
     <!-- hise sidebar button -->
 </div>
@@ -723,9 +677,9 @@ function exportToExcel() {
         <th>HIS.</th>
         <th>ASSIGN</th>
         <th style="width:8%;">REPORT</th>
-        <th >S./F.</th>
+        <th style="width:3%;">S./F.</th>
         <th style="width: 3%;">AMT.</th>
-        <th>Action.</th>
+        <th style="width: 7%;">Action.</th>
       </tr>
     </thead>
 
@@ -814,9 +768,9 @@ function loadPatients() {
 </td>
 
 <td><span class="green-dot"></span></td>
-<td>₹100</td>
+<td style="margin-left:40px;">₹100</td>
 <td>
-<i class="fa-solid fa-trash" style="color:red; cursor:pointer;" onclick="deletePatient(event, ${index})"></i>
+<i class="fa-solid fa-trash" style="color:red; cursor:pointer; margin-left:20px;" onclick="deletePatient(event, ${index})"></i>
 </td>
 
       </tr>
@@ -1066,7 +1020,7 @@ toggleArrow.addEventListener("click", () => {
     toggleArrow.style.top = '60px';
 
     // SHIFT CONTENT UP because nav is hidden
-    content.style.marginTop = "-150px";
+    content.style.marginTop = "-100px";
   } else {
     // NAV VISIBLE: show up-icon and position arrow lower
     toggleArrow.classList.remove("fa-chevron-down");

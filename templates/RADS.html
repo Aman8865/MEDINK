@@ -455,14 +455,13 @@
 </div>
 
  {% block body %}
-  <div style="gap: 40px; "  class="nav2" id="top-nav">
+  <div style="gap: 40px;  "  class="nav2" id="top-nav">
+   
     
-    <button style="font-weight: 600;margin-top: -20px; background-color: rgb(137, 137, 252); color: white;"><a style="color: aliceblue;" href="{% url 'popupform' %}"><i class="fa-solid fa-plus"></i>
- Add New</a></button>
 
  <!-- date range calender -->
     
-<div style="margin-top: -20px; margin-left: -30px;" class="date-filter">
+<div style="margin-top: -20px; margin-left: 2px;" class="date-filter">
   <button id="allBtn">All</button>
   <span class="separator">|</span>
 
@@ -582,10 +581,12 @@ picker.on('selected', (startDate, endDate) => {
     <a href="#" onclick="selectOption('DRAFT')">DRAFT</a>
   </div>
 </div>
+
 <!-- Add ye button nav2 me jahan aap chaho -->
 <button onclick="exportToExcel()" style="margin-left: -30px;margin-top: -20px; padding: 6px; font-size: 12px; font-weight: 600; background-color: #4CAF50; color: white; border:none; border-radius:5px;">Export Excel</button>
 <a style="margin-top: 20px; margin-left: 200px; font-size: 19px; background-color: aliceblue; padding: 4px; border-radius: 8px;" href=""><i class="fa-solid fa-rotate-right"></i> </a>
  
+
 
 <script>
 function exportToExcel() {
@@ -669,7 +670,7 @@ function exportToExcel() {
     <table>
     <thead>
       <tr>
-        <th> DATE</th>
+        <th>DATE</th>
         <th>PT. NAME/ID</th>
         <th>A./S.</th>
         <th>MOD.</th>
@@ -742,7 +743,7 @@ function loadPatients() {
     const row = `
       <tr  onclick="window.location.href='/report/${index}/'" style="cursor:pointer; padding:30px;  background-color: ${p.status === 'FINAL' ? '#d4f0ff' : p.status === 'DRAFT' ? '#fff4e5' : '#f0f0f0'};">
         
-        <td><input type="checkbox" class="rowCheckbox" data-index="${index}" onclick="event.stopPropagation()"><br><small>${p.entryTime}</small></td>
+        <td><input type="checkbox" class="rowCheckbox" data-index="${index}" onclick="event.stopPropagation()"><small>${p.entryTime}</small></td>
 
         <td>
           <a href="#" style="color:black; text-decoration:none; font-weight:bold;">${p.name}</a><br>

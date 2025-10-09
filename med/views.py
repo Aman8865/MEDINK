@@ -27,3 +27,11 @@ def user_detail(request):
 
 def imagingA(request):
     return render(request, 'imagingA.html')
+
+def RADS(request):
+    return render(request, 'RADS.html')
+
+def invoice(request):
+    return render(request, 'invoice.html')
+def payment(request):
+    return render(request, 'payment.html')

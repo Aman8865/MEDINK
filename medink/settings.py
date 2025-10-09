@@ -23,11 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-3=6%maae$cf0-x_3a+12ht++$=2ta#3uc%%mr152_l3fcy2r*&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = ['medink-testing.onrender.com', 'localhost', '127.0.0.1']
+# DEBUG = True
 
-
-
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -112,8 +110,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 
-# DEBUG = False
-# ALLOWED_HOSTS = ['axrix.co', 'www.axrix.co']
+# settings.py
+
+ALLOWED_HOSTS = [
+    '127.0.0.1',                     # local testing
+    'localhost',                      # local browser
+    '.ngrok-free.dev'                 # Ngrok live URL
+]
+
+DEBUG = True   # Testing ke liye, live deployment me False rakho
+
+
 STATIC_URL = 'static/'
 
 
