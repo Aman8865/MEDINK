@@ -68,7 +68,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h2 id="patientName">Patient Report</h2>
       <div>
-        <button id="backBtn" onclick="window.location.href='/home/'">❌ </button>
+        <button id="backBtn" onclick="window.location.href='/index/'">❌ </button>
       </div> 
     </div>
 
@@ -121,8 +121,8 @@ document.getElementById('patientName').innerText = `${name} — ${history}`;
       patients[index].status = status; // 'DRAFT' or 'FINAL'
       localStorage.setItem('patients', JSON.stringify(patients));
       alert('Report saved (' + status + ').');
-      // Optionally navigate back to home when finalizing:
-      // if (status === 'FINAL') window.location.href = '/home/';
+      // Optionally navigate back to index when finalizing:
+      // if (status === 'FINAL') window.location.href = '/index/';
     }
 
     document.getElementById('saveDraftBtn').addEventListener('click', function(){ saveReport('DRAFT'); });
@@ -131,7 +131,7 @@ document.getElementById('patientName').innerText = `${name} — ${history}`;
 
 document.getElementById('finalBtn').addEventListener('click', function(){
   saveReport('FINAL');   // pehle save karo
-  window.location.href = '/home/'; // home page redirect
+  window.location.href = '/index/'; // index page redirect
 });
 
 
@@ -201,7 +201,7 @@ document.getElementById("fullscreen").addEventListener("click", () => {
             callback: function(doc){
                 const patientName = patients[index]?.name || 'Patient';
                 doc.save(`${patientName}_Report.pdf`);
-                window.location.href = '/home/';
+                window.location.href = '/index/';
             },
             x: 10,
             y: 10 + imgHeight + 5,
@@ -214,7 +214,7 @@ document.getElementById("fullscreen").addEventListener("click", () => {
             callback: function(doc){
                 const patientName = patients[index]?.name || 'Patient';
                 doc.save(`${patientName}_Report.pdf`);
-                window.location.href = '/home/';
+                window.location.href = '/index/';
             },
             x: 10,
             y: 10,

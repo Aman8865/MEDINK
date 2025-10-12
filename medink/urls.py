@@ -19,9 +19,9 @@ from django.urls import path
 from med.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',login,name='login'),
-    # path('',home,name='home'),
-    path('index/', index, name='index'),
+    path('login/',login,name='login'),
+    path('',index,name='index'),
+    path('', index, name='index'),
     path('profile/',profile,name='profile'),
     path('signup/',signup,name='signup'),
     path('popupform/',popupform,name='popupform'),

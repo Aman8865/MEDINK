@@ -23,10 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-3=6%maae$cf0-x_3a+12ht++$=2ta#3uc%%mr152_l3fcy2r*&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# ALLOWED_HOSTS = []
-
+DEBUG = True
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -112,14 +110,13 @@ USE_TZ = True
 
 # settings.py
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',                     # local testing
-    'localhost',                      # local browser
-    '.ngrok-free.dev'                 # Ngrok live URL
-]
+# ALLOWED_HOSTS = [
+#     '127.0.0.1',                     
+#     'localhost',                      
+#     '.ngrok-free.dev'                 
+# ]
 
-DEBUG = True   # Testing ke liye, live deployment me False rakho
-
+# DEBUG = True   
 
 STATIC_URL = 'static/'
 
