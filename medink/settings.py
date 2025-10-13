@@ -77,11 +77,12 @@ WSGI_APPLICATION = 'medink.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'medink_db',
+        'NAME': 'railway',
         'USER': 'root',
-        'PASSWORD': 'Aman@8865',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'PASSWORD': 'bZawQDewtbOPIjBZwEMjkwNgffgYVJzx',
+        'HOST': 'tramway.proxy.rlwy.net',
+        'PORT': '24865',
+        
     }
 }
 # ...existing code...
