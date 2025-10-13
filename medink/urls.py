@@ -17,19 +17,31 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from med.views import *
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/',login,name='login'),
-    path('',index,name='index'),
-    path('', index, name='index'),
-    path('profile/',profile,name='profile'),
-    path('signup/',signup,name='signup'),
-    path('popupform/',popupform,name='popupform'),
-    path('report/<int:id>/',report,name='report'),
-    path('user_detail/',user_detail,name='user_detail'),
-    path('imagingA/',imagingA,name='imagingA'),
-    path('RADS/',RADS,name='RADS'),
-    path('invoice/',invoice,name='invoice'),
-    path('payment/',payment,name='payment'),
+    path('', index, name='index'),  # Default route
+    path('login/', login, name='login'),
+    path('index/', index, name='index'),
+    path('profile/', profile, name='profile'),
+    path('signup/', signup, name='signup'),
+    path('popupform/', popupform, name='popupform'),
+    path('report/<int:id>/', report, name='report'),
+    path('user_detail/', user_detail, name='user_detail'),
+    path('imagingA/', imagingA, name='imagingA'),
+    path('RADS/', RADS, name='RADS'),
+    path('invoice/', invoice, name='invoice'),
+    path('payment/', payment, name='payment'),
+    path('api/patient/add/', add_patient, name='add_patient'),
     
+    # path('delete_patient/<int:id>/', delete_patient, name='delete_patient'),
 ]
+    
+    # API endpoints
+#     path('api/patient/add/', add_patient, name='add_patient'),
+#     path('api/patient/<int:id>/', get_patient, name='get_patient'),
+#     path('api/patient/<int:id>/update/', update_report, name='update_report'),
+#     path('api/patient/<int:id>/delete/', delete_patient, name='delete_patient'),
+# ]
+
+

@@ -24,6 +24,7 @@ SECRET_KEY = 'django-insecure-3=6%maae$cf0-x_3a+12ht++$=2ta#3uc%%mr152_l3fcy2r*&
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'med'
 ]
 
@@ -43,6 +45,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -71,7 +74,17 @@ WSGI_APPLICATION = 'medink.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'medink_db',
+        'USER': 'root',
+        'PASSWORD': 'Aman@8865',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+# ...existing code...
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -97,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -128,6 +141,10 @@ STATICFILES_DIRS = [
 ]
 # Collectstatic ke liye folder
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type

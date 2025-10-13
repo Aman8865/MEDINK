@@ -1,49 +1,95 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css"/>
 
     <style>
-    body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;  /* Horizontal scroll hatao */
-}
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+        }
 
-/* Top Navbar */
-.top-navbar {
-  position: fixed;
-  top: 0;
-  /* left: 200px; */
-  /* width: calc(200% - 220px); */
-  width: 97%;
-  height: 60px;
-  background-color: rgb(176, 176, 243);
-  display: flex;
-  /* justify-content: space-between; */
-  align-items: center;
-  padding: 0 30px;
-  color: black;
-  /* z-index: 1000; */
-  margin-left: -14px;
-}
-.top-navbar img {
-  height: 40px;
-  width: 40px;
-  border-radius: 50%;
-  margin-bottom: 7px;
-  margin-left: -10px;
-}
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            width: 97%;
+            height: 60px;
+            background-color: rgb(176, 176, 243);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            color: black;
+            margin-left: -14px;
+            z-index: 1000;
+        }
 
+        .nav2 {
+            margin-top: 70px;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-/* ----------------- */
+        .nav2 button {
+            padding: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-.sidebar2 {
+        .nav3 {
+            /* margin: 20px; */
+            margin-left: 59px;
+            overflow-x: auto;
+            background-color: gray;
+        }
+
+        .nav3 table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .nav3 th, .nav3 td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .status {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status.unread { background-color: #ffebee; color: red; }
+        .status.draft { background-color: #fff3e0; color: orange; }
+        .status.final { background-color: #e8f5e9; color: green; }
+
+        .green-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: green;
+            border-radius: 50%;
+        }
+
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .sidebar2 {
   position: fixed; 
   border-radius: 0px;      
   top: 61px;             
@@ -52,10 +98,12 @@
   width: 60px;           /* expand width */
   background-color: rgb(182, 182, 245);
   overflow-x: hidden;
-  transition: transform 0.3s; /* smooth slide */
+   transition: width 0.3s ease;
+  
 }
 .sidebar2:hover{
   width: 130px;
+  
 }
 
    .sidebar2.hidden {
@@ -83,30 +131,31 @@
       transition: opacity 0.3s;
       color: gray;
     }
-    .sidebar2:hover a span {
-      opacity: 1; /* text appears on hover */
-    }
-    .sidebar2 a:hover {
-      background-color:white;
-      border-radius: 30px;
-    }
-
-     /* sidebar expand hone par content shift */
-  /* .sidebar2:hover ~ .content {
-  margin-left: 130px;      
-} */
-    /* content area */
-.content {
-  margin-left: 41px;        /* default sidebar width */
-  padding: 20px;
-  margin-top: -30px;        /* initial space for .nav2 (nav2 height = 100px) */
-  transition: margin-top 0.3s ease,margin-left 0.3s ease; /* smooth shift when nav hides/shows */
+    /* Sidebar text smooth appear/disappear */
+.sidebar2 a span {
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(-10px); /* thoda left se start */
+    color: gray;
 }
 
+/* Hover par text smoothly dikhaye */
+.sidebar2:hover a span {
+    opacity: 1;
+    transform: translateX(0); /* original position */
+}
 
-/* hide side baar */
+/* Hover par background smoothly change ho */
+.sidebar2 a {
+    transition: background-color 0.3s ease, border-radius 0.3s ease;
+}
 
-.toggle-btn {
+.sidebar2 a:hover {
+    background-color: white;
+    border-radius: 30px;
+}
+
+    .toggle-btn {
   position: fixed;
   top: 500px;           /* top navbar ke niche */
   left: 10px;         /* sidebar ke edge ke paas */
@@ -122,324 +171,15 @@
   z-index: 1000;
   transition: left 0.3s;
 }
-
-/* second navbar */
-
-.nav2 {
-  background-color: gray;
-  height: 100px;
-  margin-top: 61px;
-  margin-left: 55px;
-  padding: 10px;
-  width: 1224px;
-}
-.nav2 button{
-  padding: 9px;
-  border-radius: 5px;
-  border: none;
-  margin-top: -60px;
-  margin-left: -10px;
-  
-}
-.nav2 button a {
-  text-decoration: none;
+.nav2, .nav3 {
+    transition: margin-left 0.3s ease; /* smooth shift */
 }
 
-/* ---------------- */
-.nav2 {
-      background: rgb(226, 224, 224);
-      color: white;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      height: 50px;
-      /* justify-content: space-between; */
-      padding: 10px 20px;
-      transition: all 0.3s ease;
-    }
-    /* Hide navbar */
-    .hidden {
-      transform: translateY(-100%);
-      opacity: 0;
-      pointer-events: none;
-    }
-    /* .nav3 container fix */
-.nav3 {
-  background-color: rgb(122, 122, 122);
-  padding: 10px;
-  margin-left: 0px;
-  margin-top: 10px;
-
-  max-height: 400px;      /* container height fix */
-  overflow-y: auto;       /* vertical scroll agar content zyada ho */
-  overflow-x: hidden;     
-}
-
-/* Table fixed layout */
-.nav3 table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;    /* columns fixed width */
-}
-
-/* Table cells truncate */
-.nav3 th, .nav3 td {
-  white-space: nowrap;       /* ek line me text */
-  overflow: hidden;          /* overflow hide */
-  text-overflow: ellipsis;   /* long text -> ... */
-}
-
-
-    /* up-down arrow */
-    .top-nav {
-      cursor: pointer;
-      font-size: 20px;
-      color: black;
-      margin-left: 10px;
-      
-    }
-    .nav3{
-      background-color: rgb(122, 122, 122);
-      padding: 0px;
-      margin-left: 0px;
-      margin-top: 10px;
-    }
-
-    .table-nav {
-      border-collapse: separate;   /* Important for spacing */
-      border-spacing: 20px;  
-      width: 90%     
-      
-    }
-    .table-nav th {
-      /* background: #007bff; */
-      color: black;
-      /* padding: 10px 20px; */
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .table-nav th:hover {
-      background: #0056b3;
-    }
-
-    /*footer  */
-
-    .footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  border-top: 1px solid #ddd;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  background-color: rgb(188, 184, 184);
-
-  position: fixed;    /* niche chipka do */
-  bottom: 0;          /* bilkul bottom pe */
-  left: 0;
-  width: 99%;        /* poora screen cover kare */
-  z-index: 999;       /* overlap na ho */
-}
-
-
-    .range-info {
-      color: #555;
-    }
-
-    .pagination-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .pagination-buttons button {
-      border: none;
-      background: #d0cece;
-      padding: 6px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .pagination-buttons button:hover {
-      background: #ddd;
-    }
-
-    .pagination-buttons button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-      .dropdown {
-      position: relative;
-      display: inline-block;
-      margin-top: -52px;
-      margin-left: -20px;
-    }
-
-    .dropbtn {
-      padding: 9px;
-      font-weight: 500;
-      border: none;
-      background: rgb(242, 239, 239);
-      cursor: pointer;
-      margin-top: -10px;
-    }
-
-  
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #fff;
-      min-width: 140px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-      z-index: 1;
-    }
-
-    .dropdown-content a {
-      color: black;
-      padding: 10px 14px;
-      text-decoration: none;
-      display: block;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #f1f1f1;
-    }
-
-    .show {
-      display: block;
-    }
-    /* ---------- */
-
-     table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    thead {
-      background: #aaa;
-      color: white;
-    }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-    .bold {
-      font-weight: bold;
-    }
-    .status {
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-    .final { background:white; color: white; padding: 7px; }
-    .draft { background: orange; color: white; }
-    .unread { background: #ddd; color: #444; }
-    .icons i {
-      margin-right: 8px;
-      cursor: pointer;
-    }
-    .green-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%; background: green;
-      display: inline-block;
-    }
-
-    /* delete button */
-
-
-    .deleteBtn {
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-}
-.deleteBtn:hover {
-    background-color: darkred;
-}
-#modalImage {
-  max-width: 200px;   /* jitni chhoti chahiye utni set karo */
-  max-height: 200px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  margin-top: 10px;
-  object-fit: contain; /* image cut na ho, proportion maintain rahe */
-}
-
-
-/* date range css*/
-
-.date-filter {
-      /* display: inline-flex; */
-      align-items: center;
-      padding: 2px 8px;
-      background: #f6f2f2;
-      border-radius: 6px;
-      font-family: sans-serif;
-      font-weight: 500;
-      gap: 6px;
-    }
-
-    .date-filter button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: background 0.2s;
-    }
-
-    .date-filter button.active {
-      color: rgb(60, 120, 230);
-      font-weight: 600;
-    }
-
-    .date-filter button:hover {
-      background: #dcdcdc;
-    }
-
-    .date-filter span.separator {
-      color: #666;
-    }
     </style>
 </head>
 <body>
-  <!-- Top Navbar -->
-  <div class="top-navbar">
-    <img src="data:image/png;base64,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" alt="Profile">
-    <h1 style="color: white;">MEDink</h1>
-    <!-- Search bar -->
-    <div style="position: relative; display: inline-block;">
-  <input type="search" placeholder="Search details..."
-    style="margin-left: 190px; padding: 5px 35px 5px 10px; border-radius: 13px; border: none; width: 500px; font-size: 16px;">
-  <i class="fa-solid fa-search" 
-     style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: gray; cursor: pointer;"></i>
-</div>
-    <!-- toggle button -->
-    <label style="position: relative; display: inline-block; margin-left: 340px; margin-top: -20px; width: 50px; height: 20px;">
-  <input type="checkbox" 
-         style="opacity:0; width:0; height:0;" 
-         onchange="this.nextElementSibling.style.backgroundColor=this.checked?'#4CAF50':'#ccc'; this.nextElementSibling.firstElementChild.style.transform=this.checked?'translateX(26px)':'translateX(0)';">
-  <span style="position: absolute; cursor: pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:0.4s; border-radius:34px;">
-    <span style="position: absolute; content:''; height: 11px; width:11px; left:4px; bottom:4px; background-color:white; transition:0.4s; border-radius:50%; display:block;"></span>
-  </span>
-  
-  
-  <i style="color: black; margin-left: 20px; margin-top:6px; font-size:x-large;" class="fas fa-bars"></i>
-</label>
-
-</div>
-
- 
-  
+    
+    
 <!-- side navbar -->
  <div class="sidebar2">
     <a href="#"><i class="fas fa-bars"></i><span></span></a>
@@ -450,590 +190,307 @@
   
     <!-- hise sidebar button -->
 </div>
+
+</div>
   <div class="toggle-btn" id="toggleBtn">
   <i class="fas fa-chevron-left"></i>
 </div>
 
- {% block body %}
-  <div style="gap: 40px; "  class="nav2" id="top-nav">
+<div class="top-navbar">
+    <img height="40" style="border-radius: 30px;" src="data:image/png;base64,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" alt="Profile">
     
-    <button style="font-weight: 600;margin-top: -20px; padding: 6px; font-size: 13px; background-color: rgb(137, 137, 252); color: white;"><a style="color: aliceblue;" href="{% url 'popupform' %}"><i class="fa-solid fa-plus"></i>
- Add New</a></button>
-
- <!-- date range calender -->
-    
-<div style="margin-top: -20px; margin-left: -30px;" class="date-filter">
-  <button id="allBtn">All</button>
-  <span class="separator">|</span>
-
-  <button id="prevBtn">&lt;&lt;</button>
-  <button id="labelBtn" class="active">Today</button>
-  <button id="nextBtn">&gt;&gt;</button>
-
-  <span class="separator">|</span>
-  <button id="monthBtn">Month</button>
-  <span class="separator">|</span>
-  <button id="customBtn">📅</button>
+    <span style="margin-left: 20px; font-weight: bold;">Patient Dashboard</span>
 </div>
+{% block body %}
 
-<!-- Dummy input for Litepicker -->
- <input type="text" id="dateRange" style="display:none;">
+<div id="nav2" style="background-color: #606160; margin-top: 61px; margin-left: 60px;" class="nav2">
+    <button style="background-color: blue; color: white; font-weight: 600;" onclick="window.location.href='/popupform/'">
+        <i class="fas fa-plus"></i> Add New
+    </button>
 
-<!-- Litepicker JS -->
-<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
-<script>
-  const labelBtn = document.getElementById('labelBtn');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const customBtn = document.getElementById('customBtn');
-  
+    <button onclick="filterPatients('UNREAD')" style="color: red; font-weight: 600;">
+        UNREAD
+    </button>
 
-  let state = "today"; // default state
+    <button onclick="filterPatients('READ')" style="color: green; font-weight: 600;">
+        READ
+    </button>
 
-  function updateLabel() {
-    if (state === "today") {
-      labelBtn.textContent = "Today";
-    } else if (state === "yesterday") {
-      labelBtn.textContent = "Yesterday";
-    } 
-  }
-
-  prevBtn.addEventListener('click', () => {
-    if (state === "today") state = "yesterday";
-    else if (state === "tomorrow") state = "today";
-    updateLabel();
-  });
-
-  nextBtn.addEventListener('click', () => {
-    if (state === "today") state = "tomorrow";
-    else if (state === "yesterday") state = "today";
-    updateLabel();
-  });
-
-  // Litepicker setup
- // Litepicker setup
-const picker = new Litepicker({
-    element: document.getElementById('dateRange'),
-    singleMode: false, // Range select
-    format: 'YYYY-MM-DD',
-    numberOfMonths: 2,
-    numberOfColumns: 2,
-    autoApply: true
-});
-
-// Open calendar when 📅 button clicked
-customBtn.addEventListener('click', () => {
-    picker.show();
-});
-
-// When range is selected
-picker.on('selected', (startDate, endDate) => {
-    labelBtn.textContent = `${startDate.format('MMM D')} - ${endDate.format('MMM D')}`;
-
-    // Filter patients table based on selected range
-    filterPatientsByDate(startDate, endDate);
-});
-
-
-  updateLabel();
-</script>
-
-
-<!-- Calendar icon -->
-
-<script>
-  // fallback: agar browser `showPicker()` support nahi karta
-  const dateInput = document.getElementById('dateInput');
-  if (!dateInput.showPicker) {
-    document.querySelector('.fa-calendar-days').addEventListener('click', () => {
-      dateInput.click();
-    });
-  }
-</script> </a></button>
-<button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: -30px; margin-top: -20px;">
-  <span onclick="filterPatients('ALL')" style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;">All</span> | 
-  <span onclick="filterPatients('FINAL')" style="color: green; font-weight: 600; cursor:pointer;">FINAL</span> | 
-  <span onclick="filterPatients('UNREAD')" style="color: red; font-weight: 600; cursor:pointer;">UNREAD</span>
-</button>
-
-    <button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: -30px; margin-top: -20px;">
+    <button style="color: rgb(143, 143, 228);">
+        All RADS <i class="fas fa-caret-down"></i>
+    </button>
+     <button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: 0px; margin-top: 0px;">
        <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('Xray')">Xray</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
     </button>
-  <button style="margin-left: -35px;margin-top: -20px;padding: 6px; font-size:12px; font-weight: 600; color: rgb(143, 143, 228);">All RADS <i class="fas fa-caret-down"></i>
+<button onclick="exportSelectedToExcel()" style="background-color: #4CAF50; font-weight: 600; color: white;">
+    Export Excel
 </button>
-    <div class="dropdown">
-      
-      
-  <button style="padding: 6px; font-size:12px; margin-top: 33px;" onclick="toggleDropdown()" class="dropbtn">
-    
-    <span id="selectedText">PENDING <i class="fas fa-caret-down"></i>
-</span> 
-  </button>
-  <div id="myDropdown" class="dropdown-content">
-    <a href="#" onclick="selectOption('EMERGENCY')">EMERGENCY</a>
-    <a href="#" onclick="selectOption('ASSIGNED')">ASSIGNED</a>
-    <a href="#" onclick="selectOption('UNASSIGNED')">UNASSIGNED</a>
-    <a href="#" onclick="selectOption('SUBMITTED')">SUBMITTED</a>
-    <a href="#" onclick="selectOption('PENDING')">PENDING</a>
-    <a href="#" onclick="selectOption('DRAFT')">DRAFT</a>
-  </div>
+
+
+    <a href="" style="background-color: aliceblue; padding: 3px; border-radius: 8px;">
+        <i class="fa-solid fa-rotate-right"></i>
+    </a>
+
+    <div class="date-filter">
+        <button id="dateFilterBtn">
+            <i class="fas fa-calendar"></i> Date Filter
+        </button>
+    </div>
 </div>
-<!-- Add ye button nav2 me jahan aap chaho -->
-<button onclick="exportToExcel()" style="margin-left: -30px;margin-top: -20px; padding: 6px; font-size: 12px; font-weight: 600; background-color: #4CAF50; color: white; border:none; border-radius:5px;">Export Excel</button>
-<a style="margin-top: -20px; margin-left: -20px; font-size: 19px; background-color: aliceblue; padding: 3px; border-radius: 8px;" href=""><i class="fa-solid fa-rotate-right"></i> </a>
- 
-
-<script>
-function exportToExcel() {
-  const patients = JSON.parse(localStorage.getItem("patients")) || [];
-  const checkboxes = document.querySelectorAll('.rowCheckbox:checked');
-
-  let rowsToExport = [];
-
-  if (checkboxes.length === 0) {
-    // Koi select nahi → all export
-    rowsToExport = patients;
-  } else {
-    // Select ki hui rows export
-    checkboxes.forEach(cb => {
-      const index = cb.dataset.index;
-      rowsToExport.push(patients[index]);
-    });
-  }
-
-  let csvContent = "Patient Name,Patient ID,Age/Gender,Scan Type,Body Part,Ref By,History,Status\n";
-  rowsToExport.forEach(p => {
-    const row = [
-      p.name,
-      p.id,
-      `${p.age}/${p.gender}`,
-      p.scanType,
-      p.bodyPart,
-      p.refBy,
-      p.history,
-      p.status
-    ].map(item => `"${item}"`).join(",");
-    csvContent += row + "\n";
-  });
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "Patients.csv";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-</script>
 
 
-<script>
-  function toggleDropdown() {
-    document.getElementById("myDropdown").classList.toggle("show");
-  }
 
-  function selectOption(option) {
-    document.getElementById("selectedText").innerText = option;
-    document.getElementById("myDropdown").classList.remove("show");
-  }
-
-  // Bahar click par close
-  window.onclick = function(event) {
-    if (!event.target.matches('.dropbtn') && !event.target.closest('.dropdown')) {
-      let dropdowns = document.getElementsByClassName("dropdown-content");
-      for (let i = 0; i < dropdowns.length; i++) {
-        dropdowns[i].classList.remove('show');
-      }
-    }
-  }
-</script>
-     <!-- <i id="toggleArrow" class="fas fa-arrow-up top-nav"></i> -->
-      
-    
-  </div>
-  
-  <i id="toggleArrow" class="fas fa-chevron-up top-nav"
-   style="position:fixed; top:58px; right:10px; cursor:pointer; z-index:2000;  padding:4px; border-radius:5px;"></i>
-  
- 
-<div style="width: 100%;" class="content">
-   <!-- 3 nav -->
-  <div class="nav3">
-   <!-- <button style="padding: 9px; font-weight: 600;" a href=""> <span style="color: rgb(142, 142, 224);">All </span>| FINAL | UNREAD  </a></button> -->
+<div id="nav3" class="nav3">
     <table>
-    <thead>
-      <tr>
-        <th>CEN/ DATE</th>
-        <th>PT. NAME/ID</th>
-        <th>A./S.</th>
-        <th>MOD.</th>
-        <th>BODY PART / REF. PHY.</th>
-        <th>HIS.</th>
-        <th>ASSIGN</th>
-        <th style="width:8%;">REPORT</th>
-        <th style="width:3%;">S./F.</th>
-        <th style="width: 3%;">AMT.</th>
-        <th style="width: 7%;">Action.</th>
-      </tr>
-    </thead>
+        <thead>
+            <tr>
+                
+                   
+                       
 
-    <!-- data entry -->
-    <tbody  id="patientTable"></tbody>
-  </table>
-  <!-- Patient Details Modal -->
-<div id="patientModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-     background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
-  <div style="background:#fff; padding:20px; border-radius:8px; max-width:500px; text-align:center; position:relative;">
-    <span onclick="closeModal()" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px;">✖</span>
-    
-    <h2 id="modalName"></h2>
-    <p id="modalDetails"></p>
-    <img id="modalImage" src="" alt="Scan Image" style="max-width:100%; border:1px solid #ccc; border-radius:8px; margin-top:10px;">
-  </div>
-</div>
-
-<!-- Hidden formatted report container -->
-<div id="reportContent" style="
-     width: 800px;
-     padding: 20px;
-     font-family: Arial, Helvetica, sans-serif;
-     position: absolute;
-     left: -9999px;
-     top: 0;
-     background: white;
-     ">
-</div>
-
-<script>
-  // ye MRI select krne ke liya h
-  let currentScanFilter = "ALL"; // default, show all
-
-function filterByScanType(type) {
-    currentScanFilter = type;
-    loadPatients(); // table reload kare
-}
-
-// yaha tk
-
-function addPatient(patient) {
-  let patients = JSON.parse(localStorage.getItem("patients")) || [];
-  patient.entryTime = new Date().toLocaleDateString() + " | " + 
-                      new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-  patients.push(patient);
-  localStorage.setItem("patients", JSON.stringify(patients));
-  loadPatients(); // table refresh
-}
-
-function loadPatients() {
-  const patients = JSON.parse(localStorage.getItem("patients")) || [];
-  const table = document.getElementById("patientTable");
-  table.innerHTML = ""; // pehle clear karo
-
-  patients.forEach((p, index) => {
-  if (currentScanFilter !== "ALL" && p.scanType !== currentScanFilter) return;
-    
-
-    const row = `
-      <tr  onclick="window.location.href='/report/${index}/'" style="cursor:pointer; padding:30px;  background-color: ${p.status === 'FINAL' ? '#d4f0ff' : p.status === 'DRAFT' ? '#fff4e5' : '#f0f0f0'};">
+                <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">Center</th>
+                <th>Patient</th>
+                <th>Age/Sex</th>
+                <th>Scan Type</th>
+                <th>Body Part</th>
+                <th>History</th>
+                <th>Assign</th>
+                <th>Report</th>
+                <th>Status</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+            
+        </thead>
         
-        <td><input type="checkbox" class="rowCheckbox" data-index="${index}" onclick="event.stopPropagation()">Surya Imaging<br><small>${p.entryTime}</small></td>
-
-        <td>
-          <a href="#" style="color:black; text-decoration:none; font-weight:bold;">${p.name}</a><br>
-          <small>${p.id}</small>
-        </td>
         
-        <td>${p.age}/${p.gender}</td>
-        <td>${p.scanType}</td>
-        
-        <td>
-          <span class="bold">${p.bodyPart.toUpperCase()}</span><br>
-          <small>${p.refBy}</small>
-        </td>
-        
-        <td>${p.history}</td>
-        
-        <td>Mr. Ashok<br><small>${new Date().toLocaleDateString()}</small></td>
-        
-<td class="icons">
-  <i class="fa-regular fa-file-pdf" style="color:red;" onclick="downloadReport(${index}, 'pdf', event)"></i>
-  <i class="fa-regular fa-file-word" style="color:blue;" onclick="downloadReport(${index}, 'word', event)"></i>
-  <span style="color:green;" class="status ${p.status === 'FINAL' ? 'final' : 'draft'}">${p.status}</span>
-</td>
+        <tbody  id="patientTable">
+            
+            {% for patient in patients %}
+            <tr onclick="window.location.href='/report/{{patient.id}}/'" 
+                style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#e8f5e9{% elif patient.status == 'DRAFT' %}#fff3e0{% else %}#ffebee{% endif %}">
+                
+                <td>
+                    
+                    <input type="checkbox" class="rowCheckbox" data-id="{{patient.id}}" onclick="event.stopPropagation()">
 
-<td><span class="green-dot"></span></td>
-<td style="margin-left:40px;">₹100</td>
-<td>
-<i class="fa-solid fa-trash" style="color:red; cursor:pointer; margin-left:20px;" onclick="deletePatient(event, ${index})"></i>
-</td>
-
-      </tr>
-    `;
-    table.innerHTML += row;
-  });
-}
-
-
-
-/**
- * Helper: patient data से formatted HTML रिपोर्ट बनाए
- */
-function buildReportHTML(patient) {
-  const studyDate = patient.studyDate || (patient.entryTime ? patient.entryTime.split('|')[0].trim() : new Date().toLocaleDateString());
-  const sigHTML = patient.signature ? `<img src="${patient.signature}" style="height:60px; object-fit:contain;">` : '';
-
-  const reportHtml = patient.report ? patient.report : '';
-  const observationHtml = patient.observation ? patient.observation : '<i>Expiratory film. Rotation noted</i>';
-  const conclusionText = patient.conclusion || 'Normal study.';
-
-  return `
-  <style>
-    .repwrap{font-family: Arial, Helvetica, sans-serif; color:#000;}
-    .header-table{width:100%; border-collapse:collapse; font-size:12px; margin-bottom:18px;}
-    .header-table td{border:1px solid #777; padding:8px; vertical-align:top;}
-    .title { text-align:center; font-size:16px; font-weight:700; margin:8px 0 12px 0; }
-    .section-title { font-weight:700; text-decoration: underline; margin-top:8px; }
-    .obs { font-style:italic; margin-bottom:10px; }
-    .report-body { margin-top:8px; white-space:pre-wrap; }
-    .conclusion { margin-top:12px; font-weight:700; }
-    
-    .signature { display:flex; gap:12px; align-items:center; margin-top:30px;}
-    .signature .info { font-size:13px; }
-    .disclaimer { font-size:10px; color:#555; margin-top:10px; }
-    #reportContent {
-  width: 800px;
-  background: white;
-}
-
-  </style>
-
-  <div class="repwrap">
-    <h1 style=" color: rgb(54, 54, 179);">SURYA IMAGING CENTER></h1>
-    <h3 style=" margin-top: -15px;">Opp. City Hospital, Near Bus Stand, Anytown</h3>
-    <h3 style=" margin-top: -15px;">Phone: +91-9876543210, Email:
-    <table class="header-table">
-      <tr>
-        <td><b>Patient ID.</b> ${patient.id || ''}</td>
-        <td><b>Study Date</b> ${studyDate}</td>
-      </tr>
-      <tr>
-        <td><b>Patient Name</b> ${patient.name || ''}</td>
-        <td><b>Age/Sex</b> ${patient.age || ''} / ${patient.gender || ''}</td>
-      </tr>
-      <tr> 
-        <td><b>Ref By</b> ${patient.refBy || ''}</td>
-        <td><b>Study</b> ${patient.scanType || ''}</td>
-      </tr>
+                    Surya Imaging<br>
+                    <small>{{patient.entry_time|date:"d/m/Y"}} | {{patient.entry_time|time:"H:i"}}</small>
+                </td>
+                <td>
+                    <strong>{{patient.name}}</strong><br>
+                    <small>{{patient.patient_id}}</small>
+                </td>
+                <td>{{patient.age}}/{{patient.gender}}</td>
+                <td>{{patient.scan_type}}</td>
+                <td>
+                    <strong>{{patient.body_part|upper}}</strong><br>
+                    <small>{{patient.ref_by}}</small>
+                </td>
+                <td>{{patient.history}}</td>
+                <td>
+                    Dr. {{patient.ref_by}}<br>
+                    <small>{{patient.entry_time|date:"d/m/Y"}}</small>
+                </td>
+                <td>
+                    <i class="fa-regular fa-file-pdf" style="color:red; cursor:pointer; margin-right:8px;" 
+                       onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
+                    <i class="fa-regular fa-file-word" style="color:blue; cursor:pointer;" 
+                       onclick="downloadReport({{patient.id}}, 'word', event)"></i>
+                    <span class="status {{patient.status|lower}}">{{patient.status}}</span>
+                </td>
+                <td><span class="green-dot"></span></td>
+                <td>₹100</td>
+                <td>
+                    <i class="fa-solid fa-trash" style="color:red; cursor:pointer;" 
+                       onclick="deletePatient(event, {{patient.id}})"></i>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
+    
+</div>
 
-    <div class="title">X-RAY CHEST PA VIEW</div>
-
-    <div class="section-title">OBSERVATION:</div>
-    <div class="obs">${observationHtml}</div>
-
-    <div class="report-body">${reportHtml}</div>
-
-    <div class="conclusion">CONCLUSION: ${conclusionText}</div>
-
-    <div class="signature">
-      ${sigHTML ? sigHTML : ''}
-      <div class="info">
-        <div><b>Dr. Sonu Kidivye</b></div>
-        <div>M.D. Radio-diagnosis</div>
-        <div>Consultant Radiologist</div>
-      </div>
-    </div>
-
-    <div class="disclaimer">
-      <b>Disclaimer:</b> It is an online interpretation of medical imaging based on clinical data...
-    </div>
-  </div>
-  `;
-}
-
-/**
- * Main download function
- */
-function downloadReport(index, type, event) {
-  event.stopPropagation();
-  const patients = JSON.parse(localStorage.getItem("patients")) || [];
-  const patient = patients[index];
-  if (!patient) {
-    alert("Patient data not found.");
-    return;
-  }
-
-    // ADD THIS CHECK
-  if (patient.status !== "FINAL") {
-    alert("Report download only allowed for FINAL status.");
-    return;
-  }
-
-  const el = document.getElementById('reportContent');
-  el.innerHTML = buildReportHTML(patient);
-
-  // PDF
-// PDF
-if (type === 'pdf') {
-  // element ko temporarily visible but off-screen rakho
-  el.style.display = 'block';
-  el.style.position = 'absolute';
-  el.style.left = '-9999px';  // screen se bahar
-  el.style.top = '0';
-  el.style.visibility = 'visible'; 
-
-  const opt = {
-    margin:       [10,10,10,10],
-    filename:     `${patient.name || 'report'}_Report.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(el).save().then(() => {
-    // PDF ke baad wapas hide kar do
-    el.style.display = 'none';
-  });
-}
-
-  // Word
- else if (type === 'word') {
-  const header = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>';
-  const footer = '</body></html>';
-  const blob = new Blob([header + el.innerHTML + footer], { type: 'application/msword' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${patient.name || 'report'}_Report.doc`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-}
-
-
-
-function openModal(index) {
-  const patients = JSON.parse(localStorage.getItem("patients")) || [];
-  const p = patients[index];
-
-  document.getElementById("modalName").innerText = p.name + " (" + p.id + ")";
-  document.getElementById("modalDetails").innerHTML = `
-  <b>Age/Gender:</b> ${p.age}/${p.gender}<br>
-  <b>Scan Type:</b> ${p.scanType}<br>
-  <b>Body Part:</b> ${p.bodyPart}<br>
-  <b>Ref By:</b> ${p.refBy}<br>
-  <b>History:</b> ${p.history}
-`;
-
-  document.getElementById("modalImage").src = p.scan || "";
-
-  document.getElementById("patientModal").style.display = "flex";
-}
-
-function closeModal() {
-  document.getElementById("patientModal").style.display = "none";
-}
-
-function deletePatient(event, index) {
-  event.stopPropagation(); // row click ko rok de
-  let patients = JSON.parse(localStorage.getItem("patients")) || [];
-  patients.splice(index, 1); // array se delete
-  localStorage.setItem("patients", JSON.stringify(patients)); // update storage
-
-  // redirect to index
-  window.location.href = '/index/'; // yahan apna index URL
-}
-
-
-// Page load hote hi run karo
-
-window.onload = loadPatients;
-</script>
-
-  </div>
-  <!-- <h1>index</h1> -->
-    </div>
 {% endblock %}
 
- <!-- Footer Pagination -->
-  <!-- <div class="footer">
-    <div class="range-info">1–50 of 200</div>
-    <div class="pagination-buttons">
-      <button disabled>&lt;</button>
-      <button>&gt;</button>
-    </div>
-  </div> -->
-<!-- use javascript hide sidebar -->
+
+
 <script>
-const content = document.querySelector('.content');
-const nav2 = document.querySelector('.nav2'); // nav2 ko bhi pakad liya
-
-
 const sidebar = document.querySelector('.sidebar2');
 const toggleBtn = document.getElementById('toggleBtn');
+const nav2 = document.getElementById('nav2');
+const nav3 = document.getElementById('nav3');
 
 toggleBtn.addEventListener('click', () => {
     sidebar.classList.toggle('hidden');
 
     const icon = toggleBtn.querySelector('i');
-    if(sidebar.classList.contains('hidden')){
-    // Sidebar hidden → content & nav2 shift left
-    icon.classList.remove('fa-chevron-left');
-    icon.classList.add('fa-chevron-right');
-    toggleBtn.style.left = '10px'; 
-    content.style.marginLeft = "-19px";   // content shift
-    nav2.style.marginLeft = "1px";      // nav2 bhi shift
-} else {
-    // Sidebar visible → content & nav2 shift right
-    icon.classList.remove('fa-chevron-right');
-    icon.classList.add('fa-chevron-left');
-    toggleBtn.style.left = '10px'; 
-    content.style.marginLeft = "41px";  // content shift
-    nav2.style.marginLeft = "55px";     // nav2 shift
+
+    if (sidebar.classList.contains('hidden')) {
+        // Sidebar hidden → shift right
+        icon.classList.remove('fa-chevron-left');
+        icon.classList.add('fa-chevron-right');
+
+        // Smooth shift
+        nav2.style.marginLeft = "0px";
+        nav3.style.marginLeft = "0px";
+
+    } else {
+        // Sidebar visible → shift back
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-left');
+
+        nav2.style.marginLeft = "60px";
+        nav3.style.marginLeft = "60px";
+    }
+});
+
+// filteration
+
+function filterByScanType(scanType) {
+    const rows = document.querySelectorAll('#patientTable tr');
+
+    rows.forEach(row => {
+        const typeCell = row.querySelector('td:nth-child(4)'); // 4th column = Scan Type
+        if (!typeCell) return;
+
+        const rowType = typeCell.textContent.trim();
+
+        if (scanType === 'ALL' || rowType === scanType) {
+            row.style.display = ''; // show
+        } else {
+            row.style.display = 'none'; // hide
+        }
+    });
 }
 
-});
+// excel data exportToExcel
 
-// use js up and down arrow
+function toggleSelectAll(checkbox) {
+    const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+    rowCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
 
-const navbar = document.getElementById("top-nav");
-const toggleArrow = document.getElementById("toggleArrow");
-// (ensure you added `const content = document.querySelector('.content');` earlier)
+function exportToExcel() {
+    const table = document.querySelector('table');
+    const wb = XLSX.utils.book_new();
 
-toggleArrow.addEventListener("click", () => {
-  // toggle nav visibility
-  navbar.classList.toggle("hidden");
+    // Collect selected rows
+    const selectedRows = Array.from(document.querySelectorAll('#patientTable tr'))
+        .filter(row => row.querySelector('.rowCheckbox')?.checked);
 
-  // Arrow icon and position
-  if (navbar.classList.contains("hidden")) {
-    // NAV HIDDEN: move arrow up a bit and show down-icon
-    toggleArrow.classList.remove("fa-chevron-up");
-    toggleArrow.classList.add("fa-chevron-down");
-    toggleArrow.style.top = '60px';
+    if (selectedRows.length === 0) {
+        alert('Please select at least one row to export.');
+        return;
+    }
 
-    // SHIFT CONTENT UP because nav is hidden
-    content.style.marginTop = "-100px";
-  } else {
-    // NAV VISIBLE: show up-icon and position arrow lower
-    toggleArrow.classList.remove("fa-chevron-down");
-    toggleArrow.classList.add("fa-chevron-up");
-    toggleArrow.style.top = '58px';
+    // Create a new table element in memory with selected rows
+    const tempTable = document.createElement('table');
+    const theadClone = table.querySelector('thead').cloneNode(true);
+    tempTable.appendChild(theadClone);
 
-    // SHIFT CONTENT DOWN to make space for nav2 (nav2 height = 100px)
-    content.style.marginTop = "-30px";
-  }
-});
+    const tbody = document.createElement('tbody');
+    selectedRows.forEach(row => {
+        tbody.appendChild(row.cloneNode(true));
+    });
+    tempTable.appendChild(tbody);
 
+    const ws = XLSX.utils.table_to_sheet(tempTable);
+    XLSX.utils.book_append_sheet(wb, ws, "Patients");
+    XLSX.writeFile(wb, "selected_patients.xlsx");
+}
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+<script>
+function deletePatient(event, id) {
+    event.stopPropagation();
+    if(confirm('Are you sure you want to delete this patient?')) {
+        fetch(`/api/patient/${id}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                window.location.reload();
+            } else {
+                alert('Error deleting patient');
+            }
+        });
+    }
+}
+
+function filterPatients(status) {
+    const rows = document.querySelectorAll('#patientTable tr');
+    rows.forEach(row => {
+        const statusSpan = row.querySelector('.status');
+        if(status === 'ALL' || (statusSpan && statusSpan.textContent === status)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function downloadReport(id, type, event) {
+    event.stopPropagation();
+    fetch(`/api/patient/${id}`)
+        .then(response => response.json())
+        .then(patient => {
+            if(patient.status !== 'FINAL') {
+                alert('Report can only be downloaded for finalized reports');
+                return;
+            }
+            
+            if(type === 'pdf') {
+                generatePDF(patient);
+            } else if(type === 'word') {
+                generateWord(patient);
+            }
+        });
+}
+
+function exportToExcel() {
+    const table = document.querySelector('table');
+    const ws = XLSX.utils.table_to_sheet(table);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Patients");
+    XLSX.writeFile(wb, "patients.xlsx");
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize date picker
+const picker = new Litepicker({
+    element: document.getElementById('dateFilterBtn'),
+    singleMode: false,
+    onSelect: function(date1, date2) {
+        // Add your date filtering logic here
+    }
+});
+</script>
 
 </body>
 </html>
