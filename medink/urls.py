@@ -34,8 +34,10 @@ urlpatterns = [
     path('payment/', payment, name='payment'),
     path('api/patient/add/', add_patient, name='add_patient'),
     path('api/patient/<int:id>/update/', update_report, name='update_report'),
+    # path('api/patient/<int:id>/update/', update_report, name='update_report'),
     
-    # path('delete_patient/<int:id>/', delete_patient, name='delete_patient'),
+    path('delete_patient/<int:id>/', delete_patient, name='delete_patient'),
+    path('api/patient/<int:id>/', get_patient, name='get_patient'),
 ]
     
     # API endpoints
