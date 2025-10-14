@@ -184,7 +184,7 @@
  <div class="sidebar2">
     <a href="#"><i class="fas fa-bars"></i><span></span></a>
     <a href="{% url 'index' %}"><i class="fas fa-home"></i><span>Home</span></a>
-    <a href="{% url 'profile' %}"><i class="fas fa-user"></i><span>Profile</span></a>
+    <a href="{% url 'profile' %}"><i class="fas fa-user"></i><span>User</span></a>
     <a href="#"><i class="fas fa-cog"></i><span>Settings</span></a>
     <a href="{% url 'invoice' %}"><i class="fa-solid fa-file-invoice"></i><span>Invoice</span></a>
   
@@ -221,7 +221,7 @@
     </button>
      <button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: 0px; margin-top: 0px;">
        <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('Xray')">Xray</span> | 
+       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">Xray</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
@@ -262,7 +262,7 @@
                 <th>Report</th>
                 <th>Status</th>
                 <th>Amount</th>
-                <th>Action</th>
+                <!-- <th>Action</th> -->
             </tr>
             
         </thead>
@@ -305,10 +305,10 @@
                 </td>
                 <td><span class="green-dot"></span></td>
                 <td>₹100</td>
-                <td>
+                <!-- <td>
                     <i class="fa-solid fa-trash" style="color:red; cursor:pointer;" 
                        onclick="deletePatient(event, {{patient.id}})"></i>
-                </td>
+                </td> -->
                 
             </tr>
             {% endfor %}
