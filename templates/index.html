@@ -7,6 +7,10 @@
     <title>Patient Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css"/>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
+
 
     <style>
         body {
@@ -212,8 +216,12 @@
         UNREAD
     </button>
 
-    <button onclick="filterPatients('READ')" style="color: green; font-weight: 600;">
-        READ
+    <button onclick="filterPatients('FINAL')" style="color: green; font-weight: 600;">
+        FINAL
+    </button>
+
+    <button onclick="filterPatients('ALL')" style="color: green; font-weight: 600;">
+        ALL
     </button>
 
     <button style="color: rgb(143, 143, 228);">
@@ -252,7 +260,7 @@
                    
                        
 
-                <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">Center</th>
+                 <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">Center/Date</th>
                 <th>Patient</th>
                 <th>Age/Sex</th>
                 <th>Scan Type</th>
@@ -352,88 +360,48 @@ toggleBtn.addEventListener('click', () => {
 });
 
 // filteration
-
-function filterByScanType(scanType) {
-    const rows = document.querySelectorAll('#patientTable tr');
-
-    rows.forEach(row => {
-        const typeCell = row.querySelector('td:nth-child(4)'); // 4th column = Scan Type
-        if (!typeCell) return;
-
-        const rowType = typeCell.textContent.trim();
-
-        if (scanType === 'ALL' || rowType === scanType) {
-            row.style.display = ''; // show
-        } else {
-            row.style.display = 'none'; // hide
-        }
-    });
-}
-
-// excel data exportToExcel
-
-function toggleSelectAll(checkbox) {
-    const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
-    rowCheckboxes.forEach(cb => cb.checked = checkbox.checked);
-}
-
-function exportToExcel() {
-    const table = document.querySelector('table');
-    const wb = XLSX.utils.book_new();
-
-    // Collect selected rows
-    const selectedRows = Array.from(document.querySelectorAll('#patientTable tr'))
-        .filter(row => row.querySelector('.rowCheckbox')?.checked);
-
-    if (selectedRows.length === 0) {
-        alert('Please select at least one row to export.');
-        return;
-    }
-
-    // Create a new table element in memory with selected rows
-    const tempTable = document.createElement('table');
-    const theadClone = table.querySelector('thead').cloneNode(true);
-    tempTable.appendChild(theadClone);
-
-    const tbody = document.createElement('tbody');
-    selectedRows.forEach(row => {
-        tbody.appendChild(row.cloneNode(true));
-    });
-    tempTable.appendChild(tbody);
-
-    const ws = XLSX.utils.table_to_sheet(tempTable);
-    XLSX.utils.book_append_sheet(wb, ws, "Patients");
-    XLSX.writeFile(wb, "selected_patients.xlsx");
-}
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
-<script>
-function deletePatient(event, id) {
-    event.stopPropagation();
-    if(confirm('Are you sure you want to delete this patient?')) {
-        fetch(`/api/patient/${id}/delete`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status === 'success') {
-                window.location.reload();
-            } else {
-                alert('Error deleting patient');
-            }
-        });
-    }
-}
+let currentStatusFilter = 'ALL';
+let currentScanFilter = 'ALL';
 
 function filterPatients(status) {
+    currentStatusFilter = status.toUpperCase();
+    applyFilters();
+
+    // Active button highlight
+    const buttons = document.querySelectorAll('.nav2 button');
+    buttons.forEach(btn => btn.classList.remove('active-filter'));
+    const activeBtn = [...buttons].find(btn => btn.textContent.trim().toUpperCase().includes(status));
+    if (activeBtn) activeBtn.classList.add('active-filter');
+}
+
+function filterByScanType(scanType) {
+    currentScanFilter = scanType.toUpperCase();
+    applyFilters();
+
+    // Active button highlight for scan type spans
+    const btnSpans = document.querySelectorAll('.nav2 span');
+    btnSpans.forEach(span => span.style.fontWeight = '');
+    if(scanType !== 'ALL') {
+        const activeSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === scanType.toUpperCase());
+        if(activeSpan) activeSpan.style.fontWeight = '600';
+    } else {
+        const allSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === 'ALL');
+        if(allSpan) allSpan.style.fontWeight = '600';
+    }
+}
+
+function applyFilters() {
     const rows = document.querySelectorAll('#patientTable tr');
+
     rows.forEach(row => {
         const statusSpan = row.querySelector('.status');
-        if(status === 'ALL' || (statusSpan && statusSpan.textContent === status)) {
+        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
+        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
+
+        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
+        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
+
+        if (statusMatch && scanMatch) {
             row.style.display = '';
         } else {
             row.style.display = 'none';
@@ -441,11 +409,19 @@ function filterPatients(status) {
     });
 }
 
+// Add these functions to your existing script section
+
 function downloadReport(id, type, event) {
     event.stopPropagation();
-    fetch(`/api/patient/${id}`)
-        .then(response => response.json())
+    fetch(`/api/patient/${id}/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(patient => {
+            console.log('Patient data:', patient); // For debugging
             if(patient.status !== 'FINAL') {
                 alert('Report can only be downloaded for finalized reports');
                 return;
@@ -456,40 +432,136 @@ function downloadReport(id, type, event) {
             } else if(type === 'word') {
                 generateWord(patient);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error downloading report');
         });
 }
 
-function exportToExcel() {
-    const table = document.querySelector('table');
-    const ws = XLSX.utils.table_to_sheet(table);
+function generatePDF(patient) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Add logo or header
+    doc.setFontSize(20);
+    doc.text('MEDINK REPORT', 105, 20, { align: 'center' });
+    
+    // Add patient details
+    doc.setFontSize(12);
+    doc.text('PATIENT DETAILS', 20, 40);
+    doc.setFontSize(10);
+    doc.text(`Patient ID: ${patient.patient_id}`, 20, 50);
+    doc.text(`Name: ${patient.name}`, 20, 60);
+    doc.text(`Age/Gender: ${patient.age}/${patient.gender}`, 20, 70);
+    doc.text(`Scan Type: ${patient.scan_type}`, 20, 80);
+    doc.text(`Body Part: ${patient.body_part}`, 20, 90);
+    doc.text(`Referred By: Dr. ${patient.ref_by}`, 20, 100);
+    
+    // Add report content
+    doc.setFontSize(12);
+    doc.text('REPORT', 20, 120);
+    doc.setFontSize(10);
+    
+    const reportText = patient.report || 'No report available';
+    const splitReport = doc.splitTextToSize(reportText, 170);
+    doc.text(splitReport, 20, 130);
+    
+    doc.save(`MEDINK_Report_${patient.patient_id}.pdf`);
+}
+
+function generateWord(patient) {
+    const { Document, Paragraph, TextRun, HeadingLevel, Packer } = docx;
+    
+    const doc = new Document({
+        sections: [{
+            properties: {},
+            children: [
+                new Paragraph({
+                    text: "MEDINK REPORT",
+                    heading: HeadingLevel.HEADING_1,
+                    alignment: docx.AlignmentType.CENTER
+                }),
+                new Paragraph({
+                    text: "PATIENT DETAILS",
+                    heading: HeadingLevel.HEADING_2
+                }),
+                new Paragraph({
+                    children: [new TextRun(`Patient ID: ${patient.patient_id}`)]
+                }),
+                new Paragraph({
+                    children: [new TextRun(`Name: ${patient.name}`)]
+                }),
+                new Paragraph({
+                    children: [new TextRun(`Age/Gender: ${patient.age}/${patient.gender}`)]
+                }),
+                new Paragraph({
+                    children: [new TextRun(`Scan Type: ${patient.scan_type}`)]
+                }),
+                new Paragraph({
+                    children: [new TextRun(`Body Part: ${patient.body_part}`)]
+                }),
+                new Paragraph({
+                    children: [new TextRun(`Referred By: Dr. ${patient.ref_by}`)]
+                }),
+                new Paragraph({
+                    text: "REPORT",
+                    heading: HeadingLevel.HEADING_2
+                }),
+                new Paragraph({
+                    children: [new TextRun(patient.report || 'No report available')]
+                })
+            ]
+        }]
+    });
+
+    Packer.toBlob(doc).then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `MEDINK_Report_${patient.patient_id}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    });
+}
+
+function exportSelectedToExcel() {
+    const selectedCheckboxes = document.querySelectorAll('.rowCheckbox:checked');
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one patient to export');
+        return;
+    }
+
+    const data = [];
+    const headers = ['Patient ID', 'Name', 'Age/Gender', 'Scan Type', 'Body Part', 'History', 'Referred By', 'Status'];
+    
+    selectedCheckboxes.forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const rowData = {
+            'Patient ID': row.querySelector('td:nth-child(2) small').textContent,
+            'Name': row.querySelector('td:nth-child(2) strong').textContent,
+            'Age/Gender': row.querySelector('td:nth-child(3)').textContent,
+            'Scan Type': row.querySelector('td:nth-child(4)').textContent,
+            'Body Part': row.querySelector('td:nth-child(5) strong').textContent,
+            'History': row.querySelector('td:nth-child(6)').textContent,
+            'Referred By': row.querySelector('td:nth-child(7)').textContent,
+            'Status': row.querySelector('.status').textContent
+        };
+        data.push(rowData);
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Patients");
-    XLSX.writeFile(wb, "patients.xlsx");
+    XLSX.writeFile(wb, "selected_patients.xlsx");
 }
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+function toggleSelectAll(checkbox) {
+    const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+    rowCheckboxes.forEach(cb => cb.checked = checkbox.checked);
 }
-
-// Initialize date picker
-const picker = new Litepicker({
-    element: document.getElementById('dateFilterBtn'),
-    singleMode: false,
-    onSelect: function(date1, date2) {
-        // Add your date filtering logic here
-    }
-});
 </script>
 
 </body>

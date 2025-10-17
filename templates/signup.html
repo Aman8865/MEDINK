@@ -1,172 +1,200 @@
-{% load static %}
+{% extends 'index.html' %}
+{% block body %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Form</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* tumhare previous CSS yahan rahega (floating labels, container, table styles, buttons) */
 
-  <style>
-    /* Reset default styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
+.floating-label-container { position: relative; margin: 10px 0; width: 100px; display:inline-block; }
+.floating-label-container input, .floating-label-container select {
+    width:100%; padding:8px; border:2px solid #00aaff; border-radius:6px; outline:none; background:white;
 }
-
-body {
-  background-color: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+.floating-label-container label {
+    position:absolute; top:50%; left:10px; transform:translateY(-50%); color:gray; background:rgb(250,249,249); padding:0 5px; font-size:13px; pointer-events:none; transition:0.3s;
 }
-
-.form-container {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  width: 300px;
+.floating-label-container input:focus + label, .floating-label-container input:not(:placeholder-shown) + label,
+.floating-label-container select:focus + label, .floating-label-container select:not([value=""]) + label {
+    top:-1px; font-size:12px; color:#0077cc;
 }
-
-h3 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #333;
-  margin-top: 10px;
+table { width:100%; border-collapse: collapse; margin-top: 20px; background:white; }
+thead th { background:#2f9ed8; color:white; padding:10px; text-align:left; }
+td, th { border:1px solid #d6dfe6; padding:10px; }
+.status-dot {
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    margin-right:6px;
 }
-h1 {
-  /* text-align: center; */
-  margin-bottom: 20px;
-  color: black;
-  font-weight: 800;
-}
+</style>
+
+<div class="container">
+    
+    <!-- <h2>Create Account</h2> -->
+    <form style="margin-left: 62px; margin-top: 66px; background-color: #9c9e9f;" method="post">
+         <select id="filterUserType" 
+        style="padding:7px ; font-weight:600; margin-left:20px; border-radius:8px; border: none; border:1px solid #ccc; cursor:pointer;">
+       <option  value="ALL">ALL USERS</option>
+       <option value="RADS">RADS</option>
+       <option value="IMAGING">IMAGING</option>
+     </select>
+      <!-- yahi tumhare nav ke andar rakho -->
+<button type="button" id="filterActive" 
+  style="padding: 6px; cursor: pointer; font-weight: 500; margin-left: 30px; border-radius: 8px; border: none;">
+  <span style="color: rgb(36, 129, 22); font-weight: 600;">ACTIVE </span>
+</button>
+
+<button type="button" id="filterInactive" 
+  style="padding: 6px; font-weight: 500; cursor: pointer; margin-left: 5px; border-radius: 8px; border: none;">
+  <span style="color: rgb(234, 19, 19); font-weight: 600;">IN-ACTIVE</span>
+</button>
 
 
 
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-
-
-button {
-  width: 100%;
-  padding: 12px;
-  background-color: #007BFF;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-
-.input-container {
-  position: relative;
-  width: 300px; /* adjust width */
-  /* margin-bottom: 15px; */
-}
-
-.input-container i {
-  position: absolute;
-  left: 10px;
-  top: 40%;
-  transform: translateY(-50%);
-  color: #555;
-}
-
-.input-container input {
-  width: 80%;
-  padding: 10px 10px 10px 35px; /* left padding for icon */
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-.input-container input:focus {
-  border-color: #007BFF;
-  outline: none;
-}
-.links {
-  display: flex;
-  gap: 88px; /* 20px का gap दोनों links के बीच */
-  font-size: small;
-  margin-top: 8px;
-}
-.logo-text {
-  display: flex;           /* image और text को same line में लाता है */
-  align-items: center;     /* vertical alignment */
-  gap: 10px;               /* image और text के बीच space */
-  font-family: 'Jaro', sans-serif;
-  font-size: 36px;
-  color: black;
-}
-
-.logo-text img {
-  height: 50px;           /* image size */
-  width: 50px;
-}
-
-
-
-  </style>
-</head>
-<body class="background">
-  <div class="form-container">
-
-<h1 class="logo-text">
-  <img src="data:image/png;base64,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" alt="">
-  MEDink
-</h1>
-    <form action="#" method="POST">
-        <h3>SIGNUP/REGISTRATION</h3>
-      
-        <!-- username section -->
-<div class="input-container">
-  <i class="fas fa-user"></i>
-  <input type="text" id="name" name="name" placeholder="Username" required>
+<!-- search  box -->
+<div style=" display: inline-block; margin-left: 50px;">
+  <input type="search" id="searchInput" placeholder="Search details..."
+    style="margin-left: 0px; padding: 5px 35px 5px 10px; border-radius: 10px; border: none; width: 200px; font-size: 16px;">
+  <i class="fa-solid fa-" 
+     style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: gray; cursor: pointer;"></i>
 </div>
-
-<!-- Email section -->
-<div class="input-container">
-  <i class="fas fa-envelope"></i>
-  <input type="email" id="email" name="email" placeholder="Email" required>
-</div>
-<!-- Password section -->
-<div class="input-container">
-  <i class="fas fa-lock"></i>
-  <input type="password" id="password" name="password" placeholder="Password" required>
-</div>
-
-     
-      <button type="submit">Submit</button>
-      <div class="links">
-  <!-- <a href="#">Forgot Password?</a>
-  <a href="#">Sign Up</a> -->
-</div>
-
-<h4  style="text-align: center;">Support</h4>
-
-<h6 style="margin-left: 20px;">  <i class="fas fa-phone"></i>+91-999-011-0123 <span> <i class="fas fa-envelope"></i>   admin@axrix.co</span> </h6>
-
-
-
+<br><br>
+        {% csrf_token %}
+        <div class="floating-label-container">
+            {{ form.name }}
+            <label>NAME</label>
+        </div>
+        <div style="margin-left: 20px;" class="floating-label-container">
+            {{ form.userid }}
+            <label>USER ID</label>
+        </div>
+        <div style="margin-left: 20px;"  class="floating-label-container">
+            {{ form.password }}
+            <label>PASSWORD</label>
+        </div>
+        <div style="margin-left: 20px;"  class="floating-label-container">
+            {{ form.usertype }}
+            <label>USER TYPE</label>
+        </div>
+        <div style="margin-left: 20px;"  class="floating-label-container">
+            {{ form.contact }}
+            <!-- <label>CONTACT</label> -->
+        </div>
+        <button style="background-color:  rgb(81, 139, 240); font-weight: 700; color: white; border: none; padding: 8px; margin-left: -100px; border-radius: 5px;" type="submit" class="btn">CREATE ACCOUNT</button>
     </form>
-  </div>
-</body>
-</html>
+
+    <!-- <h3>Existing Users</h3> -->
+    <table id="userTable" style="margin-left: 62px;">
+        <thead>
+            <tr>
+                <th>ACCOUNT DATE</th>
+                <th>ACCOUNT NAME</th>
+                <th>USER ID</th>
+                <th>USER TYPE</th>
+                <th>STATUS</th>
+                <!-- <th>CONTACT</th> -->
+                <th>ACTION</th>
+            </tr>
+        </thead>
+        <tbody >
+            {% for user in users %}
+            <tr>
+                <td>{{ user.created_at|date:"d-m-Y" }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.userid }}</td>
+                <td class="usertype">{{ user.usertype }}</td>
+                <!-- <td>{{ user.contact }}</td> -->
+                
+                      <!-- 🟢 ACTIVE/INACTIVE STATUS COLUMN -->
+    <td class="status-cell" data-status="{{ user.is_active|yesno:'ACTIVE,INACTIVE' }}">
+        {% if user.is_active %}
+            <span class="status-dot" style="background-color: green;"></span> 
+        {% else %}
+            <span class="status-dot" style="background-color: red;"></span> 
+        {% endif %}
+    </td>
+    <td>
+        <a href="{% url 'user_detail' user.id %}" class="see-btn" style="background:#0074d9; padding: 5px; color: white; border: none; text-decoration: none; border-radius: 6px;">View</a>
+
+    </td>
+               
+                    <!-- <a href="" class="see-btn" style="background:red;">Delete</a> -->
+                <!-- </td> -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+const rows = document.querySelectorAll('#userTable tbody tr');
+
+// STATUS FILTER
+const btnActive = document.getElementById('filterActive');
+const btnInactive = document.getElementById('filterInactive');
+let statusFilter = 'ALL';
+
+btnActive.addEventListener('click', (e) => {
+    e.preventDefault();
+    statusFilter = 'ACTIVE';
+    filterStatus();
+});
+btnInactive.addEventListener('click', (e) => {
+    e.preventDefault();
+    statusFilter = 'INACTIVE';
+    filterStatus();
+});
+
+function filterStatus() {
+    rows.forEach(row => {
+        const status = row.querySelector('.status-cell')?.dataset.status.trim().toUpperCase() || '';
+        if (statusFilter === 'ALL' || status === statusFilter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// USER TYPE FILTER
+const filterSelect = document.getElementById('filterUserType');
+filterSelect.addEventListener('change', filterUserType);
+
+function filterUserType() {
+    const selectedType = filterSelect.value.trim().toUpperCase();
+    rows.forEach(row => {
+        const typeText = row.querySelector('.usertype')?.textContent.trim().toUpperCase() || '';
+        if (selectedType === 'ALL' || typeText === selectedType) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// SEARCH FILTER
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keyup', filterSearch);
+
+function filterSearch() {
+    const filterText = searchInput.value.trim().toUpperCase();
+    rows.forEach(row => {
+        const name = row.cells[1]?.textContent.trim().toUpperCase() || '';
+        const userid = row.cells[2]?.textContent.trim().toUpperCase() || '';
+        if (filterText === '' || name.includes(filterText) || userid.includes(filterText)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Optional: initialize all filters as ALL
+document.addEventListener('DOMContentLoaded', () => {
+    statusFilter = 'ALL';
+    filterSelect.value = 'ALL';
+});
+</script>
+
+
+
+
+{% endblock %}

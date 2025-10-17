@@ -21,19 +21,27 @@ from med.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', index, name='index'),  # Default route
-    path('', login, name='login'),
+    # path('login/', login, name='login'),
     path('index/', index, name='index'),
     path('profile/', profile, name='profile'),
     path('signup/', signup, name='signup'),
     path('popupform/', popupform, name='popupform'),
     path('report/<int:id>/', report, name='report'),
-    path('user_detail/', user_detail, name='user_detail'),
+    path('user_detail/<int:id>/', user_detail, name='user_detail'),
     path('imagingA/', imagingA, name='imagingA'),
     path('RADS/', RADS, name='RADS'),
+    path('', signup_view, name='signup'),
+    path('login/', login_view, name='login'),
     path('invoice/', invoice, name='invoice'),
     path('payment/', payment, name='payment'),
-    path('api/patient/add/', add_patient, name='add_patient'),
+    path('api/patient/<int:id>/download/<str:format>/', download_report, name='download_report'),
+    path('api/patient/add/',add_patient, name='add_patient'),
+    path('api/patient/<int:id>/update/',update_report, name='update_report'),
+    path('api/patient/<int:id>/', get_patient, name='get_patient'),
     path('api/patient/<int:id>/update/', update_report, name='update_report'),
+    
+
+    
     
     # path('delete_patient/<int:id>/', delete_patient, name='delete_patient'),
 ]

@@ -1,307 +1,574 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Patient</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .floating-label-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        .floating-label-container input,
-        .floating-label-container select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .floating-label-container label {
-            position: absolute;
-            top: -12px;
-            left: 10px;
-            background: white;
-            padding: 0 5px;
-            font-size: 12px;
-            color: #666;
-        }
-        .gender-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .gender-btn {
-            padding: 8px 20px;
-            border: 1px solid #00aaff;
-            background: white;
-            color: #00aaff;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .gender-btn.active {
-            background: #00aaff;
-            color: white;
-        }
-        .upload-box {
-            background: #00aaff;
-            padding: 15px;
-            border-radius: 4px;
-            color: white;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-        }
-        .upload-box input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-        #preview {
-            display: none;
-            max-width: 100%;
-            margin-top: 20px;
-        }
-        #editor {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-        }
-        .editor-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        .editor-buttons {
-            margin-top: 10px;
-            text-align: center;
-        }
-        .editor-buttons button {
-            padding: 8px 20px;
-            margin: 0 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .submit-btn {
-            background: #4CAF50;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 20px;
-            float: right;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Same Layout</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #fff;
+    }
+
+    .container {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    /* Left + Right Columns with Divider */
+    .form-sections {
+      display: flex;
+      border-right: 1px solid #000;
+      padding-right: 20px;
+      flex: 1;
+    }
+
+    .section {
+      flex: 1;
+      padding: 0 15px;
+      
+    }
+
+    h3 {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: #1c9aca;
+    }
+
+    .row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .field {
+      flex: 1;
+      /* margin-left:  0px; */
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 3px;
+      color: #333;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .payment {
+      margin-top: 20px;
+    }
+
+    .payment button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      background: #1c9aca;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .credits {
+      margin-left: 15px;
+      color: green;
+      font-weight: bold;
+      line-height: 32px;
+      display: inline-block;
+    }
+
+    /* Profile Section */
+    .profile {
+      width: 120px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .profile-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .edit {
+      position: absolute;
+      top: 0;
+      right: 15px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1c9aca;
+      color: #fff;
+      font-size: 12px;
+      text-align: center;
+      line-height: 20px;
+      cursor: pointer;
+    }
+    .modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1000; 
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.modal-content input {
+  width: 90%;
+  margin: 8px 0;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-content button {
+  background: blue;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background: darkblue;
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+/* .bbtn {
+  background-color: white;
+  border: 1px solid #0072ff;
+  padding: 8px;
+  border-radius: 4px;
+
+} */
+
+/* === LOGIN BUTTONS BAR === */
+.login-buttons {
+  display: flex;
+  margin-top: -10px;
+  justify-content: flex-start; /* left aligned; change to center for center alignment */
+  gap: 10px;
+  /* margin: 8px 0 18px 0; */
+  background-color: rgb(225, 225, 227);
+  width: 97%;
+  padding: 6px;
+  border-radius: 30px;
+}
+
+.login-buttons button {
+  /* background-color: transparent; */
+  /* border: 1.5px solid #1c9aca; */
+  color: #1d1d1e;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  /* width: 120px; */
+  background-color: rgb(225, 225, 227);
+}
+
+/* Active (selected) button */
+.login-buttons button.active {
+  background-color: #368dc7;
+  /* width: 130px; */
+  color: white;
+  box-shadow: 0 2px 6px rgba(28, 154, 202, 0.4);
+}
+
+/* Hover effect */
+/* .login-buttons button:hover {
+  background-color: #1c9aca;
+  color: white;
+  box-shadow: 0 2px 6px rgba(28, 154, 202, 0.4);
+} */
+
+  </style>
 </head>
 <body>
-    <form id="patientForm">
-        <div class="container">
-            <div class="floating-label-container">
-                <label for="patientId">Patient ID</label>
-                <input type="text" id="patientId" >
-            </div>
+  <div class="container">
+    
+  
+    <form id="detailForm" class="form-sections">
+      
+      <!-- LEFT SIDE -->
+       
+      <div class="section">
+        <!-- <h3>LOGIN DETAILS:-</h3> -->
+             
+<!-- Button Group -->
+<div class="login-buttons">
+  <button style="width: 125px;" type="button" class="tab-btn active" data-target="details-fields">Login Details</button>
+  <button type="button" class="tab-btn" data-target="modality-fields">Modality</button>
+  <button type="button" class="tab-btn" data-target="payment-fields">Payment</button>
+  <button type="button" class="tab-btn" data-target="personal-fields">Personal</button>
+  <button type="button" class="tab-btn" data-target="assigned-fields">Assigned</button>
+  <button type="button" class="tab-btn" data-target="rads-fields">Rads</button>
+</div>
+<br>
 
-            <div style="display: flex; gap: 20px;">
-                <div class="floating-label-container" style="flex: 2;">
-                    <label for="patientName">Patient Name</label>
-                    <input type="text" id="patientName" required>
-                </div>
 
-                <div class="floating-label-container" style="flex: 1;">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" required>
-                </div>
-            </div>
+<script>
+/* === Active Button Logic === */
+const buttons = document.querySelectorAll('.login-buttons button');
 
-            <div class="gender-group">
-                <button type="button" class="gender-btn" data-gender="M">Male</button>
-                <button type="button" class="gender-btn" data-gender="F">Female</button>
-                <button type="button" class="gender-btn" data-gender="O">Other</button>
-                <input type="hidden" id="gender" required>
-            </div>
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    buttons.forEach(b => b.classList.remove('active')); // sabse active hatao
+    btn.classList.add('active'); // clicked button active karo
+  });
+});
+</script>
+          
 
-            <div class="floating-label-container">
-                <label for="history">History</label>
-                <input type="text" id="history" required>
-            </div>
-
-            <div style="display: flex; gap: 20px;">
-                <div class="floating-label-container" style="flex: 1;">
-                    <label for="scanType">Scan Type</label>
-                    <select id="scanType" required>
-                        <option value="">Select Type</option>
-                        <option value="X-RAY">X-RAY</option>
-                        <option value="CT">CT</option>
-                        <option value="MRI">MRI</option>
-                        <option value="MG">MG</option>
-                    </select>
-                </div>
-
-                <div class="floating-label-container" style="flex: 1;">
-                    <label for="bodyPart">Body Part</label>
-                    <input type="text" id="bodyPart" required>
-                </div>
-            </div>
-
-            <div class="floating-label-container">
-                <label for="refBy">Referred By</label>
-                <input type="text" id="refBy" required>
-            </div>
-
-            <div class="upload-box">
-                <input type="file" id="uploadScan" accept="image/*" required>
-                <span class="placeholder">Upload Scan Image</span>
-                <i class="fas fa-upload"></i>
-            </div>
-
-            <img id="preview" src="" alt="Preview">
-
-            <button type="submit" class="submit-btn">Submit</button>
+        <div class="row">
+          <div class="field">
+            <label for="accountName">ACCOUNT NAME</label>
+            <input style="width: 70%;" type="text" id="accountName" value="" />
+          </div>
+          <div class="field">
+            <label style="margin-left: -70px;" for="registrationDate">REGISTRATION DATE</label>
+            <input style="width: 70%; margin-left: -70px;" type="text" id="registrationDate" value="" readonly />
+          </div>
         </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="userId">USER ID *</label>
+            <input style="width: 70%;" type="text" id="userId" value="" readonly />
+          </div>
+          <div class="field">
+              <label style="margin-left: -70px;" for="status">STATUS *</label>
+                <select  id="status" required 
+                    style="padding:6px;margin-left: -70px; width: 76%; border:1px solid #bfcbd6; border-radius:6px;">
+                    <option value="" disabled selected>-- Select Status --</option>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                </select>
+          </div>
+        </div>
+
+        <!-- Password -->
+<div class="row">
+    <div class="field" style="position: relative;">
+        <label for="password">PASSWORD *</label>
+        <input type="password" id="password" value="" style="width:49%; padding-right:60px;" readonly />
+  
+  <!-- Eye button -->
+         <button type="button" onclick="togglePassword()" 
+          style="position:absolute; right:70px; top:20px; border:none; background:none; cursor:pointer;">👁️‍🗨️</button>
+  
+  <!-- Edit icon -->
+             <i class="fas fa-edit edit-password" 
+                style="position:absolute; right:56px; top:12px; cursor:pointer; color:blue;" title="Change Password"></i>
+</div>
+
+
+
+<!-- Password Modal -->
+<div id="passwordModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>change Password</h3>
+    <input type="password" id="oldPassword" placeholder="Old Password" />
+    <input type="password" id="newPassword" placeholder="New Password" />
+    <input type="password" id="confirmPassword" placeholder="Confirm New Password" />
+    <button id="updatePasswordBtn">Update</button>
+  </div>
+</div>
+
+
+<script>
+function togglePassword() {
+  const pwd = document.getElementById("password");
+  pwd.type = pwd.type === "password" ? "text" : "password";
+}
+</script>
+<script>
+function togglePassword() {
+  const pwd = document.getElementById("password");
+  pwd.type = pwd.type === "password" ? "text" : "password";
+}
+
+// Modal elements
+const modal = document.getElementById("passwordModal");
+const closeBtn = document.querySelector(".close");
+
+// Edit icon click -> show modal
+document.querySelector(".edit-password").addEventListener("click", function () {
+  modal.style.display = "block";
+});
+
+// Close button
+closeBtn.addEventListener("click", function () {
+  modal.style.display = "none";
+});
+
+// Outside click -> close modal
+window.addEventListener("click", function (e) {
+  if (e.target == modal) modal.style.display = "none";
+});
+
+// Update password logic
+document.getElementById("updatePasswordBtn").addEventListener("click", function () {
+  const oldPass = document.getElementById("oldPassword").value;
+  const newPass = document.getElementById("newPassword").value;
+  const confirmPass = document.getElementById("confirmPassword").value;
+
+  const index = localStorage.getItem("selectedUserIndex");
+  if (index === null) return;
+
+  let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+  let user = accounts[index];
+
+  if (oldPass !== user.password) {
+    alert("❌ Old password is incorrect!");
+    return;
+  }
+
+  if (newPass !== confirmPass) {
+    alert("❌ New password and Confirm password do not match!");
+    return;
+  }
+
+  // Update password
+  user.password = newPass;
+  accounts[index] = user;
+  localStorage.setItem("accounts", JSON.stringify(accounts));
+
+  document.getElementById("password").value = newPass; // update input
+  alert("✅ Password updated successfully!");
+  modal.style.display = "none"; // close popup
+});
+</script>
+
+
+         <div class="field">
+            <label style="margin-left: -70px;" for="payMode">PAY MODE *</label>
+            <select name="" id="payMode" style="padding:6px; margin-left: -70px; width: 76%; border:1px solid #bfcbd6; border-radius:6px;">
+              <option value="">POST</option>
+              <option value="">PRE</option>
+            </select>
+            <!-- <input type="text" id="payMode" value="" /> -->
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="userType">USER TYPE *</label>
+            <input style="width: 70%;" type="text" id="userType" value="" readonly/>
+          </div>
+          <!-- <div class="field">
+            <label for="modality">MODALITY *</label>
+            <input type="text" id="modality" value="" />
+          </div> -->
+<div class="field">
+  <label style="margin-left: -70px;" for="modality">MODALITY *</label>
+  <select id="modality"  
+          style="padding:6px; margin-left: -70px; width: 76%; border:1px solid #bfcbd6; border-radius:6px;">
+    <option value="" disabled selected >-- Select Modality --</option>
+    <option  value="All">All</option>
+    <option value="CT">CT</option>
+    <option value="MRI">MRI</option>
+    <option value="MG">MG</option>
+    <option value="XRAY">X-RAY</option>
+  </select>
+</div>
+        </div>
+
+        
+
+        <div class="payment">
+          <button id="saveBtn" type="submit">SAVE DETAILS</button>
+          <!-- <span class="credits">Credits/Funds:- 1500</span> -->
+        </div>
+      </div>
+      
+      
+
+<script>
+  document.getElementById("saveBtn").addEventListener("click", function() {
+    // Django ka URL tag use karke redirect
+    window.location.href = "{% url 'profile' %}";
+  });
+
+  const tabButtons = document.querySelectorAll('.tab-btn');
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Remove active from all buttons
+    tabButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Hide all sections
+    document.querySelectorAll('#details-fields, #personal-fields, #modality-fields, #payment-fields, #assigned-fields, #rads-fields')
+      .forEach(sec => sec.style.display = 'none');
+
+    // Show targeted section
+    const targetId = btn.getAttribute('data-target');
+    const targetDiv = document.getElementById(targetId);
+    if (targetDiv) targetDiv.style.display = 'block';
+  });
+});
+
+</script>
+
+
+      <!-- RIGHT SIDE -->
+   <div class="section">
+        <!-- <h3>PERSONAL DETAILS:-</h3> -->
+         <!-- <button style="margin-left: -80px;" class="bbtn" type="button">Assign RADS</button><br><br> -->
+<br><br><br>
+   <!-- Details Fields -->
+<div id="details-fields">
+  <!-- Add all your account details fields here -->
+  <!-- <div class="row">
+    <div class="field">
+      <label for="accountName">ACCOUNT </label>
+      <input type="text" id="accountName">
+    </div>
+    <div class="field">
+      <label for="registrationDate">REGISTRATION DATE</label>
+      <input type="text" id="registrationDate" readonly>
+    </div>
+  </div> -->
+  <!-- Add remaining fields if needed -->
+</div>
+
+<!-- Personal Fields -->
+ 
+  
+<div  id="personal-fields" style="display:none;">
+  <fieldset style="margin-left: -100px; width: 60%;" >
+    <legend style="color: blue;">Personal Details</legend>
+  <div  class="row">
+    <div style="margin-left: 0px;"  class="field">
+      <label for="personName">PERSON NAME</label>
+      <input style="width: 70%;" type="text" id="personName">
+    </div>
+  </div>
+  <div class="row">
+    <div style="margin-left: 0px;"  class="field">
+      <label for="mobileNo">MOBILE NO.</label>
+      <input style="width: 70%;" type="text" id="mobileNo">
+    </div>
+  </div>
+  <div class="row">
+    <div style="margin-left: 0px;"  class="field">
+      <label for="email">E-MAIL ID</label>
+      <input style="width: 70%;" type="email" id="email">
+    </div>
+  </div>
+</div>
+
+</fieldset>
+
+
+      </div>
     </form>
 
-    <div id="editor">
-        <div class="editor-content">
-            <img id="image" style="max-width: 100%;">
-            <div class="editor-buttons">
-                <button onclick="this.parentElement.parentElement.parentElement.style.display='none'">Cancel</button>
-                <button onclick="done()">Done</button>
-            </div>
-        </div>
+    <!-- PROFILE ICON -->
+    <div class="profile">
+      <div class="profile-circle"></div>
+      <div class="edit" title="Edit Profile">✎</div>
     </div>
+  </div>
 
-    <img id="finalImage" style="display: none;">
+  <hr>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    <script>
-        let cropper;
-        const fileInput = document.getElementById('uploadScan');
-        const placeholder = document.querySelector('.placeholder');
-        const editor = document.getElementById('editor');
-        const image = document.getElementById('image');
-        const finalImage = document.getElementById('finalImage');
-        const preview = document.getElementById('preview');
+  <script>
+  window.onload = function () {
+    // localStorage se index nikalo
+    const index = localStorage.getItem("selectedUserIndex");
+    if (index === null) return;
 
-        fileInput.addEventListener('change', function() {
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    image.src = e.target.result;
-                    editor.style.display = 'block';
-                    if (cropper) {
-                        cropper.destroy();
-                    }
-                    cropper = new Cropper(image, {
-                        aspectRatio: NaN,
-                        viewMode: 2
-                    });
-                };
-                reader.readAsDataURL(file);
-                placeholder.textContent = file.name;
-            }
-        });
+    const accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+    const user = accounts[index];
+    if (!user) return;
 
-        function done() {
-            if (!cropper) return;
-            const canvas = cropper.getCroppedCanvas();
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-            finalImage.src = compressedDataUrl;
-            preview.src = compressedDataUrl;
-            preview.style.display = 'block';
-            editor.style.display = 'none';
-        }
+    // details bhar do
+    document.getElementById("accountName").value = user.name || "";
+    document.getElementById("registrationDate").value = user.date || "";
+    document.getElementById("userId").value = user.userId || "";
+    document.getElementById("status").value = user.status || "";
+    document.getElementById("userType").value = user.type || "";
+    document.getElementById("payMode").value = user.payMode || "";
+    document.getElementById("modality").value = user.modality || "";
+    document.getElementById("personName").value = user.personName || "";
+    document.getElementById("mobileNo").value = user.mobile || "";
+    document.getElementById("email").value = user.email || "";
+    document.getElementById("password").value = user.password || "";
+  };
 
-        // Handle gender selection
-        document.querySelectorAll('.gender-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById('gender').value = this.dataset.gender;
-            });
-        });
+  document.getElementById("detailForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-        // Handle form submission
-        document.getElementById('patientForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-           // In your popupform.html
-const formData = {
-    name: document.getElementById("patientName").value,
-    age: document.getElementById("age").value,
-    gender: document.getElementById("gender").value,
-    history: document.getElementById("history").value,
-    scanType: document.getElementById("scanType").value,
-    bodyPart: document.getElementById("bodyPart").value,
-    refBy: document.getElementById("refBy").value,
-    scan: finalImage.src  // Make sure this is set correctly
-};
+    const index = localStorage.getItem("selectedUserIndex");
+    if (index === null) return;
 
-            fetch('/api/patient/add/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    window.location.href = '/index/';
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-            });
-        });
+    let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+    if (!accounts[index]) return;
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-    </script>
+    // update object
+    accounts[index] = {
+      ...accounts[index],
+      name: document.getElementById("accountName").value.trim(),
+      date: document.getElementById("registrationDate").value.trim(),
+      userId: document.getElementById("userId").value.trim(), // readonly
+      status: document.getElementById("status").value.trim(),
+      payMode: document.getElementById("payMode").value.trim(),
+      type: document.getElementById("userType").value.trim(),
+      modality: document.getElementById("modality").value.trim(),
+      personName: document.getElementById("personName").value.trim(),
+      mobile: document.getElementById("mobileNo").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value.trim(),
+    };
+
+    localStorage.setItem("accounts", JSON.stringify(accounts));
+    alert("✅ User details saved successfully!");
+  });
+</script>
+
 </body>
 </html>

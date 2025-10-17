@@ -1,573 +1,377 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Same Layout</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #fff;
-    }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #fff;
+}
 
-    .container {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-    }
+.container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
 
-    /* Left + Right Columns with Divider */
-    .form-sections {
-      display: flex;
-      border-right: 1px solid #000;
-      padding-right: 20px;
-      flex: 1;
-    }
+/* Left + Right Columns */
+.form-sections {
+    display: flex;
+    border-right: 1px solid #000;
+    padding-right: 20px;
+    flex: 1;
+}
 
-    .section {
-      flex: 1;
-      padding: 0 15px;
-      
-    }
+.section {
+    flex: 1;
+    padding: 0 15px;
+}
 
-    h3 {
-      margin: 0 0 15px 0;
-      font-size: 16px;
-      font-weight: bold;
-      color: #1c9aca;
-    }
+h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1c9aca;
+}
 
-    .row {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
+.row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
 
-    .field {
-      flex: 1;
-      /* margin-left:  0px; */
-    }
+.field {
+    flex: 1;
+}
 
-    label {
-      display: block;
-      font-size: 12px;
-      margin-bottom: 3px;
-      color: #333;
-      text-transform: uppercase;
-    }
+label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 3px;
+    color: #333;
+    text-transform: uppercase;
+}
 
-    input {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-      font-size: 13px;
-    }
+input, select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    font-size: 13px;
+}
 
-    .payment {
-      margin-top: 20px;
-    }
+.payment {
+    margin-top: 20px;
+}
 
-    .payment button {
-      padding: 8px 15px;
-      border: none;
-      border-radius: 5px;
-      background: #1c9aca;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.payment button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background: #1c9aca;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-    .credits {
-      margin-left: 15px;
-      color: green;
-      font-weight: bold;
-      line-height: 32px;
-      display: inline-block;
-    }
+/* Profile Section */
+.profile {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
 
-    /* Profile Section */
-    .profile {
-      width: 120px;
-      display: flex;
-      justify-content: center;
-      position: relative;
-    }
+.profile-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .profile-circle {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+.edit {
+    position: absolute;
+    top: 0;
+    right: 15px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1c9aca;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    line-height: 20px;
+    cursor: pointer;
+}
 
-    .edit {
-      position: absolute;
-      top: 0;
-      right: 15px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #1c9aca;
-      color: #fff;
-      font-size: 12px;
-      text-align: center;
-      line-height: 20px;
-      cursor: pointer;
-    }
-    .modal {
-  display: none; 
-  position: fixed; 
-  z-index: 1000; 
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.5);
+/* Password Modal */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
 }
 
 .modal-content {
-  background: #fff;
-  margin: 10% auto;
-  padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    background: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .modal-content input {
-  width: 90%;
-  margin: 8px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+    width: 90%;
+    margin: 8px 0;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 .modal-content button {
-  background: blue;
-  color: #fff;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
+    background: blue;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .modal-content button:hover {
-  background: darkblue;
+    background: darkblue;
 }
 
 .close {
-  float: right;
-  font-size: 20px;
-  font-weight: bold;
-  cursor: pointer;
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
 }
-/* .bbtn {
-  background-color: white;
-  border: 1px solid #0072ff;
-  padding: 8px;
-  border-radius: 4px;
 
-} */
-
-/* === LOGIN BUTTONS BAR === */
+/* Login Buttons Tabs */
 .login-buttons {
-  display: flex;
-  margin-top: -10px;
-  justify-content: flex-start; /* left aligned; change to center for center alignment */
-  gap: 10px;
-  /* margin: 8px 0 18px 0; */
-  background-color: rgb(225, 225, 227);
-  width: 97%;
-  padding: 6px;
-  border-radius: 30px;
+    display: flex;
+    margin-top: -10px;
+    justify-content: flex-start;
+    gap: 10px;
+    background-color: rgb(225, 225, 227);
+    width: 97%;
+    padding: 6px;
+    border-radius: 30px;
 }
 
 .login-buttons button {
-  /* background-color: transparent; */
-  /* border: 1.5px solid #1c9aca; */
-  color: #1d1d1e;
-  padding: 8px 18px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: none;
-  /* width: 120px; */
-  background-color: rgb(225, 225, 227);
+    color: #1d1d1e;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background-color: rgb(225, 225, 227);
 }
 
-/* Active (selected) button */
 .login-buttons button.active {
-  background-color: #368dc7;
-  /* width: 130px; */
-  color: white;
-  box-shadow: 0 2px 6px rgba(28, 154, 202, 0.4);
+    background-color: #368dc7;
+    color: white;
+    box-shadow: 0 2px 6px rgba(28, 154, 202, 0.4);
 }
-
-/* Hover effect */
-/* .login-buttons button:hover {
-  background-color: #1c9aca;
-  color: white;
-  box-shadow: 0 2px 6px rgba(28, 154, 202, 0.4);
-} */
-
-  </style>
+</style>
 </head>
 <body>
-  <div class="container">
-    
-  
-    <form id="detailForm" class="form-sections">
-      
-      <!-- LEFT SIDE -->
-       
-      <div class="section">
-        <!-- <h3>LOGIN DETAILS:-</h3> -->
-             
-<!-- Button Group -->
-<div class="login-buttons">
-  <button style="width: 125px;" type="button" class="tab-btn active" data-target="details-fields">Login Details</button>
-  <button type="button" class="tab-btn" data-target="modality-fields">Modality</button>
-  <button type="button" class="tab-btn" data-target="payment-fields">Payment</button>
-  <button type="button" class="tab-btn" data-target="personal-fields">Personal</button>
-  <button type="button" class="tab-btn" data-target="assigned-fields">Assigned</button>
-  <button type="button" class="tab-btn" data-target="rads-fields">Rads</button>
-</div>
-<br>
 
+<div class="container">
+    <form id="detailForm" class="form-sections" method="POST" action="{% url 'user_detail' user.id %}">
+        {% csrf_token %}
+
+        <!-- LEFT SIDE -->
+        <div class="section">
+            <!-- Button Tabs -->
+            <div class="login-buttons">
+                <button type="button" class="tab-btn active" data-target="details-fields">Login Details</button>
+                <button type="button" class="tab-btn" data-target="modality-fields">Modality</button>
+                <button type="button" class="tab-btn" data-target="payment-fields">Payment</button>
+                <button type="button" class="tab-btn" data-target="personal-fields">Personal</button>
+                <button type="button" class="tab-btn" data-target="assigned-fields">Assigned</button>
+                <button type="button" class="tab-btn" data-target="rads-fields">Rads</button>
+            </div>
+            <br>
+
+            <!-- Login Details -->
+            <div id="details-fields">
+                <div class="row">
+                    <div class="field">
+                        <label>ACCOUNT NAME</label>
+                        <input type="text" id="accountName" name="accountName" value="{{ user.name }}" readonly />
+                    </div>
+                    <div class="field">
+                        <label>REGISTRATION DATE</label>
+                        <input type="text" id="registrationDate" value="{{ user.created_at|date:'d-m-Y' }}" readonly />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="field">
+                        <label>USER ID *</label>
+                        <input type="text" id="userId" value="{{ user.userid }}" readonly />
+                    </div>
+                    <div class="field">
+                        <label>STATUS *</label>
+                        <select id="status" name="status">
+                            <option value="ACTIVE" {% if user.is_active %}selected{% endif %}>ACTIVE</option>
+                            <option value="INACTIVE" {% if not user.is_active %}selected{% endif %}>INACTIVE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="field" style="position: relative;">
+                        <label>PASSWORD *</label>
+                        <input style="width: 48%;" type="password" id="password" value="{{ user.password }}" readonly />
+                        <button type="button" onclick="togglePassword()" 
+                            style="position:absolute; margin-left: -40px; top:20px; border:none; background:none; cursor:pointer;">👁️‍🗨️</button>
+                        <i class="fas fa-edit edit-password" 
+                           style="position:absolute; margin-left: -10px; top:10px; cursor:pointer; color:blue;" title="Change Password"></i>
+                    </div>
+                </div>
+
+                <!-- Password Modal -->
+                <div id="passwordModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h3>Change Password</h3>
+                        <input type="password" id="oldPassword" placeholder="Old Password" />
+                        <input type="password" id="newPassword" placeholder="New Password" />
+                        <input type="password" id="confirmPassword" placeholder="Confirm New Password" />
+                        <button type="button" id="updatePasswordBtn">Update</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="field">
+                        <label>USER TYPE *</label>
+                        <input type="text" id="userType" value="{{ user.usertype }}" readonly />
+                    </div>
+                    <div class="field">
+                        <label>MODALITY *</label>
+                        <select id="modality" name="modality">
+                            <option value="All" {% if user.modality == 'All' %}selected{% endif %}>All</option>
+                            <option value="CT" {% if user.modality == 'CT' %}selected{% endif %}>CT</option>
+                            <option value="MRI" {% if user.modality == 'MRI' %}selected{% endif %}>MRI</option>
+                            <option value="MG" {% if user.modality == 'MG' %}selected{% endif %}>MG</option>
+                            <option value="XRAY" {% if user.modality == 'XRAY' %}selected{% endif %}>X-RAY</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="payment">
+                    <button type="submit">SAVE DETAILS</button>
+                </div>
+            </div>
+
+            <!-- Personal Fields -->
+            <div id="personal-fields" style="display:none;">
+                <fieldset style="margin-left: -100px; width: 60%;">
+                    <legend style="color: blue;">Personal Details</legend>
+                    <div class="row">
+                        <div class="field">
+                            <label>PERSON NAME</label>
+                            <input type="text" id="personName" name="personName" value="{{ user.name }}" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="field">
+                            <label>MOBILE NO.</label>
+                            <input type="text" id="mobileNo" name="mobileNo" value="{{ user.contact }}" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="field">
+                            <label>E-MAIL ID</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" />
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <!-- PROFILE ICON -->
+        <div class="section">
+            <div class="profile">
+                <div class="profile-circle"></div>
+                <div class="edit" title="Edit Profile">✎</div>
+            </div>
+        </div>
+    </form>
+</div>
 
 <script>
-/* === Active Button Logic === */
-const buttons = document.querySelectorAll('.login-buttons button');
 
-buttons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    buttons.forEach(b => b.classList.remove('active')); // sabse active hatao
-    btn.classList.add('active'); // clicked button active karo
-  });
+  document.getElementById("updatePasswordBtn").addEventListener("click", function() {
+    const newPass = document.getElementById("newPassword").value;
+    const confirmPass = document.getElementById("confirmPassword").value;
+    if(newPass !== confirmPass){ alert("Passwords do not match!"); return; }
+    document.getElementById("password").value = newPass;
+    alert("Password updated!");
+    modal.style.display = "none";
 });
-</script>
-          
 
-        <div class="row">
-          <div class="field">
-            <label for="accountName">ACCOUNT NAME</label>
-            <input style="width: 70%;" type="text" id="accountName" value="" />
-          </div>
-          <div class="field">
-            <label style="margin-left: -70px;" for="registrationDate">REGISTRATION DATE</label>
-            <input style="width: 70%; margin-left: -70px;" type="text" id="registrationDate" value="" readonly />
-          </div>
-        </div>
+// Tabs logic
+const tabButtons = document.querySelectorAll('.tab-btn');
+tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-        <div class="row">
-          <div class="field">
-            <label for="userId">USER ID *</label>
-            <input style="width: 70%;" type="text" id="userId" value="" readonly />
-          </div>
-          <div class="field">
-              <label style="margin-left: -70px;" for="status">STATUS *</label>
-                <select  id="status" required 
-                    style="padding:6px;margin-left: -70px; width: 76%; border:1px solid #bfcbd6; border-radius:6px;">
-                    <option value="" disabled selected>-- Select Status --</option>
-                    <option value="ACTIVE">ACTIVE</option>
-                    <option value="INACTIVE">INACTIVE</option>
-                </select>
-          </div>
-        </div>
+        document.querySelectorAll('#details-fields, #personal-fields').forEach(sec => sec.style.display = 'none');
 
-        <!-- Password -->
-<div class="row">
-    <div class="field" style="position: relative;">
-        <label for="password">PASSWORD *</label>
-        <input type="password" id="password" value="" style="width:49%; padding-right:60px;" readonly />
-  
-  <!-- Eye button -->
-         <button type="button" onclick="togglePassword()" 
-          style="position:absolute; right:70px; top:20px; border:none; background:none; cursor:pointer;">👁️‍🗨️</button>
-  
-  <!-- Edit icon -->
-             <i class="fas fa-edit edit-password" 
-                style="position:absolute; right:56px; top:12px; cursor:pointer; color:blue;" title="Change Password"></i>
-</div>
+        const target = btn.getAttribute('data-target');
+        const targetDiv = document.getElementById(target);
+        if (targetDiv) targetDiv.style.display = 'block';
+    });
+});
 
-
-
-<!-- Password Modal -->
-<div id="passwordModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h3>change Password</h3>
-    <input type="password" id="oldPassword" placeholder="Old Password" />
-    <input type="password" id="newPassword" placeholder="New Password" />
-    <input type="password" id="confirmPassword" placeholder="Confirm New Password" />
-    <button id="updatePasswordBtn">Update</button>
-  </div>
-</div>
-
-
-<script>
+// Toggle password
 function togglePassword() {
-  const pwd = document.getElementById("password");
-  pwd.type = pwd.type === "password" ? "text" : "password";
-}
-</script>
-<script>
-function togglePassword() {
-  const pwd = document.getElementById("password");
-  pwd.type = pwd.type === "password" ? "text" : "password";
+    const pwd = document.getElementById("password");
+    pwd.type = pwd.type === "password" ? "text" : "password";
 }
 
-// Modal elements
+// Password modal
 const modal = document.getElementById("passwordModal");
 const closeBtn = document.querySelector(".close");
+document.querySelector(".edit-password").addEventListener("click", () => modal.style.display = "block");
+closeBtn.addEventListener("click", () => modal.style.display = "none");
+window.addEventListener("click", (e) => { if(e.target == modal) modal.style.display = "none"; });
 
-// Edit icon click -> show modal
-document.querySelector(".edit-password").addEventListener("click", function () {
-  modal.style.display = "block";
+// Update password (simple JS, can be replaced with Django POST)
+document.getElementById("updatePasswordBtn").addEventListener("click", function() {
+    const newPass = document.getElementById("newPassword").value;
+    const confirmPass = document.getElementById("confirmPassword").value;
+    if(newPass !== confirmPass){ alert("Passwords do not match!"); return; }
+    document.getElementById("password").value = newPass;
+    alert("Password updated!");
+    modal.style.display = "none";
 });
-
-// Close button
-closeBtn.addEventListener("click", function () {
-  modal.style.display = "none";
-});
-
-// Outside click -> close modal
-window.addEventListener("click", function (e) {
-  if (e.target == modal) modal.style.display = "none";
-});
-
-// Update password logic
-document.getElementById("updatePasswordBtn").addEventListener("click", function () {
-  const oldPass = document.getElementById("oldPassword").value;
-  const newPass = document.getElementById("newPassword").value;
-  const confirmPass = document.getElementById("confirmPassword").value;
-
-  const index = localStorage.getItem("selectedUserIndex");
-  if (index === null) return;
-
-  let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
-  let user = accounts[index];
-
-  if (oldPass !== user.password) {
-    alert("❌ Old password is incorrect!");
-    return;
-  }
-
-  if (newPass !== confirmPass) {
-    alert("❌ New password and Confirm password do not match!");
-    return;
-  }
-
-  // Update password
-  user.password = newPass;
-  accounts[index] = user;
-  localStorage.setItem("accounts", JSON.stringify(accounts));
-
-  document.getElementById("password").value = newPass; // update input
-  alert("✅ Password updated successfully!");
-  modal.style.display = "none"; // close popup
-});
-</script>
-
-
-         <div class="field">
-            <label style="margin-left: -70px;" for="payMode">PAY MODE *</label>
-            <select name="" id="payMode" style="padding:6px; margin-left: -70px; width: 76%; border:1px solid #bfcbd6; border-radius:6px;">
-              <option value="">POST</option>
-              <option value="">PRE</option>
-            </select>
-            <!-- <input type="text" id="payMode" value="" /> -->
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="userType">USER TYPE *</label>
-            <input style="width: 70%;" type="text" id="userType" value="" readonly/>
-          </div>
-          <!-- <div class="field">
-            <label for="modality">MODALITY *</label>
-            <input type="text" id="modality" value="" />
-          </div> -->
-<div class="field">
-  <label style="margin-left: -70px;" for="modality">MODALITY *</label>
-  <select id="modality"  
-          style="padding:6px; margin-left: -70px; width: 76%; border:1px solid #bfcbd6; border-radius:6px;">
-    <option value="" disabled selected >-- Select Modality --</option>
-    <option  value="All">All</option>
-    <option value="CT">CT</option>
-    <option value="MRI">MRI</option>
-    <option value="MG">MG</option>
-    <option value="XRAY">X-RAY</option>
-  </select>
-</div>
-        </div>
-
-        
-
-        <div class="payment">
-          <button id="saveBtn" type="submit">SAVE DETAILS</button>
-          <!-- <span class="credits">Credits/Funds:- 1500</span> -->
-        </div>
-      </div>
-      
-      
-
-<script>
-  document.getElementById("saveBtn").addEventListener("click", function() {
-    // Django ka URL tag use karke redirect
-    window.location.href = "{% url 'profile' %}";
-  });
-
-  const tabButtons = document.querySelectorAll('.tab-btn');
-
-tabButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Remove active from all buttons
-    tabButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    // Hide all sections
-    document.querySelectorAll('#details-fields, #personal-fields, #modality-fields, #payment-fields, #assigned-fields, #rads-fields')
-      .forEach(sec => sec.style.display = 'none');
-
-    // Show targeted section
-    const targetId = btn.getAttribute('data-target');
-    const targetDiv = document.getElementById(targetId);
-    if (targetDiv) targetDiv.style.display = 'block';
-  });
-});
-
-</script>
-
-
-      <!-- RIGHT SIDE -->
-   <div class="section">
-        <!-- <h3>PERSONAL DETAILS:-</h3> -->
-         <!-- <button style="margin-left: -80px;" class="bbtn" type="button">Assign RADS</button><br><br> -->
-<br><br><br>
-   <!-- Details Fields -->
-<div id="details-fields">
-  <!-- Add all your account details fields here -->
-  <!-- <div class="row">
-    <div class="field">
-      <label for="accountName">ACCOUNT </label>
-      <input type="text" id="accountName">
-    </div>
-    <div class="field">
-      <label for="registrationDate">REGISTRATION DATE</label>
-      <input type="text" id="registrationDate" readonly>
-    </div>
-  </div> -->
-  <!-- Add remaining fields if needed -->
-</div>
-
-<!-- Personal Fields -->
- 
-  
-<div  id="personal-fields" style="display:none;">
-  <fieldset style="margin-left: -100px; width: 60%;" >
-    <legend style="color: blue;">Personal Details</legend>
-  <div  class="row">
-    <div style="margin-left: 0px;"  class="field">
-      <label for="personName">PERSON NAME</label>
-      <input style="width: 70%;" type="text" id="personName">
-    </div>
-  </div>
-  <div class="row">
-    <div style="margin-left: 0px;"  class="field">
-      <label for="mobileNo">MOBILE NO.</label>
-      <input style="width: 70%;" type="text" id="mobileNo">
-    </div>
-  </div>
-  <div class="row">
-    <div style="margin-left: 0px;"  class="field">
-      <label for="email">E-MAIL ID</label>
-      <input style="width: 70%;" type="email" id="email">
-    </div>
-  </div>
-</div>
-
-</fieldset>
-
-
-      </div>
-    </form>
-
-    <!-- PROFILE ICON -->
-    <div class="profile">
-      <div class="profile-circle"></div>
-      <div class="edit" title="Edit Profile">✎</div>
-    </div>
-  </div>
-
-  <hr>
-
-  <script>
-  window.onload = function () {
-    // localStorage se index nikalo
-    const index = localStorage.getItem("selectedUserIndex");
-    if (index === null) return;
-
-    const accounts = JSON.parse(localStorage.getItem("accounts")) || [];
-    const user = accounts[index];
-    if (!user) return;
-
-    // details bhar do
-    document.getElementById("accountName").value = user.name || "";
-    document.getElementById("registrationDate").value = user.date || "";
-    document.getElementById("userId").value = user.userId || "";
-    document.getElementById("status").value = user.status || "";
-    document.getElementById("userType").value = user.type || "";
-    document.getElementById("payMode").value = user.payMode || "";
-    document.getElementById("modality").value = user.modality || "";
-    document.getElementById("personName").value = user.personName || "";
-    document.getElementById("mobileNo").value = user.mobile || "";
-    document.getElementById("email").value = user.email || "";
-    document.getElementById("password").value = user.password || "";
-  };
-
-  document.getElementById("detailForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const index = localStorage.getItem("selectedUserIndex");
-    if (index === null) return;
-
-    let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
-    if (!accounts[index]) return;
-
-    // update object
-    accounts[index] = {
-      ...accounts[index],
-      name: document.getElementById("accountName").value.trim(),
-      date: document.getElementById("registrationDate").value.trim(),
-      userId: document.getElementById("userId").value.trim(), // readonly
-      status: document.getElementById("status").value.trim(),
-      payMode: document.getElementById("payMode").value.trim(),
-      type: document.getElementById("userType").value.trim(),
-      modality: document.getElementById("modality").value.trim(),
-      personName: document.getElementById("personName").value.trim(),
-      mobile: document.getElementById("mobileNo").value.trim(),
-      email: document.getElementById("email").value.trim(),
-      password: document.getElementById("password").value.trim(),
-    };
-
-    localStorage.setItem("accounts", JSON.stringify(accounts));
-    alert("✅ User details saved successfully!");
-  });
 </script>
 
 </body>

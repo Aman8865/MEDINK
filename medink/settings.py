@@ -71,7 +71,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'medink.wsgi.application'
 
-
+# AUTH_USER_MODEL = 'med.CustomUser'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -87,6 +87,8 @@ DATABASES = {
     }
 }
 # ...existing code...
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -115,6 +117,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
+
 
 USE_TZ = True
 

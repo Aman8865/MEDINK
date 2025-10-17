@@ -129,7 +129,8 @@
    
     
   </nav><br>
-   <form id="patientForm">
+   <form method="POST" id="patientForm">
+    {% csrf_token %}
   <div class="container">
     <div style="margin-top: -30px;">
 
@@ -358,5 +359,7 @@ function editAccount(index) {
   // agar aap direct file use karte ho to:
   // window.location.href = "user_detail.html";
 }
+
+
 </script>
 {% endblock %}

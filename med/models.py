@@ -24,3 +24,25 @@ class Patient(models.Model):
     
     class Meta:
         db_table = 'patients'
+
+
+from django.db import models
+from django.utils import timezone
+USERTYPES = (
+    ('RADS', 'RADS'),
+    ('IMAGING', 'IMAGING'),
+)
+
+class UserAccount(models.Model):
+    created_at = models.DateTimeField(default=timezone.now) 
+    name = models.CharField(max_length=100)
+    userid = models.CharField(max_length=50, unique=True)
+    password = models.CharField(max_length=100)
+    usertype = models.CharField(max_length=10, choices=USERTYPES)
+    is_active = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return f"{self.name} ({self.userid})"
+        
+

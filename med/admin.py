@@ -4,3 +4,5 @@
 # @admin.register(Patient)
 # class PatientAdmin(admin.ModelAdmin):
 #     list_display = ('name', 'patient_id', 'scanType', 'status', 'entryTime')
+
+
