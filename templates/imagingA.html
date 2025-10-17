@@ -13,171 +13,261 @@
 
 
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            font-family: Arial, sans-serif;
-        }
-
-        .top-navbar {
-            position: fixed;
-            top: 0;
-            width: 97%;
-            height: 60px;
-            background-color: rgb(176, 176, 243);
-            display: flex;
-            align-items: center;
-            padding: 0 30px;
-            color: black;
-            margin-left: -14px;
-            z-index: 1000;
-        }
-
-        .nav2 {
-            margin-top: 70px;
-            padding: 10px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .nav2 button {
-            padding: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .nav3 {
-            /* margin: 20px; */
-            margin-left: 59px;
-            overflow-x: auto;
-            background-color: gray;
-        }
-
-        .nav3 table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .nav3 th, .nav3 td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .status {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .status.unread { background-color: #ffebee; color: red; }
-        .status.draft { background-color: #fff3e0; color: orange; }
-        .status.final { background-color: #e8f5e9; color: green; }
-
-        .green-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: green;
-            border-radius: 50%;
-        }
-
-        .date-filter {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .sidebar2 {
-  position: fixed; 
-  border-radius: 0px;      
-  top: 61px;             
-  left: 0;
-  height: 100%;          
-  width: 60px;           /* expand width */
-  background-color: rgb(182, 182, 245);
-  overflow-x: hidden;
-   transition: width 0.3s ease;
-  
-}
-.sidebar2:hover{
-  width: 130px;
-  
+       /* 🌐 GLOBAL STYLE */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
 }
 
-   .sidebar2.hidden {
-  transform: translateX(-100%); /* poora sidebar left side se hide */
+/* 🧭 TOP NAVBAR */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: rgb(176, 176, 243);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    color: black;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-    .sidebar2 a {
-      display: flex;
-      align-items: center;
-      color: white;
-      padding: 12px;
-      text-decoration: none;
-      font-size: 18px;
-      white-space: nowrap;
-      
-    }
-    .sidebar2 a i {
-      min-width: 40px; /* fix space for icon */
-      text-align: center;
-      font-size: 20px;
-      color: black;
-    }
-    .sidebar2 a span {
-      opacity: 0;
-      transition: opacity 0.3s;
-      color: gray;
-    }
-    /* Sidebar text smooth appear/disappear */
-.sidebar2 a span {
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(-10px); /* thoda left se start */
-    color: gray;
+.top-navbar img {
+    border-radius: 50%;
 }
 
-/* Hover par text smoothly dikhaye */
-.sidebar2:hover a span {
-    opacity: 1;
-    transform: translateX(0); /* original position */
+.top-navbar span {
+    font-weight: bold;
+    margin-left: 15px;
+    font-size: 1.1rem;
 }
 
-/* Hover par background smoothly change ho */
+/* 📑 SIDEBAR */
+.sidebar2 {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: 100%;
+    width: 60px;
+    background-color: rgb(182, 182, 245);
+    transition: width 0.3s ease;
+    overflow-x: hidden;
+    z-index: 999;
+}
+
+.sidebar2:hover {
+    width: 130px;
+}
+
 .sidebar2 a {
-    transition: background-color 0.3s ease, border-radius 0.3s ease;
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 12px;
+    text-decoration: none;
+    font-size: 18px;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
 }
 
 .sidebar2 a:hover {
     background-color: white;
     border-radius: 30px;
+    color: black;
 }
 
+.sidebar2 a i {
+    min-width: 40px;
+    text-align: center;
+    color: black;
+}
+
+.sidebar2 a span {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    color: gray;
+}
+
+.sidebar2:hover a span {
+    opacity: 1;
+    transform: translateX(0);
+}
+/* 🔄 Hide Sidebar when toggled */
+.sidebar-hidden {
+    width: 0 !important;
+    overflow: hidden;
+}
+
+
+
+/* Toggle Button */
+.toggle-btn {
+    position: fixed;
+    top: 500px;
+    left: 10px;
+    background-color: rgb(190, 190, 193);
+    color: black;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 5px;
+    z-index: 1000;
+    transition: left 0.3s;
+}
+
+/* 🧭 SECOND NAVBAR (Filters) */
+.nav2 {
+    background-color: #606160;
+    color: white;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 10px;
+    margin-top: 60px;
+    margin-left: 60px;
+    transition: margin-left 0.3s ease;
+}
+
+.nav2 button, .nav2 a {
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.nav2 button.active-filter {
+    background-color: #007bff;
+    color: white;
+}
+
+.nav2 .date-filter {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 📋 TABLE SECTION */
+.nav3 {
+    margin-left: 60px;
+    overflow-x: auto;
+    background-color: white;
+    transition: margin-left 0.3s ease;
+}
+
+.nav3 table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.nav3 th, .nav3 td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav3 th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+/* 🟢 STATUS COLORS */
+.status {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.status.unread { background-color: #ffebee; color: red; }
+.status.draft { background-color: #fff3e0; color: orange; }
+.status.final { background-color: #e8f5e9; color: green; }
+
+.green-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: green;
+    border-radius: 50%;
+}
+
+/* 📱 RESPONSIVE DESIGN */
+@media (max-width: 992px) {
+    .sidebar2 {
+        width: 55px;
+    }
+    .nav2 {
+        margin-left: 55px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .nav3 {
+        margin-left: 55px;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-navbar span {
+        font-size: 1rem;
+    }
+    .nav2 {
+        flex-direction: column;
+        gap: 6px;
+    }
+    .nav2 button {
+        width: 100%;
+    }
+    .nav3 table {
+        font-size: 11px;
+    }
+    .nav3 th, .nav3 td {
+        padding: 6px;
+    }
     .toggle-btn {
-  position: fixed;
-  top: 500px;           /* top navbar ke niche */
-  left: 10px;         /* sidebar ke edge ke paas */
-  background-color: rgb(190, 190, 193);
-  color: black;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 5px;
-  z-index: 1000;
-  transition: left 0.3s;
+        top: 70px;
+        left: 10px;
+    }
 }
-.nav2, .nav3 {
-    transition: margin-left 0.3s ease; /* smooth shift */
+
+@media (max-width: 480px) {
+    .top-navbar {
+        justify-content: space-between;
+        padding: 0 10px;
+    }
+    .top-navbar span {
+        display: none;
+    }
+    .sidebar2 {
+        width: 0;
+    }
+    .nav2 {
+        margin-left: 0;
+        padding: 8px;
+    }
+    .nav3 {
+        margin-left: 0;
+    }
+    .nav3 table {
+        font-size: 10px;
+    }
+    th:nth-child(6), td:nth-child(6),
+    th:nth-child(9), td:nth-child(9) {
+        display: none; /* hide extra columns on small screen */
+    }
 }
+
 
     </style>
 </head>
@@ -188,7 +278,7 @@
  <div class="sidebar2">
     <a href="#"><i class="fas fa-bars"></i><span></span></a>
     <a href="{% url 'index' %}"><i class="fas fa-home"></i><span>Home</span></a>
-    <a href="{% url 'profile' %}"><i class="fas fa-user"></i><span>User</span></a>
+    <a href="{% url 'signup' %}"><i class="fas fa-user"></i><span>User</span></a>
     <a href="#"><i class="fas fa-cog"></i><span>Settings</span></a>
     <a href="{% url 'invoice' %}"><i class="fa-solid fa-file-invoice"></i><span>Invoice</span></a>
   
@@ -203,16 +293,15 @@
 <div class="top-navbar">
     <img height="40" style="border-radius: 30px;" src="data:image/png;base64,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" alt="Profile">
     
-    <span style="margin-left: 20px; font-weight: bold;">Patient Dashboard</span>
+    <span >Patient Dashboard</span>
 </div>
 {% block body %}
 
-<div id="nav2" style="background-color: #606160; margin-top: 61px; margin-left: 60px;" class="nav2">
+<div id="nav2"  class="nav2">
     <button style="background-color: blue; color: white; font-weight: 600;" onclick="window.location.href='/popupform/'">
         <i class="fas fa-plus"></i> Add New
     </button>
-    <!-- search  box -->
-<div style=" display: inline-block; margin-left: 4px;">
+    <div style=" display: inline-block; margin-left: 4px;">
   <input type="search" id="searchInput" placeholder="Search details..."
     style="margin-left: 0px; padding: 3px 35px 5px 10px; border-radius: 3px; border: none; width: 200px; font-size: 16px;">
   <i class="fa-solid fa-" 
@@ -260,20 +349,20 @@
 
 
 <div id="nav3" class="nav3">
-    <table>
+    <table >
         <thead>
             <tr>
                 
                    
                        
 
-                 <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">Center</th>
+                 <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">Center/Date</th>
                 <th>Patient</th>
                 <th>Age/Sex</th>
                 <th>Scan Type</th>
                 <th>Body Part</th>
                 <th>History</th>
-                <!-- <th>Assign</th> -->
+                <th>Assign</th>
                 <th>Report</th>
                 <th>Status</th>
                 <th>Amount</th>
@@ -307,10 +396,10 @@
                     <small>{{patient.ref_by}}</small>
                 </td>
                 <td>{{patient.history}}</td>
-                <!-- <td>
+                <td>
                     Dr. {{patient.ref_by}}<br>
                     <small>{{patient.entry_time|date:"d/m/Y"}}</small>
-                </td> -->
+                </td>
                 <td>
                     <i class="fa-regular fa-file-pdf" style="color:red; cursor:pointer; margin-right:8px;" 
                        onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
@@ -343,11 +432,12 @@ const nav2 = document.getElementById('nav2');
 const nav3 = document.getElementById('nav3');
 
 toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
+    sidebar.classList.toggle('sidebar-hidden');
+
 
     const icon = toggleBtn.querySelector('i');
 
-    if (sidebar.classList.contains('hidden')) {
+    if (sidebar.classList.contains('sidebar-hidden')) {
         // Sidebar hidden → shift right
         icon.classList.remove('fa-chevron-left');
         icon.classList.add('fa-chevron-right');
@@ -569,6 +659,7 @@ function toggleSelectAll(checkbox) {
     const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
     rowCheckboxes.forEach(cb => cb.checked = checkbox.checked);
 }
+
 
 // 🟢 SEARCH + FILTER COMBINED
 const searchInput = document.getElementById('searchInput');

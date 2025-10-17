@@ -2,8 +2,7 @@
 {% block body %}
 
 <style>
-/* tumhare previous CSS yahan rahega (floating labels, container, table styles, buttons) */
-
+/* Floating labels & general styles */
 .floating-label-container { position: relative; margin: 10px 0; width: 100px; display:inline-block; }
 .floating-label-container input, .floating-label-container select {
     width:100%; padding:8px; border:2px solid #00aaff; border-radius:6px; outline:none; background:white;
@@ -15,75 +14,98 @@
 .floating-label-container select:focus + label, .floating-label-container select:not([value=""]) + label {
     top:-1px; font-size:12px; color:#0077cc;
 }
+
+/* Table default styles */
 table { width:100%; border-collapse: collapse; margin-top: 20px; background:white; }
 thead th { background:#2f9ed8; color:white; padding:10px; text-align:left; }
 td, th { border:1px solid #d6dfe6; padding:10px; }
-.status-dot {
-    display:inline-block;
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    margin-right:6px;
+.status-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
+
+/* 🌍 Responsive design (Tablet) */
+@media (max-width: 1024px) {
+    .container { margin: 10px; padding: 10px; overflow-x: auto; }
+    form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-start; margin-top: 60px; background-color: #9c9e9f; padding: 10px; border-radius: 8px; }
+    .floating-label-container { width: 45%; margin: 5px 0; }
+    button.btn { width: 100%; margin: 10px 0; }
+    table { font-size: 14px; width: 100%; overflow-x: auto; display: block; }
+    th, td { padding: 8px; }
+}
+
+/* 📱 Mobile view (Below 600px) */
+@media (max-width: 600px) {
+    .container { width: 100%; padding: 5px; margin: 0; }
+
+    /* Form fields stack vertically */
+    form { flex-direction: column; align-items: stretch; margin-left: 0 !important; background-color: #9c9e9f; border-radius: 10px; padding: 10px; }
+    .floating-label-container { width: 100%; margin: 6px 0; }
+    #filterUserType, #filterActive, #filterInactive { margin: 5px 0; width: 100%; }
+    #searchInput { width: 100%; margin: 10px 0; font-size: 15px; }
+
+    /* Table responsive */
+    table { width: 100%; font-size: 12px; display: block; overflow-x: auto; }
+    thead { display: none; }
+    tbody tr { display: block; background: #fff; margin-bottom: 10px; border-radius: 6px; box-shadow: 0 0 4px rgba(0, 0, 0, 0.1); padding: 10px; }
+    tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 10px;
+        border: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* Labels for cells except action */
+    tbody td:not(:last-child)::before { content: attr(data-label); font-weight: 600; color: #0074d9; margin-right: 10px; }
+
+    /* Action cell flex adjustment */
+    tbody td:last-child { justify-content: flex-start; }
+
+    /* Ensure View button visible */
+    .see-btn { display: inline-block; padding: 5px 10px; font-size: 12px; margin-top: 0; }
+}
+
+/* 🧠 Small visual polish */
+@media (max-width: 400px) {
+    table { font-size: 11px; }
+    .floating-label-container label { font-size: 12px; }
 }
 </style>
 
 <div class="container">
-    
-    <!-- <h2>Create Account</h2> -->
+
     <form style="margin-left: 62px; margin-top: 66px; background-color: #9c9e9f;" method="post">
-         <select id="filterUserType" 
-        style="padding:7px ; font-weight:600; margin-left:20px; border-radius:8px; border: none; border:1px solid #ccc; cursor:pointer;">
-       <option  value="ALL">ALL USERS</option>
-       <option value="RADS">RADS</option>
-       <option value="IMAGING">IMAGING</option>
-     </select>
-      <!-- yahi tumhare nav ke andar rakho -->
-<button type="button" id="filterActive" 
-  style="padding: 6px; cursor: pointer; font-weight: 500; margin-left: 30px; border-radius: 8px; border: none;">
-  <span style="color: rgb(36, 129, 22); font-weight: 600;">ACTIVE </span>
-</button>
+        <!-- Search box -->
+        <div style="display:inline-block; margin-left:10px;">
+            <input type="search" id="searchInput" placeholder="Search details..." style="margin-left:0; padding:5px 35px 5px 10px; border-radius:10px; border:none; width:200px; font-size:16px;">
+        </div>
 
-<button type="button" id="filterInactive" 
-  style="padding: 6px; font-weight: 500; cursor: pointer; margin-left: 5px; border-radius: 8px; border: none;">
-  <span style="color: rgb(234, 19, 19); font-weight: 600;">IN-ACTIVE</span>
-</button>
+        <!-- Filters -->
+        <select id="filterUserType" style="padding:7px; font-weight:600; margin-left:20px; border-radius:8px; border:1px solid #ccc; cursor:pointer;">
+            <option value="ALL">ALL USERS</option>
+            <option value="RADS">RADS</option>
+            <option value="IMAGING">IMAGING</option>
+        </select>
 
+        <button type="button" id="filterActive" style="padding:6px; cursor:pointer; font-weight:500; margin-left:30px; border-radius:8px; border:none;">
+            <span style="color: rgb(36, 129, 22); font-weight:600;">ACTIVE</span>
+        </button>
 
+        <button type="button" id="filterInactive" style="padding:6px; font-weight:500; cursor:pointer; margin-left:5px; border-radius:8px; border:none;">
+            <span style="color: rgb(234, 19, 19); font-weight:600;">IN-ACTIVE</span>
+        </button>
 
-<!-- search  box -->
-<div style=" display: inline-block; margin-left: 50px;">
-  <input type="search" id="searchInput" placeholder="Search details..."
-    style="margin-left: 0px; padding: 5px 35px 5px 10px; border-radius: 10px; border: none; width: 200px; font-size: 16px;">
-  <i class="fa-solid fa-" 
-     style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: gray; cursor: pointer;"></i>
-</div>
-<br><br>
+        <br><br>
         {% csrf_token %}
-        <div class="floating-label-container">
-            {{ form.name }}
-            <label>NAME</label>
-        </div>
-        <div style="margin-left: 20px;" class="floating-label-container">
-            {{ form.userid }}
-            <label>USER ID</label>
-        </div>
-        <div style="margin-left: 20px;"  class="floating-label-container">
-            {{ form.password }}
-            <label>PASSWORD</label>
-        </div>
-        <div style="margin-left: 20px;"  class="floating-label-container">
-            {{ form.usertype }}
-            <label>USER TYPE</label>
-        </div>
-        <div style="margin-left: 20px;"  class="floating-label-container">
-            {{ form.contact }}
-            <!-- <label>CONTACT</label> -->
-        </div>
-        <button style="background-color:  rgb(81, 139, 240); font-weight: 700; color: white; border: none; padding: 8px; margin-left: -100px; border-radius: 5px;" type="submit" class="btn">CREATE ACCOUNT</button>
+        <div class="floating-label-container">{{ form.name }}<label>NAME</label></div>
+        <div style="margin-left:20px;" class="floating-label-container">{{ form.userid }}<label>USER ID</label></div>
+        <div style="margin-left:20px;" class="floating-label-container">{{ form.password }}<label>PASSWORD</label></div>
+        <div style="margin-left:20px;" class="floating-label-container">{{ form.usertype }}<label>USER TYPE</label></div>
+        <div style="margin-left:20px;" class="floating-label-container">{{ form.contact }}</div>
+        <button style="background-color:rgb(81, 139, 240); font-weight:700; color:white; border:none; padding:8px; margin-left:-100px; border-radius:5px;" type="submit" class="btn">CREATE ACCOUNT</button>
     </form>
 
-    <!-- <h3>Existing Users</h3> -->
-    <table id="userTable" style="margin-left: 62px;">
+    <!-- Users Table -->
+    <table id="userTable" style="margin-left:62px;">
         <thead>
             <tr>
                 <th>ACCOUNT DATE</th>
@@ -91,110 +113,74 @@ td, th { border:1px solid #d6dfe6; padding:10px; }
                 <th>USER ID</th>
                 <th>USER TYPE</th>
                 <th>STATUS</th>
-                <!-- <th>CONTACT</th> -->
                 <th>ACTION</th>
             </tr>
         </thead>
-        <tbody >
+        <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.created_at|date:"d-m-Y" }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.userid }}</td>
-                <td class="usertype">{{ user.usertype }}</td>
-                <!-- <td>{{ user.contact }}</td> -->
-                
-                      <!-- 🟢 ACTIVE/INACTIVE STATUS COLUMN -->
-    <td class="status-cell" data-status="{{ user.is_active|yesno:'ACTIVE,INACTIVE' }}">
-        {% if user.is_active %}
-            <span class="status-dot" style="background-color: green;"></span> 
-        {% else %}
-            <span class="status-dot" style="background-color: red;"></span> 
-        {% endif %}
-    </td>
-    <td>
-        <a href="{% url 'user_detail' user.id %}" class="see-btn" style="background:#0074d9; padding: 5px; color: white; border: none; text-decoration: none; border-radius: 6px;">View</a>
-
-    </td>
-               
-                    <!-- <a href="" class="see-btn" style="background:red;">Delete</a> -->
-                <!-- </td> -->
+                <td data-label="ACCOUNT DATE">{{ user.created_at|date:"d-m-Y" }}</td>
+                <td data-label="ACCOUNT NAME">{{ user.name }}</td>
+                <td data-label="USER ID">{{ user.userid }}</td>
+                <td data-label="USER TYPE" class="usertype">{{ user.usertype }}</td>
+                <td data-label="STATUS" class="status-cell" data-status="{{ user.is_active|yesno:'ACTIVE,INACTIVE' }}">
+                    {% if user.is_active %}
+                        <span class="status-dot" style="background-color:green;"></span>
+                    {% else %}
+                        <span class="status-dot" style="background-color:red;"></span>
+                    {% endif %}
+                </td>
+                <td data-label="ACTION">
+                    <a href="{% url 'user_detail' user.id %}" class="see-btn" style="background:#0074d9; color:white; text-decoration:none; border-radius:6px;">View</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 <script>
+// Filters & Search functionality
 const rows = document.querySelectorAll('#userTable tbody tr');
 
-// STATUS FILTER
+// Status filter
 const btnActive = document.getElementById('filterActive');
 const btnInactive = document.getElementById('filterInactive');
 let statusFilter = 'ALL';
 
-btnActive.addEventListener('click', (e) => {
-    e.preventDefault();
-    statusFilter = 'ACTIVE';
-    filterStatus();
-});
-btnInactive.addEventListener('click', (e) => {
-    e.preventDefault();
-    statusFilter = 'INACTIVE';
-    filterStatus();
-});
+btnActive.addEventListener('click', () => { statusFilter='ACTIVE'; filterStatus(); });
+btnInactive.addEventListener('click', () => { statusFilter='INACTIVE'; filterStatus(); });
 
-function filterStatus() {
+function filterStatus(){
     rows.forEach(row => {
         const status = row.querySelector('.status-cell')?.dataset.status.trim().toUpperCase() || '';
-        if (statusFilter === 'ALL' || status === statusFilter) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        row.style.display = (statusFilter==='ALL' || status===statusFilter)?'':'none';
     });
 }
 
-// USER TYPE FILTER
+// User type filter
 const filterSelect = document.getElementById('filterUserType');
-filterSelect.addEventListener('change', filterUserType);
-
-function filterUserType() {
+filterSelect.addEventListener('change', () => {
     const selectedType = filterSelect.value.trim().toUpperCase();
     rows.forEach(row => {
         const typeText = row.querySelector('.usertype')?.textContent.trim().toUpperCase() || '';
-        if (selectedType === 'ALL' || typeText === selectedType) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        row.style.display = (selectedType==='ALL' || typeText===selectedType)?'':'none';
     });
-}
+});
 
-// SEARCH FILTER
+// Search filter
 const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('keyup', filterSearch);
-
-function filterSearch() {
+searchInput.addEventListener('keyup', () => {
     const filterText = searchInput.value.trim().toUpperCase();
     rows.forEach(row => {
         const name = row.cells[1]?.textContent.trim().toUpperCase() || '';
         const userid = row.cells[2]?.textContent.trim().toUpperCase() || '';
-        if (filterText === '' || name.includes(filterText) || userid.includes(filterText)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        row.style.display = (filterText==='' || name.includes(filterText) || userid.includes(filterText))?'':'none';
     });
-}
-
-// Optional: initialize all filters as ALL
-document.addEventListener('DOMContentLoaded', () => {
-    statusFilter = 'ALL';
-    filterSelect.value = 'ALL';
 });
+
+// Initialize filters
+document.addEventListener('DOMContentLoaded', () => { statusFilter='ALL'; filterSelect.value='ALL'; });
 </script>
-
-
-
 
 {% endblock %}
