@@ -124,9 +124,12 @@ body {
     z-index: 1000;
     transition: left 0.3s;
 }
-
-/* 🧭 SECOND NAVBAR (Filters) */
+/* ✅ Make nav2 fixed just below top navbar */
 .nav2 {
+    position: fixed;
+    top: 60px; /* top navbar height */
+    left: 60px; /* sidebar width */
+    right: 0;
     background-color: #606160;
     color: white;
     display: flex;
@@ -134,10 +137,68 @@ body {
     gap: 8px;
     align-items: center;
     padding: 10px;
-    margin-top: 60px;
-    margin-left: 60px;
-    transition: margin-left 0.3s ease;
+    z-index: 900;
+    height: auto;
+    transition: left 0.3s ease;
 }
+
+/* ✅ nav3 (table area) scrollable */
+.nav3 {
+    position: absolute;
+    top: 120px; /* nav2 height (approx 60px + 60px = 120px from top) */
+    left: 60px;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    background-color: white;
+    transition: left 0.3s ease;
+    padding-bottom: 50px;
+}
+
+/* ✅ Scrollbar style (optional) */
+.nav3::-webkit-scrollbar {
+    width: 8px;
+}
+.nav3::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+/* ✅ When sidebar hidden */
+.sidebar-hidden ~ .nav2 {
+    left: 0 !important;
+}
+.sidebar-hidden ~ .nav3 {
+    left: 0 !important;
+}
+
+/* 📱 Responsive adjustment */
+@media (max-width: 768px) {
+    .nav2 {
+        left: 55px;
+    }
+    .nav3 {
+        left: 55px;
+        top: 130px;
+    }
+}
+@media (max-width: 480px) {
+    .nav2 {
+        left: 0;
+        top: 60px;
+    }
+    .nav3 {
+        left: 0;
+        top: 120px;
+    }
+}
+
+/* ✅ Body should not scroll */
+body {
+    overflow: hidden;
+}
+
+
 
 .nav2 button, .nav2 a {
     padding: 6px 10px;
@@ -159,13 +220,7 @@ body {
     gap: 5px;
 }
 
-/* 📋 TABLE SECTION */
-.nav3 {
-    margin-left: 60px;
-    overflow-x: auto;
-    background-color: white;
-    transition: margin-left 0.3s ease;
-}
+
 
 .nav3 table {
     width: 100%;
@@ -319,7 +374,7 @@ body {
     </button>
      <button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: 0px; margin-top: 0px;">
        <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">Xray</span> | 
+       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
@@ -337,6 +392,12 @@ body {
         <button id="dateFilterBtn">
             <i class="fas fa-calendar"></i> Date Filter
         </button>
+         <div style=" display: inline-block; margin-left: 4px;">
+  <input type="search" id="searchInput" placeholder="Search details..."
+    style="margin-left: 0px; padding: 3px 35px 5px 10px; border-radius: 3px; border: none; width: 200px; font-size: 16px;">
+  <i class="fa-solid fa-" 
+     style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: gray; cursor: pointer;"></i>
+</div>
     </div>
 </div>
 
@@ -445,8 +506,8 @@ toggleBtn.addEventListener('click', () => {
         icon.classList.remove('fa-chevron-right');
         icon.classList.add('fa-chevron-left');
 
-        nav2.style.marginLeft = "60px";
-        nav3.style.marginLeft = "60px";
+        nav2.style.marginLeft = "0px";
+        nav3.style.marginLeft = "0px";
     }
 });
 
@@ -652,6 +713,45 @@ function exportSelectedToExcel() {
 function toggleSelectAll(checkbox) {
     const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
     rowCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+
+// 🟢 SEARCH + FILTER COMBINED
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keyup', applyFilters);
+
+function applyFilters() {
+    const rows = document.querySelectorAll('#patientTable tr');
+    const searchText = document.getElementById('searchInput').value.trim().toUpperCase();
+
+    rows.forEach(row => {
+        const statusSpan = row.querySelector('.status');
+        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
+        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
+
+        const nameCell = row.querySelector('td:nth-child(2) strong');
+        const idCell = row.querySelector('td:nth-child(2) small');
+        const nameText = nameCell ? nameCell.textContent.trim().toUpperCase() : '';
+        const idText = idCell ? idCell.textContent.trim().toUpperCase() : '';
+
+        // Existing filters (status + scan)
+        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
+        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
+
+        // New search match (name + patient ID)
+        const searchMatch = (
+            searchText === '' || 
+            nameText.includes(searchText) || 
+            idText.includes(searchText)
+        );
+
+        // Final combined check
+        if (statusMatch && scanMatch && searchMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
 }
 </script>
 

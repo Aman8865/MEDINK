@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-3=6%maae$cf0-x_3a+12ht++$=2ta#3uc%%mr152_l3fcy2r*&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['https://medink.onrender.com', 'medink.onrender.com','127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','3.90.78.2 ','https://medink.onrender.com', 'medink.onrender.com']
+# 
 
 # Application definition
 
