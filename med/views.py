@@ -81,13 +81,13 @@ def update_user(request, id):
     return render(request, 'user_detail.html', {'user': user})
 
 
-def imagingA(request):
-    patients = Patient.objects.all().order_by('-entry_time')
-    return render(request, 'imagingA.html', {'patients': patients})
+# def imagingA(request):
+#     patients = Patient.objects.all().order_by('-entry_time')
+#     return render(request, 'imagingA.html', {'patients': patients})
 
-def RADS(request):
-    patients = Patient.objects.all().order_by('-entry_time')
-    return render(request, 'RADS.html', {'patients': patients})
+# def RADS(request):
+#     patients = Patient.objects.all().order_by('-entry_time')
+#     return render(request, 'RADS.html', {'patients': patients})
 
 def invoice(request):
     return render(request, 'invoice.html')
@@ -276,15 +276,43 @@ def login_view(request):
     if form.is_valid():
         userid = form.cleaned_data['userid']
         password = form.cleaned_data['password']
+
+         # 🔹 Step 1: Default admin login check
+        if userid == "Admin" and password == "12345":
+            return redirect('index')  # default page after admin login
         try:
             user = UserAccount.objects.get(userid=userid, password=password)
+            # ✅ Save user info to session
+            request.session['user_id'] = user.id
+            request.session['user_name'] = user.name
+            request.session['user_type'] = user.usertype
+
             if user.usertype == 'RADS':
                 return redirect('RADS')
             else:
                 return redirect('imagingA')
         except UserAccount.DoesNotExist:
             error = "Invalid userid or password"
+
     return render(request, 'login.html', {'form': form, 'error': error})
+
+
+def imagingA(request):
+    if 'user_id' not in request.session:
+        return redirect('login')  # Agar login nahi hai to login page bhej do
+    patients = Patient.objects.all().order_by('-entry_time')
+    return render(request, 'imagingA.html', {'patients': patients})
+
+def RADS(request):
+    if 'user_id' not in request.session:
+        return redirect('login')
+    patients = Patient.objects.all().order_by('-entry_time')
+    return render(request, 'RADS.html', {'patients': patients})
+
+
+def logout_view(request):
+    request.session.flush()  # session clear
+    return redirect('login')
 
 # def rads_page(request):
 #     return render(request, 'RADS.html')

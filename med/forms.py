@@ -24,6 +24,15 @@ class SignupForm(forms.ModelForm):
             }),
         }
 
+# class LoginForm(forms.Form):
+#     userid = forms.CharField(max_length=50)
+#     password = forms.CharField(widget=forms.PasswordInput)
+
+
+
+from django import forms
+
 class LoginForm(forms.Form):
-    userid = forms.CharField(max_length=50)
-    password = forms.CharField(widget=forms.PasswordInput)
+    userid = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'placeholder':'User ID'}))
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+
