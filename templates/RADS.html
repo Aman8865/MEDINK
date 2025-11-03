@@ -296,7 +296,7 @@ body {
     <span >DOCTOR</span>
 
     {% if request.session.user_name %}
-         <span style="margin-left: 800px; font-size: 13px; margin-top: 30px;">Welcome, {{ request.session.user_name }}</span>
+         <span style="margin-left: 900px; font-size: 13px; margin-top: 30px;">Welcome, {{ request.session.user_name }}</span>
          <a href="{% url 'logout' %}" style="text-decoration:none; margin-top: 30px; margin-left: 10px; color:red;">
           <i class="fas fa-sign-out-alt"></i> 
          </a>

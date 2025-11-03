@@ -238,6 +238,8 @@
 
             <div class="upload-box">
                 <input type="file" id="uploadScan" accept="image/*" required>
+                <input type="hidden" id="centerName" value="{{ request.session.user_name }}">
+
                 <span class="placeholder">Upload Scan</span>
                 <i class="fas fa-upload"></i>
             </div>
@@ -321,7 +323,8 @@ const formData = {
     scanType: document.getElementById("scanType").value,
     bodyPart: document.getElementById("bodyPart").value,
     refBy: document.getElementById("refBy").value,
-    scan: finalImage.src  // Make sure this is set correctly
+    scan: finalImage.src, // Make sure this is set correctly
+    center: document.getElementById("centerName").value
 };
 
             fetch('/api/patient/add/', {
@@ -335,7 +338,7 @@ const formData = {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    window.location.href = '/index/';
+                    window.location.href = '/imagingA/';
                 } else {
                     alert('Error: ' + data.message);
                 }

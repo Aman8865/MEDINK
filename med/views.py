@@ -18,10 +18,6 @@ from reportlab.lib.pagesizes import letter
 def login(request):
     return render(request, 'login.html')
 
-# def index(request):
-#     return render(request, 'index.html')
-    
-
 def profile(request):
     return render(request, 'profile.html')
 
@@ -32,8 +28,6 @@ def popupform(request):
     return render(request,'popupform.html')
 # def report(request, id):
 #     return render(request, 'report.html', {'id': id})
-
-
 
 from django.shortcuts import render, get_object_or_404
 from .models import UserAccount
@@ -60,7 +54,7 @@ def user_detail(request, id):
             user.password = new_password  # Optional: hash it in production
 
         user.save()
-        return redirect('user_detail', id=id)  # Refresh page after saving
+        return redirect('signup')  # Refresh page after saving
 
     return render(request, 'user_detail.html', {'user': user})
 
@@ -95,48 +89,96 @@ def payment(request):
     return render(request, 'payment.html')
 
 
+# @csrf_exempt
+# def add_patient(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             print("Received data:", data)  # For debugging
+            
+#             # Clean up base64 image data if needed
+#             scan_image = data.get('scan', '')  # Use get() with default value
+#             if ',' in scan_image:
+#                 scan_image = scan_image.split(',')[1]
+#             center_name = data.get('center') or request.session.get('user_name')  # ✅ from frontend or session
+
+            
+#             patient = Patient.objects.create(
+#                 name=data.get('name'),
+#                 age=data.get('age'),
+#                 gender=data.get('gender'),
+#                 history=data.get('history'),
+#                 scan_type=data.get('scanType'),  # Changed from scan_type
+#                 body_part=data.get('bodyPart'),  # Changed from body_part
+#                 ref_by=data.get('refBy'),        # Changed from ref_by
+#                 scan_image=scan_image,
+#                 center=center_name  # ✅ store the center name
+#             )
+#             return JsonResponse({
+#                 'status': 'success',
+#                 'patient_id': patient.patient_id
+#             })
+#         except KeyError as e:
+#             print("KeyError:", e)  # Add debug print
+#             return JsonResponse({
+#                 'status': 'error',
+#                 'message': f'Missing field: {str(e)}'
+#             })
+#         except Exception as e:
+#             print("Exception:", e)  # Add debug print
+#             return JsonResponse({
+#                 'status': 'error',
+#                 'message': str(e)
+#             })
 @csrf_exempt
 def add_patient(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print("Received data:", data)  # For debugging
-            
-            # Clean up base64 image data if needed
-            scan_image = data.get('scan', '')  # Use get() with default value
+            scan_image = data.get('scan', '')
             if ',' in scan_image:
                 scan_image = scan_image.split(',')[1]
-            
+
+            user_id = request.session.get('user_id')  # ✅ session से current user ID
+            center_name = data.get('center') or request.session.get('user_name')
+
             patient = Patient.objects.create(
                 name=data.get('name'),
                 age=data.get('age'),
                 gender=data.get('gender'),
                 history=data.get('history'),
-                scan_type=data.get('scanType'),  # Changed from scan_type
-                body_part=data.get('bodyPart'),  # Changed from body_part
-                ref_by=data.get('refBy'),        # Changed from ref_by
-                scan_image=scan_image
+                scan_type=data.get('scanType'),
+                body_part=data.get('bodyPart'),
+                ref_by=data.get('refBy'),
+                scan_image=scan_image,
+                center=center_name,
+                created_by_id=user_id  # ✅ लिंक हो गया user से
             )
-            return JsonResponse({
-                'status': 'success',
-                'patient_id': patient.patient_id
-            })
-        except KeyError as e:
-            print("KeyError:", e)  # Add debug print
-            return JsonResponse({
-                'status': 'error',
-                'message': f'Missing field: {str(e)}'
-            })
+
+            return JsonResponse({'status': 'success', 'patient_id': patient.patient_id})
         except Exception as e:
-            print("Exception:", e)  # Add debug print
-            return JsonResponse({
-                'status': 'error',
-                'message': str(e)
-            })
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+from django.shortcuts import render
+from .models import Patient,UserAccount
 
 def index(request):
+    centers = UserAccount.objects.filter(usertype='IMAGING', is_active=True)
+    rads = UserAccount.objects.filter(usertype='RADS', is_active=True)
+
     patients = Patient.objects.all().order_by('-entry_time')
-    return render(request, 'index.html', {'patients': patients})
+
+    # ✅ sab unique center names nikal lo (jo blank na ho)
+    # centers_qs = Patient.objects.values_list('center', flat=True).distinct().order_by('center')
+    # centers = [c for c in centers_qs if c and c.strip()]
+
+    # ✅ dono bhej do template ko
+    return render(request, 'index.html', {
+        'patients': patients,
+        'centers': centers,
+        'rads': rads
+    })
+
 @csrf_exempt
 def update_report(request, id):
     if request.method == 'POST':
@@ -185,15 +227,22 @@ def get_patient(request, id):
 
 
 
-@csrf_exempt
-def delete_patient(request, id):
-    if request.method == 'DELETE':
-        try:
-            patient = Patient.objects.get(id=id)
-            patient.delete()
-            return JsonResponse({'status': 'success'})
-        except Patient.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Patient not found'})
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Patient  # apne model ka naam use karo
+
+# @csrf_exempt
+# def delete_patient(request, id):
+#     if request.method == 'DELETE':
+#         try:
+#             patient = Patient.objects.get(id=id)
+#             patient.delete()
+#             return JsonResponse({'success': True})
+#         except Patient.DoesNotExist:
+#             return JsonResponse({'error': 'Patient not found'}, status=404)
+#     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
         
         
 @csrf_exempt
@@ -253,11 +302,7 @@ def download_report(request, id, format):
     except Patient.DoesNotExist:
         return JsonResponse({'error': 'Patient not found'}, status=404)
     
-
-
-
-
-
+    
 from django.shortcuts import render, redirect
 from .models import UserAccount
 from .forms import SignupForm, LoginForm
@@ -296,17 +341,40 @@ def login_view(request):
 
     return render(request, 'login.html', {'form': form, 'error': error})
 
-
 def imagingA(request):
     if 'user_id' not in request.session:
-        return redirect('login')  # Agar login nahi hai to login page bhej do
-    patients = Patient.objects.all().order_by('-entry_time')
+        return redirect('login')
+
+    user_id = request.session['user_id']
+    user_name = request.session['user_name']
+
+    # ✅ Admin ko sab dikhayenge
+    if user_name.lower() == "admin":
+        patients = Patient.objects.all().order_by('-entry_time')
+    else:
+        patients = Patient.objects.filter(created_by_id=user_id).order_by('-entry_time')
+
     return render(request, 'imagingA.html', {'patients': patients})
 
 def RADS(request):
     if 'user_id' not in request.session:
         return redirect('login')
-    patients = Patient.objects.all().order_by('-entry_time')
+
+    user_id = request.session['user_id']
+    user_name = request.session['user_name']
+
+    # Agar admin ho toh sab dikhana
+    if user_name.lower() == "admin":
+        patients = Patient.objects.all().order_by('-entry_time')
+    else:
+        # Agar current logged-in user RAD type hai to assigned patients dikhao
+        user = UserAccount.objects.get(id=user_id)
+        if user.usertype == 'RADS':
+            patients = Patient.objects.filter(assigned_to_id=user_id).order_by('-entry_time')
+        else:
+            # agar imaging center user hai to apne created patients dikhao (jaise pehle)
+            patients = Patient.objects.filter(created_by_id=user_id).order_by('-entry_time')
+
     return render(request, 'RADS.html', {'patients': patients})
 
 
@@ -322,4 +390,63 @@ def logout_view(request):
 
 
 
-    
+
+    # views.py (kisi jagah imports ke upar)
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt  # agar aap csrf_token use nahi kar rahe toh rakh sakte ho
+
+# Add this function somewhere in views.py
+@csrf_exempt   # agar aap template me CSRF token bhejna nahi chahte toh isko rakh lo; production me hata ke proper CSRF use karo
+@require_POST
+def assign_patient(request, patient_id):
+    print("Session check ->", request.session.get('user_name'), request.session.get('user_type'))
+
+    """
+    Frontend se AJAX POST karega: body = {"rad_id": <user_id>}
+    Sirf admin ya imaging user assign kar sake — aap yahan permission logic change kar sakte ho.
+    """
+    # basic permission: agar session me user_name nahi hai -> not allowed
+    if 'user_id' not in request.session:
+        return HttpResponseForbidden("Login required")
+
+    # Optional: sirf admin ya IMAGING type wale assign kar sake:
+    user_name = request.session.get('user_name', '').lower()
+    user_type = request.session.get('user_type', '')
+
+    # allow if admin or IMAGING user
+    if not (user_name == 'admin' or user_type in ['IMAGING', 'RADS']):
+        return HttpResponseForbidden("Not allowed to assign")
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    rad_id = data.get('rad_id')
+
+    try:
+        patient = Patient.objects.get(id=patient_id)
+    except Patient.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Patient not found'}, status=404)
+
+    # unassign
+    if not rad_id:
+        patient.assigned_to = None
+        patient.save()
+        return JsonResponse({'success': True, 'assigned_to': None})
+
+    try:
+        rad_user = UserAccount.objects.get(id=rad_id, is_active=True, usertype='RADS')
+    except UserAccount.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'RAD user not found'}, status=404)
+
+    patient.assigned_to = rad_user
+    patient.save()
+
+    # Optional: yahan notification/email dal sakte ho
+
+    return JsonResponse({
+        'success': True,
+        'assigned_to': {'id': rad_user.id, 'name': rad_user.name}
+    })

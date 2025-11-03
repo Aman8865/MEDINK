@@ -40,6 +40,9 @@ urlpatterns = [
     path('api/patient/<int:id>/update/',update_report, name='update_report'),
     path('api/patient/<int:id>/', get_patient, name='get_patient'),
     path('api/patient/<int:id>/update/', update_report, name='update_report'),
+    path('assign_patient/<int:patient_id>/', assign_patient, name='assign_patient'),
+
+    
     
 
     

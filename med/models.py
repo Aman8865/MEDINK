@@ -2,6 +2,8 @@ from django.db import models
 from datetime import datetime
 
 class Patient(models.Model):
+    center = models.CharField(max_length=100, null=True, blank=True)
+
     patient_id = models.CharField(max_length=50, unique=True, blank=True)
     name = models.CharField(max_length=100)
     age = models.IntegerField()
@@ -15,7 +17,15 @@ class Patient(models.Model):
     entry_time = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, default='UNREAD')
     report = models.TextField(null=True, blank=True)
-    
+    created_by = models.ForeignKey('UserAccount', on_delete=models.CASCADE, null=True, blank=True)
+
+    assigned_to = models.ForeignKey(
+        'UserAccount',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_patients'
+    )
     def save(self, *args, **kwargs):
         if not self.patient_id:
             now = datetime.now()

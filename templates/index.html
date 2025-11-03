@@ -11,6 +11,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css"/>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js"></script>
+
+
 
     <style>
        /* 🌐 GLOBAL STYLE */
@@ -126,7 +130,7 @@ body {
 }
 /* ✅ Make nav2 fixed just below top navbar */
 .nav2 {
-    position: fixed;
+    position: absolute;
     top: 60px; /* top navbar height */
     left: 60px; /* sidebar width */
     right: 0;
@@ -323,6 +327,41 @@ body {
     }
 }
 
+#refreshTimer {
+  font-size: 14px;
+  color: #007bff;
+}
+
+#nav3 {
+  max-height: 450px;         /* scroll height adjust kar lo */
+  overflow-y: auto;           /* sirf vertical scroll */
+  border: 1px solid #ddd;     /* optional border */
+}
+
+#nav3 table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#nav3 thead th {
+  position: sticky;
+  top: 0;
+  background-color: rgb(153, 152, 152);    /* ya apne theme ke hisab se */
+  z-index: 10;
+  border-bottom: 2px solid #ccc;
+}
+
+#nav3 th, #nav3 td {
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid #eee;
+}
+
+#statusFilter .active {
+  color: #00ffcc;
+  font-weight: bold;
+}
+
 
     </style>
 </head>
@@ -357,21 +396,29 @@ body {
         <i class="fas fa-plus"></i> Add New
     </button>
 
-    <button onclick="filterPatients('UNREAD')" style="color: red; font-weight: 600;">
-        UNREAD
-    </button>
+   <div id="statusFilter" style="padding: 6px; background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; margin-top: 0px; ">
+  <span id="filter-all" style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;"  onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+  <span id="filter-final" style="cursor:pointer; color:black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
+  <span id="filter-unread" style="cursor:pointer; color:black;" onclick="filterPatients('UNREAD')">UNREAD</span>
+</div>
 
-    <button onclick="filterPatients('FINAL')" style="color: green; font-weight: 600;">
-        FINAL
-    </button>
+   <select style="padding: 5px; border-radius: 4px;" id="centerSelect" name="center">
+    <option value="ALL">All Imaging</option>
+    {% for c in centers %}
+        <option value="{{ c.name }}">{{ c.name }}</option>
+    {% endfor %}
+</select>
+<label for="radsSelect"></label>
+<select id="radsSelect" name="rads" style="padding: 5px; border-radius: 4px;">
+    <option value="ALL">All Rads</option>
+    {% for r in rads %}
+        <option value="{{ r.name }}">{{ r.name }}</option>
+    {% endfor %}
+</select>
 
-    <button onclick="filterPatients('ALL')" style="color: green; font-weight: 600;">
-        ALL
-    </button>
+<!-- <p style="color:red;">{{ centers.count }} imaging centers found</p> -->
 
-    <button style="color: rgb(143, 143, 228);">
-        All RADS <i class="fas fa-caret-down"></i>
-    </button>
+
      <button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: 0px; margin-top: 0px;">
        <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
@@ -380,64 +427,77 @@ body {
        <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
     </button>
 <button onclick="exportSelectedToExcel()" style="background-color: #4CAF50; font-weight: 600; color: white;">
-    Export Excel
+    E-xcel
 </button>
 
-
-    <a href="" style="background-color: aliceblue; padding: 3px; border-radius: 8px;">
+    <!-- <a href="" style="background-color: aliceblue; padding: 3px; border-radius: 8px;">
         <i class="fa-solid fa-rotate-right"></i>
-    </a>
+    </a> -->
 
-    <div class="date-filter">
-        <button id="dateFilterBtn">
-            <i class="fas fa-calendar"></i> Date Filter
-        </button>
-         <div style=" display: inline-block; margin-left: 4px;">
-  <input type="search" id="searchInput" placeholder="Search details..."
-    style="margin-left: 0px; padding: 3px 35px 5px 10px; border-radius: 3px; border: none; width: 200px; font-size: 16px;">
-  <i class="fa-solid fa-" 
-     style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: gray; cursor: pointer;"></i>
+   <div class="date-filter">
+  <button id="dateFilterBtn"><i class="fas fa-calendar"></i>Date</button>
+
+  <input id="dateRangeInput" type="text" placeholder="Select date range" readonly
+         style="margin-left:8px; display: none; padding:6px 10px; border-radius:4px; border:none; width:220px; font-size:14px;" />
+
+  <div class="date-cycle">
+  <button id="dateCycleBtn" style="margin-left:6px; padding:6px 10px; border-radius:5px; border:none; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:6px;">
+    <i class="fas fa-arrow-left" onclick="changeDateFilter('left', event)"></i>
+    <span id="dateCycleLabel">Clear</span>
+    <i class="fas fa-arrow-right" onclick="changeDateFilter('right', event)"></i>
+  </button>
 </div>
-    </div>
+
+
+
+  <div style=" display: inline-block; margin-left: 4px;">
+    <input type="search" id="searchInput" placeholder="Search det..."
+      style="margin-left: 0px; padding: 3px 35px 5px 10px; border-radius: 3px; border: none; width: 150px; font-size: 16px;">
+  </div>
+</div>
+
+
+    <span id="refreshTimer" style="margin-left: 0px; font-weight: 500; color: white;">
+    🔄️<span id="live-seconds" style="font-weight:bold; color:white;">30s</span>
+
+
+</span>
+
 </div>
 
 
 
-<div id="nav3" class="nav3">
-    <table >
-        <thead>
-            <tr>
-                
-                   
-                       
-
-                 <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">Center/Date</th>
-                <th>Patient</th>
-                <th>Age/Sex</th>
-                <th>Scan Type</th>
-                <th>Body Part</th>
-                <th>History</th>
-                <th>Assign</th>
-                <th>Report</th>
-                <th>Status</th>
-                <th>Amount</th>
-                <!-- <th>Action</th> -->
-            </tr>
-            
-        </thead>
+<div  id="nav3" class="nav3" class="max-h-[450px] overflow-y-auto border border-gray-300">
+    <table class="min-w-full border-collapse" >
+         <thead class="bg-white sticky top-0 z-10 border-b-2 border-gray-200">
+      <tr>
+        <th class="p-2">Center/Date</th>
+        <th class="p-2">Patient</th>
+        <th class="p-2">Age/Sex</th>
+        <th class="p-2">Scan Type</th>
+        <th class="p-2">Body Part</th>
+        <th class="p-2">History</th>
+        <th class="p-2">Assign</th>
+        <th class="p-2">Report</th>
+        <!-- <th class="p-2">TAT</th> -->
+        <th class="p-2">Amount</th>
+      </tr>
+    </thead>
         
         
         <tbody  id="patientTable">
             
             {% for patient in patients %}
-            <tr onclick="window.location.href='/report/{{patient.id}}/'" 
+            <tr data-entry-date="{{ patient.entry_time|date:'Y-m-d' }}"
+            data-center="{{ patient.imaging_center.name }}" 
+            onclick="window.location.href='/report/{{patient.id}}/'" 
                 style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#e8f5e9{% elif patient.status == 'DRAFT' %}#fff3e0{% else %}#ffebee{% endif %}">
                 
                 <td>
                     
                     <input type="checkbox" class="rowCheckbox" data-id="{{patient.id}}" onclick="event.stopPropagation()">
 
-                    Surya Imaging<br>
+                    {{ patient.center }}<br>
                     <small>{{patient.entry_time|date:"d/m/Y"}} | {{patient.entry_time|time:"H:i"}}</small>
                 </td>
                 <td>
@@ -451,10 +511,26 @@ body {
                     <small>{{patient.ref_by}}</small>
                 </td>
                 <td>{{patient.history}}</td>
-                <td>
-                    Dr. {{patient.ref_by}}<br>
-                    <small>{{patient.entry_time|date:"d/m/Y"}}</small>
-                </td>
+              <td onclick="event.stopPropagation();">
+    <select class="assign-dropdown" data-patient="{{ patient.id }}" onchange="assignPatient('{{patient.id}}', this.value)">
+        <option value="">Select</option>
+        {% for r in rads %}
+            <option value="{{r.id}}" {% if patient.assigned_to and patient.assigned_to.id == r.id %}selected{% endif %}>
+                {{r.name}}
+            </option>
+        {% endfor %}
+    </select>
+    <br>
+    <small class="entry-time">{{patient.entry_time|date:"d/m/Y"}} | {{patient.entry_time|time:"H:i"}}</small>
+    <!-- show currently assigned -->
+    {% if patient.assigned_to %}
+      <!-- <br><small class="assigned-to-display">{{ patient.assigned_to.name }}</small> -->
+    {% else %}
+      <br><small class="assigned-to-display"></small>
+    {% endif %}
+</td>
+
+
                 <td>
                     <i class="fa-regular fa-file-pdf" style="color:red; cursor:pointer; margin-right:8px;" 
                        onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
@@ -462,7 +538,7 @@ body {
                        onclick="downloadReport({{patient.id}}, 'word', event)"></i>
                     <span class="status {{patient.status|lower}}">{{patient.status}}</span>
                 </td>
-                <td><span class="green-dot"></span></td>
+                <!-- <td><span class="green-dot"></span></td> -->
                 <td>₹100</td>
                 <!-- <td>
                     <i class="fa-solid fa-trash" style="color:red; cursor:pointer;" 
@@ -481,6 +557,35 @@ body {
 
 
 <script>
+// 🔹 CENTER FILTER
+document.getElementById('centerSelect').addEventListener('change', function() {
+    const selectedCenter = this.value.toUpperCase();
+    const rows = document.querySelectorAll('#patientTable tr');
+
+    rows.forEach(row => {
+        const rowCenter = row.getAttribute('data-center')?.toUpperCase() || '';
+
+        const statusSpan = row.querySelector('.status');
+        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
+        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
+
+        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
+        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
+        const centerMatch = (selectedCenter === 'ALL' || rowCenter === selectedCenter);
+
+        // Final display condition
+        if (statusMatch && scanMatch && centerMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+
+
+
+
 const sidebar = document.querySelector('.sidebar2');
 const toggleBtn = document.getElementById('toggleBtn');
 const nav2 = document.getElementById('nav2');
@@ -753,7 +858,343 @@ function applyFilters() {
         }
     });
 }
+
+// function deletePatient(event, id) {
+//     event.stopPropagation(); // row click se bachne ke liye
+
+//     if (!confirm("Are you sure you want to delete this entry?")) return;
+
+//     fetch(`/delete_patient/${id}/`, {
+//         method: "DELETE",
+//         headers: {
+//             "X-CSRFToken": getCookie("csrftoken"), // Django CSRF token
+//         },
+//     })
+//     .then(response => {
+//         if (response.ok) {
+//             alert("Patient entry deleted successfully!");
+//             event.target.closest("tr").remove(); // table row hata do
+//         } else {
+//             alert("Failed to delete entry!");
+//         }
+//     })
+//     .catch(error => {
+//         console.error("Error:", error);
+//         alert("Something went wrong!");
+//     });
+// }
+
+// // Django ke liye CSRF token getter
+// function getCookie(name) {
+//     let cookieValue = null;
+//     if (document.cookie && document.cookie !== "") {
+//         const cookies = document.cookie.split(";");
+//         for (let i = 0; i < cookies.length; i++) {
+//             const cookie = cookies[i].trim();
+//             if (cookie.substring(0, name.length + 1) === name + "=") {
+//                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+//                 break;
+//             }
+//         }
+//     }
+//     return cookieValue;
+// }
+const centerSelect = document.getElementById("centerSelect");
+centerSelect.addEventListener("change", function() {
+    const selectedCenter = this.value.toUpperCase();
+    const rows = document.querySelectorAll("#patientTable tbody tr");
+
+    rows.forEach(row => {
+        const center = row.getAttribute("data-center")?.toUpperCase() || '';
+        if (selectedCenter === "ALL" || center === selectedCenter) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+});
+
+document.getElementById('radsSelect').addEventListener('change', function() {
+    const selectedRad = this.value.toUpperCase();
+    const rows = document.querySelectorAll('#patientTable tr');
+
+    rows.forEach(row => {
+        const rowRad = row.querySelector('td:nth-child(7)')?.textContent.trim().toUpperCase() || '';
+        const rowStatus = row.querySelector('.status')?.textContent.trim().toUpperCase() || '';
+        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
+
+        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
+        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
+        const radMatch = (selectedRad === 'ALL' || rowRad.includes(selectedRad));
+
+        if (statusMatch && scanMatch && radMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// all RADS assign-dropdown
+function assignPatient(patientId, radId) {
+    if (!radId) return; // nothing selected
+
+    fetch(`/assign_patient/${patientId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ rad_id: radId })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Patient assigned successfully!");
+        } else {
+            alert("Failed to assign patient!");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error assigning patient!");
+    });
+}
+
+
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// function assignPatient(patientId, radId) {
+//     // radId can be empty string for unassign
+//     fetch(`/assign_patient/${patientId}/`, {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//             // If you removed @csrf_exempt above, uncomment CSRF header:
+//             "X-CSRFToken": getCookie("csrftoken")
+//         },
+//         body: JSON.stringify({ rad_id: radId })
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         if (data.success) {
+//             // Update UI: show assigned name below the dropdown
+//             const dropdown = document.querySelector(`select.assign-dropdown[data-patient="${patientId}"]`);
+//             if (dropdown) {
+//                 // find/create assigned display element
+//                 let small = dropdown.parentElement.querySelector('.assigned-to-display');
+//                 if (!small) {
+//                     small = document.createElement('small');
+//                     small.className = 'assigned-to-display';
+//                     dropdown.parentElement.appendChild(document.createElement('br'));
+//                     dropdown.parentElement.appendChild(small);
+//                 }
+//                 small.textContent = data.assigned_to ? data.assigned_to.name : '';
+//             }
+//             alert("Assigned successfully✅");
+//         } else {
+//             alert("Assign failed: " + (data.error || 'Unknown'));
+//         }
+//     })
+//     .catch(err => {
+//         console.error(err);
+//         alert("Error assigning");
+//     });
+// }
+
+// ✅ Auto-refresh countdown + refresh
+document.addEventListener("DOMContentLoaded", function() {
+    let countdown = 30; // 30 seconds timer
+    const timerDisplay = document.getElementById("live-seconds");
+
+   function updateTimer() {
+        if (!timerDisplay) return;
+
+        // Change color based on remaining seconds
+        if (countdown > 10) {
+            timerDisplay.style.color = "white"; // normal
+        } else if (countdown > 5) {
+            timerDisplay.style.color = "orange"; // warning
+        } else {
+            timerDisplay.style.color = "red"; // danger
+        }
+
+        timerDisplay.textContent = countdown + "s";
+        countdown--;
+
+        if (countdown < 0) {
+            countdown = 30; // reset timer
+            refreshTbody(); // refresh tbody data
+        }
+    }
+
+    // tbody refresh function
+    function refreshTbody() {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const newTbody = doc.querySelector("tbody");
+                const oldTbody = document.querySelector("tbody");
+
+                if (newTbody && oldTbody) {
+                    oldTbody.innerHTML = newTbody.innerHTML;
+                }
+            })
+            .catch(err => console.error("Error refreshing tbody:", err));
+    }
+
+    // timer update every 1 second
+    setInterval(updateTimer, 1000);
+});
+
+
+// date range filter
+ function ymdToNumber(ymd) {
+    if (!ymd) return null;
+    var parts = ymd.split('-');
+    return Number(parts[0] + parts[1].padStart(2,'0') + parts[2].padStart(2,'0'));
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const dateRangeInput = document.getElementById('dateRangeInput');
+    const dateFilterBtn = document.getElementById('dateFilterBtn');
+    const clearDateBtn = document.getElementById('clearDateBtn');
+
+    const picker = new Litepicker({
+      element: dateRangeInput,
+      singleMode: false,
+      numberOfMonths: 2,
+      numberOfColumns: 2,
+      format: 'YYYY-MM-DD',
+      setup: (picker) => {
+        picker.on('selected', (start, end) => {
+          dateRangeInput.value = start.format('YYYY-MM-DD') + ' — ' + end.format('YYYY-MM-DD');
+          applyDateFilter(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+        });
+      }
+    });
+
+    dateFilterBtn.addEventListener('click', e => {
+      e.preventDefault();
+      picker.show();
+    });
+
+    dateRangeInput.addEventListener('click', () => picker.show());
+
+    clearDateBtn.addEventListener('click', () => {
+      dateRangeInput.value = '';
+      applyDateFilter(null, null);
+    });
+  });
+
+  function applyDateFilter(startYmd, endYmd) {
+    const rows = document.querySelectorAll('#patientTable tr');
+    const startNum = startYmd ? ymdToNumber(startYmd) : null;
+    const endNum   = endYmd   ? ymdToNumber(endYmd)   : null;
+
+    rows.forEach(row => {
+      const rowYmd = row.getAttribute('data-entry-date');
+      const rowNum = rowYmd ? ymdToNumber(rowYmd) : null;
+
+      let show = true;
+      if (startNum && endNum && rowNum) {
+        show = (rowNum >= startNum && rowNum <= endNum);
+      }
+      row.style.display = show ? '' : 'none';
+    });
+  }
+
+  function filterByDate(type) {
+    const rows = document.querySelectorAll('#patientTable tr');
+    const today = new Date();
+    let targetDate = new Date(today);
+
+    // Determine target date
+    if (type === 'yesterday') {
+        targetDate.setDate(today.getDate() - 1);
+    }
+
+    // Format date in YYYY-MM-DD (same as data-entry-date attribute)
+    const targetDateStr = targetDate.toISOString().split('T')[0];
+
+    // Filter rows
+    rows.forEach(row => {
+        const entryDate = row.getAttribute('data-entry-date');
+        if (type === 'today' || type === 'yesterday') {
+            if (entryDate === targetDateStr) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        } else {
+            // show all if type is 'all'
+            row.style.display = '';
+        }
+    });
+
+    // Highlight active filter button (optional)
+    document.querySelectorAll('.nav2 button').forEach(btn => btn.classList.remove('active-filter'));
+    const activeBtn = [...document.querySelectorAll('.nav2 button')].find(b => b.textContent.trim().toLowerCase() === type);
+    if (activeBtn) activeBtn.classList.add('active-filter');
+}
+
+  // Available filter options
+  const dateOptions = ["Clear", "Today", "Yesterday"];
+  let currentIndex = 0; // start with Clear
+
+  function changeDateFilter(direction, event) {
+    // Stop button click bubbling
+    event.stopPropagation();
+
+    if (direction === "right") {
+      currentIndex = (currentIndex + 1) % dateOptions.length;
+    } else if (direction === "left") {
+      currentIndex = (currentIndex - 1 + dateOptions.length) % dateOptions.length;
+    }
+
+    // Update label text
+    const label = document.getElementById("dateCycleLabel");
+    label.textContent = dateOptions[currentIndex];
+
+    // Apply corresponding filter
+    const selected = dateOptions[currentIndex].toLowerCase();
+    if (selected === "clear") {
+      applyDateFilter(null, null); // clear all date filters
+    } else {
+      filterByDate(selected); // use your existing function
+    }
+  }
+
+
+function filterPatients(status) {
+  currentStatusFilter = status.toUpperCase();
+  applyFilters();
+
+  // Highlight selected filter
+  document.querySelectorAll('#statusFilter span').forEach(el => el.classList.remove('active'));
+  const activeEl = document.querySelector(`#filter-${status.toLowerCase()}`);
+  if (activeEl) activeEl.classList.add('active');
+}
+
 </script>
+
+
+
 
 </body>
 </html>
