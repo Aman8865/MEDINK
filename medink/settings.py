@@ -74,21 +74,34 @@ TEMPLATES = [
 WSGI_APPLICATION = 'medink.wsgi.application'
 
 # AUTH_USER_MODEL = 'med.CustomUser'
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'railway',
+#         'USER': 'root',
+#         'PASSWORD': 'bZawQDewtbOPIjBZwEMjkwNgffgYVJzx',
+#         'HOST': 'tramway.proxy.rlwy.net',
+#         'PORT': '24865',
+        
+#     }
+# }
+# ...existing code...
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'railway',
+        'NAME': 'medink_db1',
         'USER': 'root',
-        'PASSWORD': 'bZawQDewtbOPIjBZwEMjkwNgffgYVJzx',
-        'HOST': 'tramway.proxy.rlwy.net',
-        'PORT': '24865',
+        'PASSWORD': 'Aman@8865',
+        'HOST': 'localhost',
+        'PORT': '3306',
         
     }
 }
-# ...existing code...
 
 
 
@@ -136,7 +149,7 @@ USE_TZ = True
 #     '.ngrok-free.dev'                 
 # ]
 
-# DEBUG = True   
+DEBUG = True   
 
 STATIC_URL = 'static/'
 

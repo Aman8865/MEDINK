@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import User
 
 class Patient(models.Model):
     center = models.CharField(max_length=100, null=True, blank=True)

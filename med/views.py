@@ -1,3 +1,4 @@
+from urllib import request
 from django.shortcuts import render
 from django.shortcuts import render
 from django.http import JsonResponse,HttpResponse
@@ -325,6 +326,8 @@ def login_view(request):
          # 🔹 Step 1: Default admin login check
         if userid == "Admin" and password == "12345":
             return redirect('index')  # default page after admin login
+        if userid == "Superadmin" and password == "Aman@8865":
+            return redirect('super_admin')  # default page after admin login
         try:
             user = UserAccount.objects.get(userid=userid, password=password)
             # ✅ Save user info to session
@@ -450,3 +453,64 @@ def assign_patient(request, patient_id):
         'success': True,
         'assigned_to': {'id': rad_user.id, 'name': rad_user.name}
     })
+
+
+def super_admin(request):
+    # if request.session.get('user_name', '').lower() != "admin":
+    #     return HttpResponse("Access Denied")
+
+    users = UserAccount.objects.all().order_by('-id')
+    patients = Patient.objects.all().order_by('-entry_time')
+    centers = UserAccount.objects.filter(usertype='IMAGING', is_active=True)
+
+    return render(request, 'super_admin.html', {
+        'users': users,
+        'patients': patients,
+        'rads': UserAccount.objects.filter(usertype='RADS', is_active=True),
+        'centers': centers
+    })
+
+    
+
+def toggle_user_status(request, id):
+    user = UserAccount.objects.get(id=id)
+    user.is_active = not user.is_active
+    user.save()
+    return redirect('super_admin')
+
+
+def change_user_role(request, id, role):
+    user = UserAccount.objects.get(id=id)
+    if role in ['RADS', 'IMAGING']:
+        user.usertype = role
+        user.save()
+    return redirect('super_admin')
+
+from django.contrib import messages
+from django.shortcuts import redirect
+from .models import Patient
+
+def assign_patient_superadmin(request):
+    if request.method == "POST":
+        patient_id = request.POST.get("patient_id")
+        rads = request.POST.get("rads")
+
+        try:
+            patient = Patient.objects.get(id=patient_id)
+
+            # ✅ Sirf RADS assign karo
+            if rads:
+                patient.assigned_to_id = rads
+                # patient.status = "ASSIGNED"
+                patient.save()
+
+            messages.success(request, "Patient successfully assigned to RADS.")
+        except Patient.DoesNotExist:
+            messages.error(request, "Patient not found.")
+        except Exception as e:
+            messages.error(request, f"Assignment failed: {str(e)}")
+
+    return redirect('super_admin')
+
+
+

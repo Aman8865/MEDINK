@@ -42,7 +42,13 @@ urlpatterns = [
     path('api/patient/<int:id>/update/', update_report, name='update_report'),
     path('assign_patient/<int:patient_id>/', assign_patient, name='assign_patient'),
 
+    path("super-admin/", super_admin, name="super_admin"),
+    path("user/toggle/<int:id>/", toggle_user_status, name="toggle_user_status"),
+    path("user/role/<int:id>/<str:role>/", change_user_role, name="change_user_role"),
+    path('assign_patient_superadmin/', assign_patient_superadmin, name='assign_patient_superadmin'),
     
+
+
     
 
     
