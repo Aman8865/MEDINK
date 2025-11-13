@@ -46,13 +46,18 @@ urlpatterns = [
     path("user/toggle/<int:id>/", toggle_user_status, name="toggle_user_status"),
     path("user/role/<int:id>/<str:role>/", change_user_role, name="change_user_role"),
     path('assign_patient_superadmin/', assign_patient_superadmin, name='assign_patient_superadmin'),
-    
+    path('patients/',patients, name='patients'),
+    path('add-user/', add_user, name='add_user'),
+    path('admin-details/<int:admin_id>/', admin_details, name='admin_details'),
+    path("admin_details/", admin_details, name="admin_details"),
+    path('user-list/', user_list, name='user_list'),
+    path('user-details/<int:user_id>/', user_details_api, name='user_details_api'),
+
+
 
 
     
 
-    
-    
     # path('delete_patient/<int:id>/', delete_patient, name='delete_patient'),
 ]
     

@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Super Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap & ChartJS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
         body { background-color: #f4f6f9; }
@@ -20,139 +23,233 @@
             text-decoration: none;
             font-size: 15px;
         }
-        .sidebar a:hover {
-            background: #495057;
-        }
-        .content {
-            padding: 25px;
-        }
+        .sidebar a:hover { background: #495057; }
+        .content { padding: 25px; }
     </style>
 </head>
-<body>
 
+<body>
 <div class="row g-0">
     <!-- Sidebar -->
     <div class="col-2 sidebar">
         <h4 class="text-center text-white mb-4">Super Admin</h4>
-        <a href="{% url 'super_admin' %}">Dashboard</a>
-        <a href="{% url 'signup' %}">Manage Users</a>
-        <a href="{% url 'index' %}">All Patients</a>
-        <a href="{% url 'imagingA' %}">Imaging Panel</a>
-        <a href="{% url 'RADS' %}">RADS Panel</a>
+        <a href="">Dashboard</a>
+        <a href="{% url 'user_list' %}">User Panel</a>
+
+        <a href="{% url 'patients' %}">Patients List</a>
         <a href="{% url 'logout' %}" class="text-danger mt-3">Logout</a>
     </div>
 
     <!-- Main Content -->
     <div class="col-10 content">
-
         <h2>Super Admin Control Panel</h2>
-        <hr>
 
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card shadow text-center p-3">
-                    <h4>Total Users</h4>
-                    <h1 class="count" data-target="{{ users|length }}">0</h1>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card shadow text-center p-3">
-                    <h4>Imaging Centers</h4>
-                    <h1 class="count" data-target="{{ centers|length }}">0</h1>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card shadow text-center p-3">
-                    <h4>RADS Doctors</h4>
-                    <h1 class="count" data-target="{{ rads|length }}">0</h1>
-                </div>
-            </div>
+        <!-- ✅ ADD USER BUTTON -->
+        <div class="d-flex justify-content-between align-items-center my-3">
+            <h4 class="mb-0"></h4>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">➕ Add User</button>
         </div>
+
+        <!-- ✅ MESSAGE ALERT -->
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+              {{ msg }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- ✅ USERS TABLE -->
        
 
-        <h4 class="mt-5">Recent Patients</h4>
-        <div class="card shadow p-3">
-           <table class="table table-striped mt-4">
-    <thead>
-        <tr>
-            <th>Patient ID</th>
-            <th>Name</th>
-            <!-- <th>Imaging Center</th> -->
-            <th>RADS Doctor</th>
-            <th>Assign</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for p in patients %}
-        <tr>
-            <td>{{ p.patient_id }}</td>
-            <td>{{ p.name }}</td>
+        <!-- ✅ ADD USER MODAL -->
+        <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <form method="POST" action="{% url 'add_user' %}">
+              {% csrf_token %}
+              <div class="modal-content shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title">Add New User</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-           
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" name="name" required>
+                  </div>
 
-            <td>
-                {% if p.assigned_to %}
-                    {{ p.assigned_to.name }}
-                {% else %}
-                    Not Assigned
-                {% endif %}
-            </td>
+                  <div class="mb-3">
+                    <label class="form-label">User ID</label>
+                    <input type="text" class="form-control" name="userid" required>
+                  </div>
 
-            <td>
-                <form action="{% url 'assign_patient_superadmin' %}" method="post" class="d-flex">
-                    {% csrf_token %}
-                    <input type="hidden" name="patient_id" value="{{ p.id }}">
+                  <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password" required>
+                  </div>
 
-                
-
-                    <!-- RADS Dropdown -->
-                    <select style="width: 50%;" name="rads" class="form-select form-select-sm me-2">
-                        <option value="">Select RADS</option>
-                        {% for r in rads %}
-                        <option value="{{ r.id }}">{{ r.name }}</option>
-                        {% endfor %}
+                  <div class="mb-3">
+                    <label class="form-label">User Type</label>
+                    <select class="form-select" name="usertype" id="usertypeSelect" required>
+                      <option value="">-- Select --</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="IMAGING">Imaging</option>
+                      <option value="RADS">RADS</option>
                     </select>
+                  </div>
 
-                    <button type="submit" class="btn btn-primary btn-sm">Assign</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                  <div class="mb-3" id="adminSelectContainer" style="display:none;">
+                    <label class="form-label">Select Admin</label>
+                    <select class="form-select" name="parent_admin_id">
+                      <option value="">-- Select Admin --</option>
+                      {% for admin in admins %}
+                        <option value="{{ admin.id }}">{{ admin.name }} ({{ admin.userid }})</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
 
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success">Create</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-        
 
+        <!-- ✅ ADMIN DETAILS MODAL -->
+        <div class="modal fade" id="adminDetailsModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg">
+              <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Admin Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <h5 id="adminName" class="text-primary mb-3"></h5>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class="text-success">📸 Imaging Users (<span id="imagingCount">0</span>)</h6>
+                    <table class="table table-sm table-bordered" id="imagingTable">
+                      <thead class="table-light"><tr><th>Name</th><th>User ID</th></tr></thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="text-primary">🩻 RADS Users (<span id="radsCount">0</span>)</h6>
+                    <table class="table table-sm table-bordered" id="radsTable">
+                      <thead class="table-light"><tr><th>Name</th><th>User ID</th></tr></thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ JS SCRIPT -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const usertypeSelect = document.getElementById('usertypeSelect');
+          const adminSelectContainer = document.getElementById('adminSelectContainer');
+
+          if (usertypeSelect) {
+            usertypeSelect.addEventListener('change', function() {
+              adminSelectContainer.style.display = (this.value === 'IMAGING' || this.value === 'RADS') ? 'block' : 'none';
+            });
+          }
+
+          // ✅ Double click on Admin row
+          document.querySelectorAll('.admin-row').forEach(row => {
+            row.addEventListener('dblclick', function() {
+              const adminId = this.dataset.adminId;
+              fetch(`/admin-details/${adminId}/`)
+                .then(res => res.json())
+                .then(data => {
+                  if (data.error) { alert(data.error); return; }
+
+                  document.getElementById('adminName').textContent = `🧑‍💼 ${data.name} (${data.userid})`;
+                  document.getElementById('imagingCount').textContent = data.imaging_count;
+                  document.getElementById('radsCount').textContent = data.rads_count;
+
+                  const imagingBody = document.querySelector('#imagingTable tbody');
+                  const radsBody = document.querySelector('#radsTable tbody');
+                  imagingBody.innerHTML = '';
+                  radsBody.innerHTML = '';
+
+                  data.imaging_list.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${u.name}</td><td>${u.userid}</td>`;
+                    imagingBody.appendChild(tr);
+                  });
+
+                  data.rads_list.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${u.name}</td><td>${u.userid}</td>`;
+                    radsBody.appendChild(tr);
+                  });
+
+                  const modal = new bootstrap.Modal(document.getElementById('adminDetailsModal'));
+                  modal.show();
+                })
+                .catch(err => {
+                  console.error(err);
+                  alert('Failed to load admin details');
+                });
+            });
+          });
+        });
+        </script>
+
+        <hr>
+        <div class="row mt-4">
+          <div class="col-md-4">
+            <div class="card shadow text-center p-3">
+              <h4>Total Users</h4>
+              <h1 class="count" data-target="{{ users|length }}">0</h1>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow text-center p-3">
+              <h4>Imaging Centers</h4>
+              <h1 class="count" data-target="{{ centers|length }}">0</h1>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow text-center p-3">
+              <h4>RADS Doctors</h4>
+              <h1 class="count" data-target="{{ rads|length }}">0</h1>
+            </div>
+          </div>
+        </div>
     </div>
 </div>
 
-<!-- ✅ Animated Counter Script -->
+<!-- ✅ Counter Animation -->
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const counters = document.querySelectorAll('.count');
-        const speed = 100; // speed control (lower = faster)
-
-        counters.forEach(counter => {
-            const animate = () => {
-                const value = +counter.getAttribute('data-target');
-                const data = +counter.innerText;
-
-                const time = value / speed;
-                if (data < value) {
-                    counter.innerText = Math.ceil(data + time);
-                    setTimeout(animate, 70);
-                } else {
-                    counter.innerText = value;
-                }
-            };
-            animate();
-        });
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  const counters = document.querySelectorAll('.count');
+  const speed = 100;
+  counters.forEach(counter => {
+    const animate = () => {
+      const value = +counter.getAttribute('data-target');
+      const data = +counter.innerText;
+      const time = value / speed;
+      if (data < value) {
+        counter.innerText = Math.ceil(data + time);
+        setTimeout(animate, 70);
+      } else counter.innerText = value;
+    };
+    animate();
+  });
+});
 </script>
-
-
 </body>
 </html>

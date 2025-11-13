@@ -335,10 +335,17 @@ def login_view(request):
             request.session['user_name'] = user.name
             request.session['user_type'] = user.usertype
 
-            if user.usertype == 'RADS':
+            if user.usertype == 'SUPERADMIN':
+                return redirect('super_admin')
+            elif user.usertype == 'ADMIN':
+                return redirect('index')
+            elif user.usertype == 'IMAGING':
+                return redirect('imagingA')
+            elif user.usertype == 'RADS':
                 return redirect('RADS')
             else:
-                return redirect('imagingA')
+                return redirect('login')
+
         except UserAccount.DoesNotExist:
             error = "Invalid userid or password"
 
@@ -455,6 +462,10 @@ def assign_patient(request, patient_id):
     })
 
 
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.contrib.auth.hashers import make_password  # optional, recommended
+from .models import UserAccount
 def super_admin(request):
     # if request.session.get('user_name', '').lower() != "admin":
     #     return HttpResponse("Access Denied")
@@ -462,12 +473,14 @@ def super_admin(request):
     users = UserAccount.objects.all().order_by('-id')
     patients = Patient.objects.all().order_by('-entry_time')
     centers = UserAccount.objects.filter(usertype='IMAGING', is_active=True)
+    admins = UserAccount.objects.filter(usertype='ADMIN', is_active=True)
 
     return render(request, 'super_admin.html', {
         'users': users,
         'patients': patients,
         'rads': UserAccount.objects.filter(usertype='RADS', is_active=True),
-        'centers': centers
+        'centers': centers,
+        'admins': admins,
     })
 
     
@@ -514,3 +527,84 @@ def assign_patient_superadmin(request):
 
 
 
+from .models import Patient, UserAccount  # example model names
+
+def patients(request):
+    patients = Patient.objects.all().order_by('-id')
+    rads = UserAccount.objects.filter(usertype='rads')  # or as per your model field
+    return render(request, 'patients.html', {'patients': patients, 'rads': rads})
+
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
+from django.http import JsonResponse
+from .models import UserAccount
+
+@csrf_exempt
+@require_POST
+def add_user(request):
+    name = request.POST.get('name')
+    userid = request.POST.get('userid')
+    password = request.POST.get('password')
+    usertype = request.POST.get('usertype')
+    parent_admin_id = request.POST.get('parent_admin_id')
+
+    if not (name and userid and password and usertype):
+        messages.error(request, "सभी फ़ील्ड भरें!")
+        return redirect('super_admin')
+
+    if UserAccount.objects.filter(userid=userid).exists():
+        messages.error(request, "यह UserID पहले से मौजूद है!")
+        return redirect('super_admin')
+
+    user = UserAccount(name=name, userid=userid, password=password, usertype=usertype, is_active=True)
+
+    if usertype in ['IMAGING', 'RADS'] and parent_admin_id:
+        try:
+            parent_admin = UserAccount.objects.get(id=parent_admin_id, usertype='ADMIN')
+            user.parent_admin = parent_admin
+        except UserAccount.DoesNotExist:
+            messages.warning(request, "Admin नहीं मिला, user बिना parent admin के बना दिया गया।")
+
+    user.save()
+    messages.success(request, f"User '{name}' सफलतापूर्वक बना दिया गया ✅")
+    return redirect('super_admin')
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import UserAccount
+
+def admin_details(request, admin_id):
+    admin_user = get_object_or_404(UserAccount, id=admin_id, usertype='ADMIN')
+
+    imaging_users = UserAccount.objects.filter(usertype='IMAGING', parent_admin_id=admin_id)
+    rads_users = UserAccount.objects.filter(usertype='RADS', parent_admin_id=admin_id)
+
+    return render(request, 'admin_details.html', {
+        'admin': admin_user,
+        'imaging_users': imaging_users,
+        'rads_users': rads_users,
+    })
+
+
+def user_list(request):
+    # 🔹 सिर्फ ADMIN वाले users लाएँ
+    users = UserAccount.objects.filter(usertype='ADMIN').order_by('-id')
+    return render(request, 'user_list.html', {'users': users})
+
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import UserAccount
+
+def user_details_api(request, user_id):
+    user = get_object_or_404(UserAccount, id=user_id)
+    return JsonResponse({
+        'name': user.name,
+        'userid': user.userid,
+        # 'email': user.email,
+        # 'contact': user.contact,
+        # 'modality': user.modality,
+        'status': 'Active' if user.is_active else 'Inactive',
+        'password': user.password,  # ⚠️ सिर्फ development के लिए
+    })

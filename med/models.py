@@ -42,6 +42,8 @@ from django.utils import timezone
 USERTYPES = (
     ('RADS', 'RADS'),
     ('IMAGING', 'IMAGING'),
+    ('SUPERADMIN', 'Super Admin'),
+    ('ADMIN', 'Admin'),
 )
 
 class UserAccount(models.Model):
@@ -51,6 +53,8 @@ class UserAccount(models.Model):
     password = models.CharField(max_length=100)
     usertype = models.CharField(max_length=10, choices=USERTYPES)
     is_active = models.BooleanField(default=True)
+    parent_admin = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='sub_users')
+
 
 
     def __str__(self):

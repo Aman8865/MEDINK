@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patients List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; }
+        .content { padding: 25px; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <h2>Patients List</h2>
+    <hr>
+
+    <div class="card shadow p-3">
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Name</th>
+                    <th>RADS Doctor</th>
+                    <th>Assign</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in patients %}
+                <tr>
+                    <td>{{ p.patient_id }}</td>
+                    <td>{{ p.name }}</td>
+                    <td>
+                        {% if p.assigned_to %}
+                            {{ p.assigned_to.name }}
+                        {% else %}
+                            Not Assigned
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{% url 'assign_patient_superadmin' %}" method="post" class="d-flex">
+                            {% csrf_token %}
+                            <input type="hidden" name="patient_id" value="{{ p.id }}">
+                            <select style="width: 50%;" name="rads" class="form-select form-select-sm me-2">
+                                <option value="">Select RADS</option>
+                                {% for r in rads %}
+                                <option value="{{ r.id }}">{{ r.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">Assign</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
