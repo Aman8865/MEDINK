@@ -95,12 +95,18 @@ body {
     background: black;
     padding: 20px;
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
 .fullscreen img {
-    max-height: 90vh;
-    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     display: block;
 }
+
 
 /* 🟢 RESPONSIVE STYLES */
 @media (max-width: 1024px) {
@@ -133,7 +139,8 @@ body {
         <button id="reset"><i class="fas fa-sync"></i> Reset</button>
         <button id="fullscreen"><i class="fas fa-expand"></i> Fullscreen</button>
     </div>
-    <img id="xrayImage" src="{{ patient.scan_image }}" alt="Patient Scan">
+    <img id="xrayImage" src="data:image/jpeg;base64,{{ patient.scan_image }}" alt="Patient Scan">
+
 </div>
 
 <div class="right-panel">

@@ -264,104 +264,127 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
-        let cropper;
-        const fileInput = document.getElementById('uploadScan');
-        const placeholder = document.querySelector('.placeholder');
-        const editor = document.getElementById('editor');
-        const image = document.getElementById('image');
-        const finalImage = document.getElementById('finalImage');
-        const preview = document.getElementById('preview');
+    let cropper;
+    const fileInput = document.getElementById('uploadScan');
+    const placeholder = document.querySelector('.placeholder');
+    const editor = document.getElementById('editor');
+    const image = document.getElementById('image');
+    const finalImage = document.getElementById('finalImage');
+    const preview = document.getElementById('preview');
 
-        fileInput.addEventListener('change', function() {
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    image.src = e.target.result;
-                    editor.style.display = 'block';
-                    if (cropper) {
-                        cropper.destroy();
-                    }
-                    cropper = new Cropper(image, {
-                        aspectRatio: NaN,
-                        viewMode: 2
-                    });
-                };
-                reader.readAsDataURL(file);
-                placeholder.textContent = file.name;
-            }
-        });
+    // 📌 Auto Patient ID Generator
+    function generatePatientId() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const ts = `${y}${m}${day}`;
+        const rnd = Math.floor(1000 + Math.random() * 9000);
+        return `P${ts}-${rnd}`;
+    }
 
-        function done() {
-            if (!cropper) return;
-            const canvas = cropper.getCroppedCanvas();
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-            finalImage.src = compressedDataUrl;
-            preview.src = compressedDataUrl;
-            preview.style.display = 'block';
-            editor.style.display = 'none';
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                image.src = e.target.result;
+                editor.style.display = 'block';
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(image, {
+                    aspectRatio: NaN,
+                    viewMode: 2
+                });
+            };
+            reader.readAsDataURL(file);
+            placeholder.textContent = file.name;
         }
+    });
 
-        // Handle gender selection
-        document.querySelectorAll('.gender-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById('gender').value = this.dataset.gender;
-            });
+    function done() {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas();
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        finalImage.src = compressedDataUrl;
+        preview.src = compressedDataUrl;
+        preview.style.display = 'block';
+        editor.style.display = 'none';
+    }
+
+    // Gender select
+    document.querySelectorAll('.gender-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('gender').value = this.dataset.gender;
         });
+    });
 
-        // Handle form submission
-        document.getElementById('patientForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-           // In your popupform.html
-const formData = {
-    name: document.getElementById("patientName").value,
-    age: document.getElementById("age").value,
-    gender: document.getElementById("gender").value,
-    history: document.getElementById("history").value,
-    scanType: document.getElementById("scanType").value,
-    bodyPart: document.getElementById("bodyPart").value,
-    refBy: document.getElementById("refBy").value,
-    scan: finalImage.src, // Make sure this is set correctly
-    center: document.getElementById("centerName").value
-};
-
-            fetch('/api/patient/add/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    window.location.href = '/imagingA/';
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-            });
-        });
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+    // CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-            return cookieValue;
         }
-    </script>
+        return cookieValue;
+    }
+
+    // ⛑️ FORM SUBMIT HANDLER — Auto/Manual ID logic
+    document.getElementById('patientForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        let inputId = document.getElementById("patientId").value.trim();
+
+        // ⭐ Manual→ use input  
+        // ⭐ Blank→ auto generate  
+        if (inputId === "") {
+            inputId = generatePatientId();
+            document.getElementById("patientId").value = inputId; // optional show generated id
+        }
+
+        const formData = {
+            patient_id: inputId,
+            name: document.getElementById("patientName").value,
+            age: document.getElementById("age").value,
+            gender: document.getElementById("gender").value,
+            history: document.getElementById("history").value,
+            scanType: document.getElementById("scanType").value,
+            bodyPart: document.getElementById("bodyPart").value,
+            refBy: document.getElementById("refBy").value,
+            scan: finalImage.src,
+            center: document.getElementById("centerName").value
+        };
+
+        fetch('/api/patient/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                window.location.href = "/imagingA/";
+            } else {
+                alert("❌ Error: " + data.message);
+            }
+        })
+        .catch(err => {
+            alert("❌ Error submitting form!");
+            console.error(err);
+        });
+    });
+
+</script>
+
 </body>
 </html>

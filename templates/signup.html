@@ -127,7 +127,25 @@ td, th { border:1px solid #d6dfe6; padding:10px; }
         <div class="floating-label-container">{{ form.name }}<label>NAME</label></div>
         <div style="margin-left:20px;" class="floating-label-container">{{ form.userid }}<label>USER ID</label></div>
         <div style="margin-left:20px;" class="floating-label-container">{{ form.password }}<label>PASSWORD</label></div>
-        <div style="margin-left:20px;" class="floating-label-container">{{ form.usertype }}<label>USER TYPE</label></div>
+        <div style="margin-left:20px;" class="floating-label-container">
+
+    {% if request.session.user_type == 'ADMIN' %}
+        <!-- Only IMAGING & RADS visible for ADMIN -->
+        <select name="usertype" required
+                style="width:100%; padding:8px; border:2px solid #00aaff; border-radius:6px;">
+            <option value="IMAGING">IMAGING</option>
+            <option value="RADS">RADS</option>
+        </select>
+        <label>USER TYPE</label>
+
+    {% else %}
+        <!-- SUPERADMIN sees full default Django dropdown -->
+        {{ form.usertype }}
+        <label>USER TYPE</label>
+    {% endif %}
+
+</div>
+
         {% if request.session.user_type == 'SUPERADMIN' %}
   <label style="margin-left:20px; font-weight:600; margin-top:10px;">Select Parent Admin (optional)</label>
   <select name="parent_admin_id" class="form-control"
@@ -141,7 +159,7 @@ td, th { border:1px solid #d6dfe6; padding:10px; }
 {% endif %}
 
        
-        <button style="background-color:rgb(81, 139, 240); font-weight:700; color:white; border:none; padding:8px; margin-left:-100px; border-radius:5px;" type="submit" class="btn">CREATE ACCOUNT</button>
+        <button style="background-color:rgb(81, 139, 240); font-weight:700; color:white; border:none; padding:8px; margin-left:0px; border-radius:5px;" type="submit" class="btn">CREATE ACCOUNT</button>
     </form>
 
     <!-- Users Table -->

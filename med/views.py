@@ -136,14 +136,31 @@ def add_patient(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+
+            # ⭐ Step 1 — Manual ID form से लो
+            manual_id = data.get('patient_id')
+
+            # ⭐ Scan image extract karo
             scan_image = data.get('scan', '')
             if ',' in scan_image:
                 scan_image = scan_image.split(',')[1]
 
-            user_id = request.session.get('user_id')  # ✅ session से current user ID
+            user_id = request.session.get('user_id')  
             center_name = data.get('center') or request.session.get('user_name')
 
+            # ⭐ Step 2 — Manual OR Auto ID logic
+            if manual_id:
+                patient_id = manual_id
+            else:
+                from datetime import datetime
+                import random
+                now = datetime.now()
+                rand = random.randint(1000, 9999)
+                patient_id = f"P{now.strftime('%Y%m%d')}-{rand}"
+
+            # ⭐ Step 3 — Patient create with ID
             patient = Patient.objects.create(
+                patient_id=patient_id,     # ←⭐ important
                 name=data.get('name'),
                 age=data.get('age'),
                 gender=data.get('gender'),
@@ -153,12 +170,14 @@ def add_patient(request):
                 ref_by=data.get('refBy'),
                 scan_image=scan_image,
                 center=center_name,
-                created_by_id=user_id  # ✅ लिंक हो गया user से
+                created_by_id=user_id
             )
 
             return JsonResponse({'status': 'success', 'patient_id': patient.patient_id})
+
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
+
 
 from django.shortcuts import render
 from .models import Patient,UserAccount
@@ -508,22 +527,18 @@ from django.views.decorators.csrf import csrf_exempt  # agar aap csrf_token use 
 def assign_patient(request, patient_id):
     print("Session check ->", request.session.get('user_name'), request.session.get('user_type'))
 
-    """
-    Frontend se AJAX POST karega: body = {"rad_id": <user_id>}
-    Sirf admin ya imaging user assign kar sake — aap yahan permission logic change kar sakte ho.
-    """
-    # basic permission: agar session me user_name nahi hai -> not allowed
+    # Session check
     if 'user_id' not in request.session:
         return HttpResponseForbidden("Login required")
 
-    # Optional: sirf admin ya IMAGING type wale assign kar sake:
-    user_name = request.session.get('user_name', '').lower()
+    # ✔ Correct permission check
     user_type = request.session.get('user_type', '')
 
-    # allow if admin or IMAGING user
-    if not (user_name == 'admin' or user_type in ['IMAGING', 'RADS']):
+    # SUPERADMIN + ADMIN + IMAGING allowed
+    if user_type not in ['SUPERADMIN', 'ADMIN', 'IMAGING']:
         return HttpResponseForbidden("Not allowed to assign")
 
+    # get data
     try:
         data = json.loads(request.body.decode('utf-8'))
     except Exception:
@@ -531,17 +546,19 @@ def assign_patient(request, patient_id):
 
     rad_id = data.get('rad_id')
 
+    # get patient
     try:
         patient = Patient.objects.get(id=patient_id)
     except Patient.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Patient not found'}, status=404)
 
-    # unassign
+    # Unassign
     if not rad_id:
         patient.assigned_to = None
         patient.save()
         return JsonResponse({'success': True, 'assigned_to': None})
 
+    # Assign to RADS
     try:
         rad_user = UserAccount.objects.get(id=rad_id, is_active=True, usertype='RADS')
     except UserAccount.DoesNotExist:
@@ -549,8 +566,6 @@ def assign_patient(request, patient_id):
 
     patient.assigned_to = rad_user
     patient.save()
-
-    # Optional: yahan notification/email dal sakte ho
 
     return JsonResponse({
         'success': True,
@@ -934,3 +949,4 @@ def admin_details_page(request, admin_id):
         'imaging_users': imaging_users,
         'rads_users': rads_users
     })
+

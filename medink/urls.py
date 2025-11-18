@@ -57,6 +57,7 @@ urlpatterns = [
     path('create-user-page/',create_user_page, name='create_user_page'),
     path('api/admin-details/<int:admin_id>/', admin_details_api, name='admin_details_api'),
     path('admin-details/<int:admin_id>/', admin_details_page, name='admin_details_page'),
+    
 
 
 
