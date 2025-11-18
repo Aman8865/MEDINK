@@ -98,7 +98,10 @@ td, th { border:1px solid #d6dfe6; padding:10px; }
 
 <div class="container">
 
-    <form style="margin-left: 62px; margin-top: 66px; background-color: #9c9e9f;" method="post">
+    <form style="margin-left: 62px; margin-top: 66px; background-color: #9c9e9f;"
+      method="post"
+      action="{% url 'create_user_page' %}">
+
         <!-- Search box -->
         <div style="display:inline-block; margin-left:10px;">
             <input type="search" id="searchInput" placeholder="Search details..." style="margin-left:0; padding:5px 35px 5px 10px; border-radius:10px; border:none; width:200px; font-size:16px;">
@@ -125,7 +128,19 @@ td, th { border:1px solid #d6dfe6; padding:10px; }
         <div style="margin-left:20px;" class="floating-label-container">{{ form.userid }}<label>USER ID</label></div>
         <div style="margin-left:20px;" class="floating-label-container">{{ form.password }}<label>PASSWORD</label></div>
         <div style="margin-left:20px;" class="floating-label-container">{{ form.usertype }}<label>USER TYPE</label></div>
-        <div style="margin-left:20px;" class="floating-label-container">{{ form.contact }}</div>
+        {% if request.session.user_type == 'SUPERADMIN' %}
+  <label style="margin-left:20px; font-weight:600; margin-top:10px;">Select Parent Admin (optional)</label>
+  <select name="parent_admin_id" class="form-control"
+          style="margin-left:20px; width:200px; padding:8px; 
+                 border:2px solid #00aaff; border-radius:6px;">
+    <option value="">-- None --</option>
+    {% for a in admins %}
+      <option value="{{ a.id }}">{{ a.name }} ({{ a.userid }})</option>
+    {% endfor %}
+  </select>
+{% endif %}
+
+       
         <button style="background-color:rgb(81, 139, 240); font-weight:700; color:white; border:none; padding:8px; margin-left:-100px; border-radius:5px;" type="submit" class="btn">CREATE ACCOUNT</button>
     </form>
 
@@ -159,6 +174,7 @@ td, th { border:1px solid #d6dfe6; padding:10px; }
                 <td data-label="ACTION">
                     <a href="{% url 'user_detail' user.id %}" class="see-btn" style="background:#0074d9; color:white; text-decoration:none; border-radius:6px; padding: 4px;">View</a>
                 </td>
+                
             </tr>
             {% endfor %}
         </tbody>

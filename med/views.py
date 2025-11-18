@@ -162,23 +162,69 @@ def add_patient(request):
 
 from django.shortcuts import render
 from .models import Patient,UserAccount
-
 def index(request):
-    centers = UserAccount.objects.filter(usertype='IMAGING', is_active=True)
-    rads = UserAccount.objects.filter(usertype='RADS', is_active=True)
+    user_id = request.session.get('user_id')
+    user_name = request.session.get('user_name')
+    user_type = request.session.get('user_type')
 
-    patients = Patient.objects.all().order_by('-entry_time')
+    if not user_id:
+        return redirect('login')
+
+    # SUPERADMIN — All data
+    if user_type == "SUPERADMIN":
+        centers = UserAccount.objects.filter(usertype='IMAGING', is_active=True)
+        rads = UserAccount.objects.filter(usertype='RADS', is_active=True)
+        patients = Patient.objects.all().order_by('-entry_time')
+
+    # ADMIN — Only his centers, rads and patients
+    elif user_type == "ADMIN":
+        centers = UserAccount.objects.filter(
+            parent_admin_id=user_id,
+            usertype='IMAGING',
+            is_active=True
+        )
+
+        patients = Patient.objects.filter(
+            created_by__in=centers
+        ).order_by('-entry_time')
+
+        rads = UserAccount.objects.filter(
+            parent_admin_id=user_id,
+            usertype='RADS',
+            is_active=True
+        )
+
+    # IMAGING — Only own created patients
+    elif user_type == "IMAGING":
+        centers = None
+        rads = None
+        patients = Patient.objects.filter(
+            created_by_id=user_id
+        ).order_by('-entry_time')
+
+    # RADS — Only assigned patients
+    elif user_type == "RADS":
+        centers = None
+        rads = None
+        patients = Patient.objects.filter(
+            assigned_to_id=user_id
+        ).order_by('-entry_time')
+
+    return render(request, 'index.html', {
+        "user_name": user_name,
+        "user_type": user_type,
+        "centers": centers,
+        "rads": rads,
+        "patients": patients
+    })
+
 
     # ✅ sab unique center names nikal lo (jo blank na ho)
     # centers_qs = Patient.objects.values_list('center', flat=True).distinct().order_by('center')
     # centers = [c for c in centers_qs if c and c.strip()]
 
     # ✅ dono bhej do template ko
-    return render(request, 'index.html', {
-        'patients': patients,
-        'centers': centers,
-        'rads': rads
-    })
+   
 
 @csrf_exempt
 def update_report(request, id):
@@ -307,34 +353,81 @@ def download_report(request, id, format):
 from django.shortcuts import render, redirect
 from .models import UserAccount
 from .forms import SignupForm, LoginForm
-
 def signup_view(request):
-    form = SignupForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('signup')
-    users_list = UserAccount.objects.all()
-    return render(request, 'signup.html', {'form': form, 'users': users_list})
+    session_user_id = request.session.get('user_id')
+    session_user_type = request.session.get('user_type')
+
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            if session_user_id and session_user_type == "ADMIN":
+                try:
+                    parent_admin = UserAccount.objects.get(id=session_user_id, usertype='ADMIN')
+                    if new_user.usertype in ['IMAGING', 'RADS']:
+                        new_user.parent_admin = parent_admin
+                except UserAccount.DoesNotExist:
+                    pass
+            new_user.save()
+            messages.success(request, f"User '{new_user.name}' created successfully.")
+            if session_user_type == 'ADMIN':
+                return redirect('user_list')
+            elif session_user_type == 'SUPERADMIN':
+                return redirect('super_admin')
+            else:
+                return redirect('login')
+        else:
+            messages.error(request, "Please fix errors.")
+    else:
+        form = SignupForm()
+
+    # Important: provide users to template so admin sees own child users on signup page
+    if session_user_type == "SUPERADMIN":
+        users = UserAccount.objects.filter(usertype__in=['ADMIN','IMAGING','RADS']).order_by('-id')
+    elif session_user_type == "ADMIN":
+        users = UserAccount.objects.filter(parent_admin_id=session_user_id).order_by('-id')
+    else:
+        users = UserAccount.objects.none()
+
+    admins = UserAccount.objects.filter(usertype='ADMIN', is_active=True)
+    return render(request, 'signup.html', {'form': form, 'admins': admins, 'users': users})
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import UserAccount
+from .forms import SignupForm, LoginForm
+from django.contrib.auth.hashers import check_password
 
 def login_view(request):
     form = LoginForm(request.POST or None)
     error = None
+
     if form.is_valid():
         userid = form.cleaned_data['userid']
         password = form.cleaned_data['password']
 
-         # 🔹 Step 1: Default admin login check
-        if userid == "Admin" and password == "12345":
-            return redirect('index')  # default page after admin login
-        if userid == "Superadmin" and password == "Aman@8865":
-            return redirect('super_admin')  # default page after admin login
         try:
-            user = UserAccount.objects.get(userid=userid, password=password)
-            # ✅ Save user info to session
+            user = UserAccount.objects.get(userid=userid)
+            db_pass = user.password
+
+            # 🔥 CASE 1: password HASHED है (new users)
+            if db_pass.startswith("pbkdf2_"):
+                if not check_password(password, db_pass):
+                    raise UserAccount.DoesNotExist
+
+            # 🔥 CASE 2: password PLAIN TEXT है (old users)
+            else:
+                if password != db_pass:
+                    raise UserAccount.DoesNotExist
+
+            # 🟢 Login successful → Session set
             request.session['user_id'] = user.id
             request.session['user_name'] = user.name
-            request.session['user_type'] = user.usertype
+            request.session['user_type'] = user.usertype  
 
+            # 🔀 Redirect based on user type
             if user.usertype == 'SUPERADMIN':
                 return redirect('super_admin')
             elif user.usertype == 'ADMIN':
@@ -343,13 +436,16 @@ def login_view(request):
                 return redirect('imagingA')
             elif user.usertype == 'RADS':
                 return redirect('RADS')
-            else:
-                return redirect('login')
+
+            return redirect('login')
 
         except UserAccount.DoesNotExist:
             error = "Invalid userid or password"
 
     return render(request, 'login.html', {'form': form, 'error': error})
+
+
+
 
 def imagingA(request):
     if 'user_id' not in request.session:
@@ -470,10 +566,30 @@ def super_admin(request):
     # if request.session.get('user_name', '').lower() != "admin":
     #     return HttpResponse("Access Denied")
 
-    users = UserAccount.objects.all().order_by('-id')
+    # ✅ Sirf ADMIN users dikhao super admin page pe
+    users = UserAccount.objects.filter(usertype='ADMIN').order_by('-id')
     patients = Patient.objects.all().order_by('-entry_time')
     centers = UserAccount.objects.filter(usertype='IMAGING', is_active=True)
     admins = UserAccount.objects.filter(usertype='ADMIN', is_active=True)
+
+    # ✅ Today's stats
+    from datetime import date
+    today = date.today()
+    today_users = UserAccount.objects.filter(created_at__date=today).count()
+    today_patients = Patient.objects.filter(entry_time__date=today).count()
+
+    # ✅ Monthly stats (current month)
+    from datetime import datetime
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    monthly_users = UserAccount.objects.filter(
+        created_at__month=current_month,
+        created_at__year=current_year
+    ).count()
+    monthly_patients = Patient.objects.filter(
+        entry_time__month=current_month,
+        entry_time__year=current_year
+    ).count()
 
     return render(request, 'super_admin.html', {
         'users': users,
@@ -481,6 +597,10 @@ def super_admin(request):
         'rads': UserAccount.objects.filter(usertype='RADS', is_active=True),
         'centers': centers,
         'admins': admins,
+        'today_users': today_users,
+        'today_patients': today_patients,
+        'monthly_users': monthly_users,
+        'monthly_patients': monthly_patients,
     })
 
     
@@ -586,11 +706,74 @@ def admin_details(request, admin_id):
         'rads_users': rads_users,
     })
 
+from django.http import JsonResponse
+
+def admin_details_api(request, admin_id):
+    admin = get_object_or_404(UserAccount, id=admin_id, usertype='ADMIN')
+    imaging = UserAccount.objects.filter(usertype='IMAGING', parent_admin_id=admin_id)
+    rads = UserAccount.objects.filter(usertype='RADS', parent_admin_id=admin_id)
+
+    return JsonResponse({
+        'name': admin.name,
+        'userid': admin.userid,
+        'imaging_count': imaging.count(),
+        'rads_count': rads.count(),
+        'imaging_list': list(imaging.values('name', 'userid', 'id')),
+        'rads_list': list(rads.values('name', 'userid', 'id')),
+    })
+
+
+
+from django.shortcuts import render
+from .models import UserAccount  # ya jo bhi model hai
+from .forms import SignupForm
+
+# def user_list(request):
+#     user_id = request.session.get('user_id')
+#     user_type = request.session.get('user_type')
+
+#     if user_type == "SUPERADMIN":
+#         users = UserAccount.objects.exclude(usertype='SUPERADMIN')
+
+#     elif user_type == "ADMIN":
+#         # सिर्फ उसी admin के imaging + rads users दिखाओ
+#         users = UserAccount.objects.filter(parent_admin_id=user_id)
+
+#     else:
+#         messages.error(request, "ACCESS DENIED")
+#         return redirect('index')
+
+#     form = SignupForm()
+
+#     return render(request, 'user_list.html', {
+#         'form': form,
+#         'users': users
+#     })
 
 def user_list(request):
-    # 🔹 सिर्फ ADMIN वाले users लाएँ
-    users = UserAccount.objects.filter(usertype='ADMIN').order_by('-id')
-    return render(request, 'user_list.html', {'users': users})
+    session_user_id = request.session.get('user_id')
+    session_user_type = request.session.get('user_type')
+
+    if not session_user_id:
+        return redirect('login')
+
+    if session_user_type == "SUPERADMIN":
+        # show all ADMINs (or all users if you prefer)
+        users = UserAccount.objects.filter(usertype='ADMIN').order_by('-id')
+        admins = UserAccount.objects.filter(usertype='ADMIN', is_active=True)
+    elif session_user_type == "ADMIN":
+        # show IMAGING and RADS users whose parent_admin is this admin
+        users = UserAccount.objects.filter(parent_admin_id=session_user_id).order_by('-id')
+        admins = UserAccount.objects.filter(usertype='ADMIN')  # for select dropdown if needed
+    else:
+        messages.error(request, "Access denied")
+        return redirect('index')
+
+    form = SignupForm()
+    return render(request, 'user_list.html', {'form': form, 'users': users, 'admins': admins})
+
+
+
 
 
 from django.http import JsonResponse
@@ -602,9 +785,152 @@ def user_details_api(request, user_id):
     return JsonResponse({
         'name': user.name,
         'userid': user.userid,
-        # 'email': user.email,
-        # 'contact': user.contact,
-        # 'modality': user.modality,
+        'usertype': user.usertype,
+        'is_active': user.is_active,
         'status': 'Active' if user.is_active else 'Inactive',
         'password': user.password,  # ⚠️ सिर्फ development के लिए
+        'created_at': user.created_at.strftime('%d %b %Y, %I:%M %p') if user.created_at else '-',
+        'parent_admin': user.parent_admin.name if user.parent_admin else None,
+        'parent_admin_id': user.parent_admin.id if user.parent_admin else None,
+    })
+
+
+@csrf_exempt
+def update_user(request, user_id):
+    """Update user details"""
+    if request.method == 'POST':
+        user = get_object_or_404(UserAccount, id=user_id)
+
+        user.name = request.POST.get('name', user.name)
+        user.userid = request.POST.get('userid', user.userid)
+        user.usertype = request.POST.get('usertype', user.usertype)
+        user.is_active = request.POST.get('is_active') == '1'
+
+        # Update password only if provided
+        new_password = request.POST.get('password')
+        if new_password:
+            user.password = new_password
+
+        # Update parent admin
+        parent_admin_id = request.POST.get('parent_admin_id')
+        if parent_admin_id:
+            try:
+                parent_admin = UserAccount.objects.get(id=parent_admin_id, usertype='ADMIN')
+                user.parent_admin = parent_admin
+            except UserAccount.DoesNotExist:
+                pass
+        else:
+            user.parent_admin = None
+
+        user.save()
+        messages.success(request, f"User '{user.name}' successfully updated! ✅")
+        return redirect('super_admin')
+
+    return redirect('user_list')
+
+
+def delete_user(request, user_id):
+    """Delete user"""
+    user = get_object_or_404(UserAccount, id=user_id)
+    user_name = user.name
+
+    # Check if user has any associated patients
+    patients_count = Patient.objects.filter(created_by=user).count()
+    assigned_patients_count = Patient.objects.filter(assigned_to=user).count()
+
+    if patients_count > 0 or assigned_patients_count > 0:
+        messages.warning(request, f"Cannot delete user '{user_name}' - they have {patients_count + assigned_patients_count} associated patients. Please reassign or delete patients first.")
+    else:
+        user.delete()
+        messages.success(request, f"User '{user_name}' successfully deleted! 🗑️")
+
+    return redirect('user_list')
+
+from .models import UserAccount, SuperAdminCreatedUsers
+from django.contrib.auth.hashers import make_password
+from django.views.decorators.http import require_POST
+
+@require_POST
+def create_user_page(request):
+    session_user_id = request.session.get('user_id')
+    session_user_type = request.session.get('user_type')
+
+    if not session_user_id:
+        return redirect('login')
+
+    name = request.POST.get('name')
+    userid = request.POST.get('userid')
+    password = request.POST.get('password')
+    usertype = request.POST.get('usertype')
+    parent_admin = None
+
+    # Duplicate check
+    if UserAccount.objects.filter(userid=userid).exists():
+        messages.error(request, "USER ID already exists.")
+        return redirect('user_list')
+
+    # If current logged-in user is ADMIN -> auto set parent_admin
+    if session_user_type == "ADMIN":
+        try:
+            parent_admin = UserAccount.objects.get(id=session_user_id, usertype='ADMIN')
+        except UserAccount.DoesNotExist:
+            parent_admin = None
+
+    # If SUPERADMIN -> optional parent_admin chosen from form
+    elif session_user_type == "SUPERADMIN":
+        parent_id = request.POST.get('parent_admin_id')
+        if parent_id:
+            try:
+                parent_admin = UserAccount.objects.get(id=parent_id, usertype='ADMIN')
+            except UserAccount.DoesNotExist:
+                parent_admin = None
+
+    # Create new user (hash password)
+    new_user = UserAccount.objects.create(
+        name=name,
+        userid=userid,
+        password=make_password(password),
+        usertype=usertype.upper(),   # ensure uppercase consistency
+        is_active=True,
+        parent_admin=parent_admin
+    )
+
+    # optional logging table
+    if session_user_type == "SUPERADMIN" and new_user.usertype in ['IMAGING', 'RADS', 'ADMIN']:
+        SuperAdminCreatedUsers.objects.create(
+            name=new_user.name,
+            userid=new_user.userid,
+            usertype=new_user.usertype
+        )
+
+    messages.success(request, f"{usertype} user '{name}' created.")
+
+    # Redirect back based on who created
+    if session_user_type == "ADMIN":
+        return redirect('signup')        # admin should see its own user_list
+    elif session_user_type == "SUPERADMIN":
+        return redirect('super_admin')
+    else:
+        return redirect('login')
+
+
+
+
+def admin_details_page(request, admin_id):
+    admin_user = get_object_or_404(UserAccount, id=admin_id, usertype='ADMIN')
+
+    imaging_users = UserAccount.objects.filter(
+        usertype='IMAGING',
+        parent_admin_id=admin_id
+    )
+
+    rads_users = UserAccount.objects.filter(
+        usertype='RADS',
+        parent_admin_id=admin_id
+    )
+
+    return render(request, 'admin_details_page.html', {
+        'admin': admin_user,
+        'imaging_users': imaging_users,
+        'rads_users': rads_users
     })

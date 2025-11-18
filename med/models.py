@@ -61,3 +61,12 @@ class UserAccount(models.Model):
         return f"{self.name} ({self.userid})"
         
 
+class SuperAdminCreatedUsers(models.Model):
+    name = models.CharField(max_length=200)
+    userid = models.CharField(max_length=200)
+    usertype = models.CharField(max_length=50)
+    contact = models.CharField(max_length=20, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

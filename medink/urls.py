@@ -48,15 +48,19 @@ urlpatterns = [
     path('assign_patient_superadmin/', assign_patient_superadmin, name='assign_patient_superadmin'),
     path('patients/',patients, name='patients'),
     path('add-user/', add_user, name='add_user'),
-    path('admin-details/<int:admin_id>/', admin_details, name='admin_details'),
-    path("admin_details/", admin_details, name="admin_details"),
+    # path('admin-details/<int:admin_id>/', admin_details, name='admin_details'),
+    # path("admin_details/", admin_details, name="admin_details"),
     path('user-list/', user_list, name='user_list'),
     path('user-details/<int:user_id>/', user_details_api, name='user_details_api'),
+    path('update-user/<int:user_id>/', update_user, name='update_user'),
+    path('delete-user/<int:user_id>/', delete_user, name='delete_user'),
+    path('create-user-page/',create_user_page, name='create_user_page'),
+    path('api/admin-details/<int:admin_id>/', admin_details_api, name='admin_details_api'),
+    path('admin-details/<int:admin_id>/', admin_details_page, name='admin_details_page'),
 
 
 
 
-    
 
     # path('delete_patient/<int:id>/', delete_patient, name='delete_patient'),
 ]
