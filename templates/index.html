@@ -585,9 +585,86 @@ body.dark-mode .nav3 table tr:hover {
     </a>
 
 </div>
+<!-- ACTION BAR (hidden by default) -->
+<div id="bulkActionBar" style="
+    position: fixed;
+    bottom: 0;
+    left: 60px;
+    right: 0;
+    background: #0a3d62;
+    padding: 12px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    color: white;
+    font-size: 16px;
+    z-index: 9999;
+    display: none;
+">
 
+    <span id="selectedCount">0 Selected</span>
 
+    <button onclick="bulkEdit()" class="action-btn">Edit</button>
+    <button onclick="bulkDelete()" class="action-btn">Delete</button>
+    <button onclick="bulkDownload()" class="action-btn">Download</button>
+    <button onclick="bulkShare()" class="action-btn">Share</button>
 
+</div>
+<div id="editModal" style="
+    display:none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background:gray;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    z-index: 100000;
+">
+    <h3>Edit Patient</h3>
+    <input id="editName" placeholder="Name" class="pop-input"><br>
+    <input id="editAge" placeholder="Age" class="pop-input"><br>
+    <input id="editBody" placeholder="Body Part" class="pop-input"><br>
+    <input id="editHis" placeholder="History" class="pop-input"><br>
+    <input id="editRef" placeholder="Ref By" class="pop-input"><br>
+    <button onclick="saveEdit()">Save</button>
+</div>
+
+<script>
+    function bulkEdit() {
+    const id = document.querySelector(".rowCheckbox:checked").value;
+
+    fetch(`/api/patient/${id}/`)
+    .then(r => r.json())
+    .then(p => {
+        document.getElementById("editName").value = p.name;
+        document.getElementById("editAge").value = p.age;
+        document.getElementById("editBody").value = p.body_part;
+        document.getElementById("editHis").value = p.history;
+        document.getElementById("editRef").value = p.ref_by;
+
+        document.getElementById("editModal").style.display = "block";
+    });
+}
+
+function saveEdit() {
+    const id = document.querySelector(".rowCheckbox:checked").value;
+
+    fetch(`/api/patient/${id}/edit/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken") },
+        body: JSON.stringify({
+            name: document.getElementById("editName").value,
+            age: document.getElementById("editAge").value,
+            body_part: document.getElementById("editBody").value,
+            history: document.getElementById("editHis").value,
+            ref_by: document.getElementById("editRef").value,
+        })
+    }).then(r => r.json())
+    .then(() => location.reload());
+}
+
+</script>
 <div  id="nav3" class="nav3" class="max-h-[450px] overflow-y-auto border border-gray-300">
     <table class="min-w-full border-collapse" >
          <thead class="bg-white sticky top-0 z-10 border-b-2 border-gray-200">
@@ -611,12 +688,12 @@ body.dark-mode .nav3 table tr:hover {
             {% for patient in patients %}
             <tr data-entry-date="{{ patient.entry_time|date:'Y-m-d' }}"
             data-center="{{ patient.imaging_center.name }}" 
-            onclick="window.location.href='/report/{{patient.id}}/'" 
+            ondblclick="window.location.href='/report/{{patient.id}}/'" 
                 style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#{% elif patient.status == 'DRAFT' %}#{% else %}#{% endif %}">
                 
                 <td>
                     
-                    <input type="checkbox" class="rowCheckbox" data-id="{{patient.id}}" onclick="event.stopPropagation()">
+                    <input type="checkbox" value="{{ patient.id }}"  class="rowCheckbox" data-id="{{patient.id}}" onclick="event.stopPropagation()">
 
                     {{ patient.center }}<br>
                     <small>{{patient.entry_time|date:"d/m/Y"}} | {{patient.entry_time|time:"H:i"}}</small>
@@ -702,11 +779,6 @@ document.getElementById('centerSelect').addEventListener('change', function() {
         }
     });
 });
-
-
-
-
-
 const sidebar = document.querySelector('.sidebar2');
 const toggleBtn = document.getElementById('toggleBtn');
 const nav2 = document.getElementById('nav2');
@@ -1333,5 +1405,193 @@ toggle.addEventListener("change", () => {
 });
 
 </script>
+<script>
+// ======= Helper: CSRF getter =======
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// ======= DOM ready =======
+document.addEventListener('DOMContentLoaded', function() {
+    const tableBody = document.getElementById('patientTable');
+    const bulkBar = document.getElementById('bulkActionBar');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const selectAll = document.getElementById('selectAll');
+
+    function getSelectedCheckboxes() {
+        return Array.from(document.querySelectorAll('.rowCheckbox')).filter(chk => chk.checked);
+    }
+
+    function updateBulkBar() {
+        const selected = getSelectedCheckboxes();
+        if (selected.length > 0) {
+            bulkBar.style.display = 'flex';
+            selectedCountEl.innerText = `${selected.length} Selected`;
+        } else {
+            bulkBar.style.display = 'none';
+            selectedCountEl.innerText = `0 Selected`;
+        }
+    }
+
+    // Event delegation for checkboxes (works even if tbody is refreshed dynamically)
+    tableBody.addEventListener('change', function(e) {
+        const target = e.target;
+        if (target.classList && target.classList.contains('rowCheckbox')) {
+            e.stopPropagation(); // avoid row click navigation
+            updateBulkBar();
+        }
+    });
+
+    // selectAll checkbox behaviour
+    selectAll.addEventListener('change', function() {
+        const all = document.querySelectorAll('.rowCheckbox');
+        all.forEach(cb => cb.checked = selectAll.checked);
+        updateBulkBar();
+    });
+
+    // If rows are refreshed dynamically elsewhere, call updateBulkBar() after refresh
+    // e.g., after replacing tbody innerHTML call updateBulkBar();
+
+    // ======= Bulk actions =======
+    window.bulkDelete = function() {
+        const ids = getSelectedCheckboxes().map(cb => cb.value);
+        if (ids.length === 0) return alert('Select at least one row.');
+        if (!confirm(`Delete ${ids.length} selected?`)) return;
+
+        fetch('/api/delete-multiple/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ ids })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // remove deleted rows from DOM (faster than reload)
+                ids.forEach(id => {
+                    const cb = document.querySelector(`.rowCheckbox[value="${id}"]`);
+                    if (cb) cb.closest('tr').remove();
+                });
+                updateBulkBar();
+                alert('Deleted successfully');
+            } else {
+                alert('Delete failed');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Delete error');
+        });
+    };
+
+    window.bulkDownload = function() {
+        const ids = getSelectedCheckboxes().map(cb => cb.value);
+        if (ids.length === 0) return alert('Select at least one row.');
+
+        // open each report in new tab (browser may block many tabs) — alternative: zip backend
+        ids.forEach(id => window.open(`/download/${id}/pdf/`, '_blank'));
+    };
+
+    window.bulkShare = function() {
+        const ids = getSelectedCheckboxes().map(cb => cb.value);
+        if (ids.length === 0) return alert('Select at least one row.');
+
+        // For now show message — implement WhatsApp/API integration server-side later
+        alert(`Prepare to share ${ids.length} reports. Implement WhatsApp API on backend to send messages.`);
+    };
+
+    // EDIT: open modal for first selected (you can extend for multi-edit)
+    window.bulkEdit = function() {
+        const selected = getSelectedCheckboxes();
+        if (selected.length === 0) return alert('Select one row to edit.');
+        const id = selected[0].value;
+
+        fetch(`/api/patient/${id}/`)
+        .then(r => {
+            if (!r.ok) throw new Error('Failed to fetch patient');
+            return r.json();
+        })
+        .then(p => {
+            document.getElementById("editName").value = p.name || '';
+            document.getElementById("editAge").value = p.age || '';
+            document.getElementById("editBody").value = p.body_part || '';
+            document.getElementById("editHis").value = p.history || '';
+            document.getElementById("editRef").value = p.ref_by || '';
+
+            document.getElementById("editModal").dataset.editingId = id;
+            document.getElementById("editModal").style.display = 'block';
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Could not load patient for edit');
+        });
+    };
+
+    // saveEdit (hooked to Save button)
+    window.saveEdit = function() {
+        const modal = document.getElementById('editModal');
+        const id = modal.dataset.editingId;
+        if (!id) return alert('No patient id');
+
+        const payload = {
+            name: document.getElementById("editName").value,
+            age: document.getElementById("editAge").value,
+            body_part: document.getElementById("editBody").value,
+            history: document.getElementById("editHis").value,
+            ref_by: document.getElementById("editRef").value
+        };
+
+        fetch(`/api/patient/${id}/edit/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // optional: update row UI in-place (or reload)
+                location.reload();
+            } else {
+                alert('Edit failed');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Edit error');
+        });
+    };
+
+    // modal close on outside click or Escape
+    document.addEventListener('click', function(e){
+        const modal = document.getElementById('editModal');
+        if (modal.style.display === 'block' && !modal.contains(e.target) && !e.target.classList.contains('action-btn')) {
+            modal.style.display = 'none';
+        }
+    });
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') {
+            document.getElementById('editModal').style.display = 'none';
+        }
+    });
+
+}); // DOMContentLoaded end
+</script>
+
 </body>
 </html>

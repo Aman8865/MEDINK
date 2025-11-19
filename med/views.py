@@ -950,3 +950,39 @@ def admin_details_page(request, admin_id):
         'rads_users': rads_users
     })
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from .models import Patient
+
+@csrf_exempt
+def delete_multiple(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            ids = data.get('ids', [])
+            Patient.objects.filter(id__in=ids).delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def edit_patient(request, id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            p = Patient.objects.get(id=id)
+            p.name = data.get('name', p.name)
+            p.age = data.get('age', p.age)
+            p.body_part = data.get('body_part', p.body_part)
+            p.history = data.get('history', p.history)
+            p.ref_by = data.get('ref_by', p.ref_by)
+            p.save()
+            return JsonResponse({'success': True})
+        except Patient.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Patient not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
