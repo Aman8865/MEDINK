@@ -29,15 +29,16 @@ body {
     left: 0;
     width: 100%;
     height: 60px;
-    background-color: rgb(176, 176, 243);
+    background-color: #d6eefe; /* Light Sky Blue */
+    color: #0d47a1;            /* Deep Blue Text */
+
     display: flex;
     align-items: center;
     padding: 0 15px;
-    color: black;
+    /* color: black; */
     z-index: 1000;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-
 .top-navbar img {
     border-radius: 50%;
 }
@@ -55,7 +56,9 @@ body {
     left: 0;
     height: 100%;
     width: 60px;
-    background-color: rgb(182, 182, 245);
+    background-color: #d6eefe; /* Light Blue */
+color: #0d47a1;            /* Dark Blue Icons */
+
     transition: width 0.3s ease;
     overflow-x: hidden;
     z-index: 999;
@@ -127,8 +130,8 @@ body {
 
 /* 🧭 SECOND NAVBAR (Filters) */
 .nav2 {
-    background-color: #606160;
-    color: white;
+    /* background-color: #606160;
+    color: white; */
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -137,6 +140,9 @@ body {
     margin-top: 60px;
     margin-left: 60px;
     transition: margin-left 0.3s ease;
+    background-color: white;
+    border-bottom: 1px solid #cfd8dc;
+    color: #0d47a1;
 }
 
 .nav2 button, .nav2 a {
@@ -267,6 +273,49 @@ body {
         display: none; /* hide extra columns on small screen */
     }
 }
+
+#nav3 {
+  max-height: 450px;         /* scroll height adjust kar lo */
+  overflow-y: auto;           /* sirf vertical scroll */
+  border: 1px solid #ddd;     /* optional border */
+}
+
+#nav3 table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#nav3 thead th {
+  position: sticky;
+  top: 0;
+  background-color: rgb(230, 228, 228);    /* ya apne theme ke hisab se */
+  z-index: 10;
+  border-bottom: 2px solid #ccc;
+}
+
+#nav3 th, #nav3 td {
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid #eee;
+}
+
+#statusFilter .active {
+  color: #00ffcc;
+  font-weight: bold;
+}
+/* EVERY ENTRY ROW SOFT LIGHT BLUE */
+tr {
+    background-color: #f7fbff !important;   /* universal super-light blue */
+}
+
+/* OPTIONAL: Row hover soft highlight */
+tr:hover {
+    background-color: #eef6ff !important;
+}
+tr.status-final  { background-color: #f2fbf2 !important; }  /* light mint */
+tr.status-unread { background-color: #fff4f4 !important; }  /* light pink */
+tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
+
 
 
     </style>
