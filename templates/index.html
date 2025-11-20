@@ -157,17 +157,28 @@ color: #0d47a1;            /* Dark Blue Icons */
 }
 
 /* ✅ nav3 (table area) scrollable */
-.nav3 {
+/* .nav3 {
     position: absolute;
-    top: 120px; /* nav2 height (approx 60px + 60px = 120px from top) */
+    top: 100px;
     left: 60px;
     right: 0;
     bottom: 0;
     overflow-y: auto;
-    background-color: white;
     transition: left 0.3s ease;
     padding-bottom: 50px;
+} */
+.nav3 {
+    position: absolute;
+    top: 125px !important; /* (60 nav + 40 filters + 30 tabs) */
+    left: 60px;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    transition: left 0.3s ease;
+    padding-bottom: 50px;
+    
 }
+
 
 /* ✅ Scrollbar style (optional) */
 .nav3::-webkit-scrollbar {
@@ -501,10 +512,105 @@ body.dark-mode .nav3 table tr:hover {
     <!-- 🔵 Only Profile Icon on Right -->
     <div style="margin-left:auto; margin-right:20px; cursor:pointer;">
         <i class="fa-solid fa-user-circle" 
-           style="font-size:30px; color:white;"></i>
-    </div>
-    
+           style="font-size:30px; color:white;" id="profileIcon"></i>
+</div>
+<!-- Profile Dropdown Modal -->
+<div id="profileModal" style="
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 220px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 99999;
+    display: none;
+    font-family: Arial;
+">
 
+    <!-- Header -->
+    <div style="padding: 10px; border-bottom: 1px solid #eee;">
+        <strong style="font-size: 16px;">{{user_name}}</strong><br>
+        <small style="color: gray;">Role: {{user_type}}</small>
+    </div>
+
+    <!-- Menu Items -->
+    <div style="padding: 10px;">
+        <div class="profile-item" onclick="openMyProfile()">👤 My Profile</div>
+        <div class="profile-item" onclick="openChangePass()">🔑 Change Password</div>
+        <div class="profile-item" onclick="toggleTheme()">🌗 Theme Mode</div>
+        <div class="profile-item" onclick="window.location.href='{% url 'logout' %}'">🚪 Logout</div>
+    </div>
+</div>
+
+<style>
+.profile-item {
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+.profile-item:hover {
+    background: #e8f1ff;
+}
+body.dark-mode #profileModal {
+    background: #1e293b;
+    color: white;
+}
+body.dark-mode .profile-item:hover {
+    background: #334155;
+}
+
+.tab-item {
+    padding: 3px 8px;
+    font-size: 12px;
+    background: #d7e9ff;
+    border-radius: 6px;
+    border:1px solid #bcd4f5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab-active {
+    background: #1d6ede !important;
+    color: white !important;
+    border-color: #1055b6 !important;
+}
+</style>
+<script>
+// Open / Close Dropdown
+const profileIcon = document.getElementById("profileIcon");
+const profileModal = document.getElementById("profileModal");
+
+profileIcon.addEventListener("click", () => {
+    profileModal.style.display =
+        profileModal.style.display === "block" ? "none" : "block";
+});
+
+// Close modal when clicking outside
+document.addEventListener("click", function(e) {
+    if (!profileModal.contains(e.target) && e.target !== profileIcon) {
+        profileModal.style.display = "none";
+    }
+});
+
+// Dummy functions
+function openMyProfile() {
+    alert("My Profile open karna hai (link add karna hoga)");
+}
+function openChangePass() {
+    alert("Change password page banega (yahan redirect karenge)");
+}
+
+// Theme Toggle
+function toggleTheme() {
+    document.getElementById("themeToggle").click();
+}
+</script>
 </div>
 
 {% block body %}
@@ -553,7 +659,7 @@ body.dark-mode .nav3 table tr:hover {
     </a> -->
 
    <div class="date-filter">
-  <button id="dateFilterBtn"><i class="fas fa-calendar"></i>Date</button>
+  <button id="dateFilterBtn"><i class="fas fa-calendar"></i></button>
 
   <input id="dateRangeInput" type="text" placeholder="Select date range" readonly
          style="margin-left:8px; display: none; padding:6px 10px; border-radius:4px; border:none; width:220px; font-size:14px;" />
@@ -585,50 +691,145 @@ body.dark-mode .nav3 table tr:hover {
     </a>
 
 </div>
-<!-- ACTION BAR (hidden by default) -->
-<div id="bulkActionBar" style="
+
+  <!-- 🔵 TOP TAB BAR WITH ICONS -->
+<div id="patientTabs" style="
     position: fixed;
-    bottom: 0;
+    top: 100px;
     left: 60px;
     right: 0;
-    background: #0a3d62;
-    padding: 12px 20px;
+    height: 20px;
     display: flex;
-    gap: 20px;
     align-items: center;
-    color: white;
-    font-size: 16px;
-    z-index: 9999;
-    display: none;
+    justify-content: space-between;
+    padding: 4px 10px;
+    background: #cbcaca;
+    border-bottom: 1px solid #d7d7d7;
+    z-index: 999;
 ">
 
-    <span id="selectedCount">0 Selected</span>
+    <!-- LEFT SIDE – TABS -->
+    <div id="tabContainer" style="display:flex; gap:6px; align-items:center;">
+        <div class="tab-item tab-active" 
+             onclick="window.location.href='/index/'"
+             style="background:#1d6ede; color:white; font-weight:600;">
+            PATIENT LIST
+        </div>
+    </div>
 
-    <button onclick="bulkEdit()" class="action-btn">Edit</button>
-    <button onclick="bulkDelete()" class="action-btn">Delete</button>
-    <button onclick="bulkDownload()" class="action-btn">Download</button>
-    <button onclick="bulkShare()" class="action-btn">Share</button>
+    <!-- RIGHT SIDE – BULK ICONS -->
+    <div id="bulkIcons" style="display:flex; gap:18px; align-items:center;">
+        <i id="bulkEditIcon" class="fa-solid fa-pen-to-square" title="Edit"
+            style="cursor:pointer; color:#0d47a1; opacity:0.4;" onclick="bulkEdit()"></i>
+
+        <i id="bulkDeleteIcon" class="fa-solid fa-trash" title="Delete"
+            style="cursor:pointer; color:red; opacity:0.4;" onclick="bulkDelete()"></i>
+
+        <i id="bulkDownloadIcon" class="fa-solid fa-download" title="Download"
+            style="cursor:pointer; color:green; opacity:0.4;" onclick="bulkDownload()"></i>
+
+        <i id="bulkShareIcon" class="fa-solid fa-share-nodes" title="Share"
+            style="cursor:pointer; color:#333; opacity:0.4;" onclick="bulkShare()"></i>
+
+        <span id="selectedCount" style="font-size:12px; color:black;">0</span>
+    </div>
 
 </div>
+
+</div>
+
+<!-- </div> -->
+
+
 <div id="editModal" style="
     display:none;
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    background:gray;
-    padding: 20px;
-    border-radius: 10px;
+    background:#f9fbff;
+    padding: 18px;
+    border-radius: 12px;
     width: 300px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    border: 1px solid #d0d7e0;
     z-index: 100000;
+    font-family: Arial;
 ">
-    <h3>Edit Patient</h3>
-    <input id="editName" placeholder="Name" class="pop-input"><br>
-    <input id="editAge" placeholder="Age" class="pop-input"><br>
-    <input id="editBody" placeholder="Body Part" class="pop-input"><br>
-    <input id="editHis" placeholder="History" class="pop-input"><br>
-    <input id="editRef" placeholder="Ref By" class="pop-input"><br>
-    <button onclick="saveEdit()">Save</button>
+    <h3 style="
+        margin-top:0;
+        margin-bottom:12px;
+        text-align:center;
+        color:#0d47a1;
+        font-size:18px;
+    ">✏️ Edit Patient</h3>
+
+    <!-- Close button -->
+    <span onclick="document.getElementById('editModal').style.display='none'" style="
+        position:absolute;
+        right:12px;
+        top:8px;
+        font-size:20px;
+        cursor:pointer;
+        color:#555;
+    ">×</span>
+
+    <label class="edit-label">Name</label>
+    <input id="editName" placeholder="Name" class="pop-input edit-input">
+
+    <label class="edit-label">Age</label>
+    <input id="editAge" placeholder="Age" class="pop-input edit-input">
+
+    <label class="edit-label">Body Part</label>
+    <input id="editBody" placeholder="Body Part" class="pop-input edit-input">
+
+    <label class="edit-label">History</label>
+    <input id="editHis" placeholder="History" class="pop-input edit-input">
+
+    <label class="edit-label">Ref By</label>
+    <input id="editRef" placeholder="Ref By" class="pop-input edit-input">
+
+    <button onclick="saveEdit()" style="
+        width:100%;
+        background:#0d47a1;
+        color:white;
+        padding:10px;
+        border:none;
+        border-radius:8px;
+        margin-top:12px;
+        font-size:15px;
+        cursor:pointer;
+    ">Save</button>
 </div>
+
+<style>
+.edit-input {
+    width: 80%;
+    padding: 5px 8px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #c3ccd5;
+    background: #eef4ff;
+    font-size: 14px;
+    outline: none;
+}
+.sidebar-hidden ~ #patientTabs {
+    left: 0 !important;
+}
+
+.edit-input:focus {
+    border-color: #0d47a1;
+    box-shadow: 0 0 3px rgba(13,71,161,0.4);
+}
+
+.edit-label {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    display:block;
+    color:#333;
+}
+</style>
+
 
 <script>
     function bulkEdit() {
@@ -665,11 +866,12 @@ function saveEdit() {
 }
 
 </script>
+
 <div  id="nav3" class="nav3" class="max-h-[450px] overflow-y-auto border border-gray-300">
     <table class="min-w-full border-collapse" >
          <thead class="bg-white sticky top-0 z-10 border-b-2 border-gray-200">
       <tr>
-        <th  class="p-2"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">DateCenter/Date</th>
+        <th  class="p-2"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">Center/Date</th>
         <th class="p-2">Patient</th>
         <th class="p-2">Age/Sex</th>
         <th class="p-2">Scan Type</th>
@@ -687,8 +889,10 @@ function saveEdit() {
             
             {% for patient in patients %}
             <tr data-entry-date="{{ patient.entry_time|date:'Y-m-d' }}"
-            data-center="{{ patient.imaging_center.name }}" 
-            ondblclick="window.location.href='/report/{{patient.id}}/'" 
+            data-center="{{ patient.center }}" 
+            data-rads="{% if patient.assigned_to %}{{ patient.assigned_to.name }}{% else %}NONE{% endif %}"
+           ondblclick="openReportWithTab('{{patient.id}}', '{{patient.name}}')"
+ 
                 style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#{% elif patient.status == 'DRAFT' %}#{% else %}#{% endif %}">
                 
                 <td>
@@ -727,8 +931,6 @@ function saveEdit() {
       <br><small class="assigned-to-display"></small>
     {% endif %}
 </td>
-
-
                 <td>
                     <i class="fa-regular fa-file-pdf" style="color:red; cursor:pointer; margin-right:8px;" 
                        onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
@@ -756,29 +958,21 @@ function saveEdit() {
 
 <script>
 // 🔹 CENTER FILTER
-document.getElementById('centerSelect').addEventListener('change', function() {
-    const selectedCenter = this.value.toUpperCase();
-    const rows = document.querySelectorAll('#patientTable tr');
+document.getElementById("centerSelect").addEventListener("change", function () {
+    const selected = this.value.toUpperCase();
+    const rows = document.querySelectorAll("#patientTable tr");
 
     rows.forEach(row => {
-        const rowCenter = row.getAttribute('data-center')?.toUpperCase() || '';
+        const rowCenter = (row.dataset.center || "").toUpperCase();
 
-        const statusSpan = row.querySelector('.status');
-        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
-        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
-
-        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
-        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
-        const centerMatch = (selectedCenter === 'ALL' || rowCenter === selectedCenter);
-
-        // Final display condition
-        if (statusMatch && scanMatch && centerMatch) {
-            row.style.display = '';
+        if (selected === "ALL" || rowCenter === selected) {
+            row.style.display = "";
         } else {
-            row.style.display = 'none';
+            row.style.display = "none";
         }
     });
 });
+
 const sidebar = document.querySelector('.sidebar2');
 const toggleBtn = document.getElementById('toggleBtn');
 const nav2 = document.getElementById('nav2');
@@ -1052,46 +1246,6 @@ function applyFilters() {
     });
 }
 
-// function deletePatient(event, id) {
-//     event.stopPropagation(); // row click se bachne ke liye
-
-//     if (!confirm("Are you sure you want to delete this entry?")) return;
-
-//     fetch(`/delete_patient/${id}/`, {
-//         method: "DELETE",
-//         headers: {
-//             "X-CSRFToken": getCookie("csrftoken"), // Django CSRF token
-//         },
-//     })
-//     .then(response => {
-//         if (response.ok) {
-//             alert("Patient entry deleted successfully!");
-//             event.target.closest("tr").remove(); // table row hata do
-//         } else {
-//             alert("Failed to delete entry!");
-//         }
-//     })
-//     .catch(error => {
-//         console.error("Error:", error);
-//         alert("Something went wrong!");
-//     });
-// }
-
-// Django ke liye CSRF token getter
-// function getCookie(name) {
-//     let cookieValue = null;
-//     if (document.cookie && document.cookie !== "") {
-//         const cookies = document.cookie.split(";");
-//         for (let i = 0; i < cookies.length; i++) {
-//             const cookie = cookies[i].trim();
-//             if (cookie.substring(0, name.length + 1) === name + "=") {
-//                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-//                 break;
-//             }
-//         }
-//     }
-//     return cookieValue;
-// }
 const centerSelect = document.getElementById("centerSelect");
 centerSelect.addEventListener("change", function() {
     const selectedCenter = this.value.toUpperCase();
@@ -1107,26 +1261,21 @@ centerSelect.addEventListener("change", function() {
     });
 });
 
-document.getElementById('radsSelect').addEventListener('change', function() {
-    const selectedRad = this.value.toUpperCase();
-    const rows = document.querySelectorAll('#patientTable tr');
+document.getElementById("radsSelect").addEventListener("change", function () {
+    const selected = this.value.toUpperCase();
+    const rows = document.querySelectorAll("#patientTable tr");
 
     rows.forEach(row => {
-        const rowRad = row.querySelector('td:nth-child(7)')?.textContent.trim().toUpperCase() || '';
-        const rowStatus = row.querySelector('.status')?.textContent.trim().toUpperCase() || '';
-        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
+        const rowRads = (row.dataset.rads || "").toUpperCase();
 
-        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
-        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
-        const radMatch = (selectedRad === 'ALL' || rowRad.includes(selectedRad));
-
-        if (statusMatch && scanMatch && radMatch) {
-            row.style.display = '';
+        if (selected === "ALL" || rowRads === selected) {
+            row.style.display = "";
         } else {
-            row.style.display = 'none';
+            row.style.display = "none";
         }
     });
 });
+
 
 // all RADS assign-dropdown
 function assignPatient(patientId, radId) {
@@ -1405,6 +1554,7 @@ toggle.addEventListener("change", () => {
 });
 
 </script>
+
 <script>
 // ======= Helper: CSRF getter =======
 function getCookie(name) {
@@ -1425,7 +1575,7 @@ function getCookie(name) {
 // ======= DOM ready =======
 document.addEventListener('DOMContentLoaded', function() {
     const tableBody = document.getElementById('patientTable');
-    const bulkBar = document.getElementById('bulkActionBar');
+    // const bulkBar = document.getElementById('bulkActionBar');
     const selectedCountEl = document.getElementById('selectedCount');
     const selectAll = document.getElementById('selectAll');
 
@@ -1433,31 +1583,31 @@ document.addEventListener('DOMContentLoaded', function() {
         return Array.from(document.querySelectorAll('.rowCheckbox')).filter(chk => chk.checked);
     }
 
-    function updateBulkBar() {
-        const selected = getSelectedCheckboxes();
-        if (selected.length > 0) {
-            bulkBar.style.display = 'flex';
-            selectedCountEl.innerText = `${selected.length} Selected`;
-        } else {
-            bulkBar.style.display = 'none';
-            selectedCountEl.innerText = `0 Selected`;
-        }
-    }
+    // function updateBulkBar() {
+    //     const selected = getSelectedCheckboxes();
+    //     if (selected.length > 0) {
+    //         bulkBar.style.display = 'flex';
+    //         selectedCountEl.innerText = `${selected.length} Selected`;
+    //     } else {
+    //         bulkBar.style.display = 'none';
+    //         selectedCountEl.innerText = `0 Selected`;
+    //     }
+    // }
 
     // Event delegation for checkboxes (works even if tbody is refreshed dynamically)
-    tableBody.addEventListener('change', function(e) {
-        const target = e.target;
-        if (target.classList && target.classList.contains('rowCheckbox')) {
-            e.stopPropagation(); // avoid row click navigation
-            updateBulkBar();
-        }
-    });
+    // tableBody.addEventListener('change', function(e) {
+    //     const target = e.target;
+    //     if (target.classList && target.classList.contains('rowCheckbox')) {
+    //         e.stopPropagation(); // avoid row click navigation
+    //         updateBulkBar();
+    //     }
+    // });
 
     // selectAll checkbox behaviour
     selectAll.addEventListener('change', function() {
         const all = document.querySelectorAll('.rowCheckbox');
         all.forEach(cb => cb.checked = selectAll.checked);
-        updateBulkBar();
+        updateBulkIcons();
     });
 
     // If rows are refreshed dynamically elsewhere, call updateBulkBar() after refresh
@@ -1591,7 +1741,79 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 }); // DOMContentLoaded end
-</script>
 
+function openReportWithTab(patientId, patientName) {
+    let tabBar = document.getElementById("tabContainer");
+
+    let tabId = "tab-" + patientId;
+
+    // If already exists → just redirect
+    if (document.getElementById(tabId)) {
+        window.location.href = `/report/${patientId}/`;
+        return;
+    }
+
+    // Create new tab
+    let tab = document.createElement("div");
+    tab.id = tabId;
+    tab.style.cssText = `
+        padding: 3px 4px;
+        background:#e8f2ff;
+        border-radius: 6px;
+        font-size: 12px;
+        color:#003f7f;
+        display:flex;
+        align-items:center;
+        gap:6px;
+        cursor:pointer;
+        border:1px solid #d0e3ff;
+        height: 14px;
+    `;
+
+    tab.innerHTML = `
+        <span>${patientName}</span>
+        <span style="cursor:pointer; font-weight:bold;" 
+              onclick="event.stopPropagation(); this.parentElement.remove();">×</span>
+    `;
+
+    tab.onclick = function () {
+        window.location.href = `/report/${patientId}/`;
+    };
+
+    tabBar.appendChild(tab);
+
+    // open report
+    window.location.href = `/report/${patientId}/`;
+}
+function updateBulkIcons() {
+    let selected = document.querySelectorAll('.rowCheckbox:checked').length;
+    document.getElementById("selectedCount").innerText = selected + " Selected";
+
+    let icons = [
+        bulkEditIcon,
+        bulkDeleteIcon,
+        bulkDownloadIcon,
+        bulkShareIcon
+    ];
+
+    icons.forEach(icon => {
+        if (selected > 0) {
+            icon.style.opacity = "1";
+            icon.style.pointerEvents = "auto";
+        } else {
+            icon.style.opacity = "0.4";
+            icon.style.pointerEvents = "none";
+        }
+    });
+}
+
+
+// checkbox event
+// document.getElementById("patientTable").addEventListener("change", function(e){
+//     if(e.target.classList.contains("rowCheckbox")){
+//         updateBulkIcons();
+//     }
+// });
+</script>
 </body>
 </html>

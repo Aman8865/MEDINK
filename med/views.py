@@ -986,3 +986,4 @@ def edit_patient(request, id):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+

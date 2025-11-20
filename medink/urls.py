@@ -41,7 +41,6 @@ urlpatterns = [
     path('api/patient/<int:id>/', get_patient, name='get_patient'),
     path('api/patient/<int:id>/update/', update_report, name='update_report'),
     path('assign_patient/<int:patient_id>/', assign_patient, name='assign_patient'),
-
     path("super-admin/", super_admin, name="super_admin"),
     path("user/toggle/<int:id>/", toggle_user_status, name="toggle_user_status"),
     path("user/role/<int:id>/<str:role>/", change_user_role, name="change_user_role"),
@@ -60,15 +59,7 @@ urlpatterns = [
     path("api/delete-multiple/", delete_multiple, name="delete_multiple"),
     path("api/patient/<int:id>/edit/", edit_patient),
     
-
-
     
-
-
-
-
-
-    # path('delete_patient/<int:id>/', delete_patient, name='delete_patient'),
 ]
     
     # API endpoints

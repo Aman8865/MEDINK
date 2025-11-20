@@ -53,6 +53,7 @@ class UserAccount(models.Model):
     password = models.CharField(max_length=100)
     usertype = models.CharField(max_length=10, choices=USERTYPES)
     is_active = models.BooleanField(default=True)
+    
     parent_admin = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='sub_users')
 
 

@@ -25,13 +25,14 @@ body {
 .top-bar {
     width: 100%;
     background: #2f2f2f;
-    padding: 12px 20px;
+    padding: 8px 15px;
     color: white;
     font-size: 15px;
     display: flex;
     align-items: center;
     gap: 20px;
     border-bottom: 2px solid #444;
+    margin-top: 20px;
 }
 
 .top-item { font-weight: bold; }
@@ -202,12 +203,52 @@ body {
         transform: translateX(-50%) !important;
     }
 }
+.tab-item {
+    padding: 3px 8px;
+    font-size: 12px;
+    background: #d7e9ff;
+    border-radius: 6px;
+    border: 1px solid #bcd4f5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab-active {
+    background: #1d6ede !important;
+    color: white !important;
+    border-color: #1055b6 !important;
+}
 
 
 </style>
 </head>
 
 <body>
+<!-- 🔵 REPORT PAGE TAB BAR -->
+<div id="patientTabs" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: white;
+    border-bottom: 1px solid #c7d7e8;
+    padding: 4px 10px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    z-index: 9999;
+">
+
+    <!-- PERMANENT PATIENT LIST TAB -->
+    <div class="tab-item" onclick="window.location.href='/index/'">
+        PATIENT LIST
+    </div>
+
+</div>
+
 
 <!-- ---------------- TOP HEADER ---------------- -->
 <div class="top-bar">
@@ -218,6 +259,7 @@ body {
     <span class="top-item">BP:</span> <span class="top-value">{{ patient.body_part }}</span>
     <span class="top-item">HISTORY:</span> <span class="top-value">{{ patient.history }}</span>
 </div>
+
 
 <!-- ---------------- MAIN AREA ---------------- -->
 <div class="main">
@@ -393,6 +435,36 @@ document.addEventListener("keydown", function (event) {
         cropper.zoom(-0.2);
     }
 });
+function addTab(patientId, patientName) {
+    let bar = document.getElementById("patientTabs");
+
+    // Active tab ID
+    let activeId = "{{ patient.id }}";
+
+    // Avoid duplicate tab
+    if (document.getElementById("tab-" + patientId)) return;
+
+    let tab = document.createElement("div");
+    tab.id = "tab-" + patientId;
+    tab.classList.add("tab-item");
+
+    // If this tab is CURRENT open patient → make it active BLUE
+    if (parseInt(activeId) === parseInt(patientId)) {
+        tab.classList.add("tab-active");
+    }
+
+    tab.innerHTML = `
+        <span>${patientName}</span>
+        <b style="cursor:pointer;"
+           onclick="event.stopPropagation(); this.parentElement.remove();">×</b>
+    `;
+
+    tab.onclick = function () {
+        window.location.href = "/report/" + patientId + "/";
+    };
+
+    bar.appendChild(tab);
+}
 
 </script>
 
