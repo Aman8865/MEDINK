@@ -667,7 +667,7 @@ function toggleTheme() {
   <div class="date-cycle">
   <button id="dateCycleBtn" style="margin-left:6px; padding:6px 10px; border-radius:5px; border:none; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:6px;">
     <i class="fas fa-arrow-left" onclick="changeDateFilter('left', event)"></i>
-    <span id="dateCycleLabel">Clear</span>
+    <span id="dateCycleLabel">DATE</span>
     <i class="fas fa-arrow-right" onclick="changeDateFilter('right', event)"></i>
   </button>
 </div>
@@ -1496,7 +1496,7 @@ document.addEventListener("DOMContentLoaded", function() {
 }
 
   // Available filter options
-  const dateOptions = ["Clear", "Today", "Yesterday"];
+  const dateOptions = ["Date", "Today", "Yesterday"];
   let currentIndex = 0; // start with Clear
 
   function changeDateFilter(direction, event) {
@@ -1515,7 +1515,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Apply corresponding filter
     const selected = dateOptions[currentIndex].toLowerCase();
-    if (selected === "clear") {
+    if (selected === "DATE") {
       applyDateFilter(null, null); // clear all date filters
     } else {
       filterByDate(selected); // use your existing function
@@ -1814,6 +1814,20 @@ function updateBulkIcons() {
 //         updateBulkIcons();
 //     }
 // });
+// ENABLE BULK ICONS WHEN ROW CHECKBOX CLICKED
+document.getElementById("patientTable").addEventListener("change", function(e){
+    if (e.target.classList.contains("rowCheckbox")) {
+        updateBulkIcons();
+    }
+});
+
+// ALSO UPDATE WHEN SELECT ALL CLICKED
+document.getElementById("selectAll").addEventListener("change", function(){
+    const all = document.querySelectorAll('.rowCheckbox');
+    all.forEach(cb => cb.checked = this.checked);
+    updateBulkIcons();
+});
+
 </script>
 </body>
 </html>

@@ -781,8 +781,8 @@ def user_list(request):
         users = UserAccount.objects.filter(parent_admin_id=session_user_id).order_by('-id')
         admins = UserAccount.objects.filter(usertype='ADMIN')  # for select dropdown if needed
     else:
-        messages.error(request, "Access denied")
-        return redirect('index')
+        # messages.error(request, "Access denied")
+        return redirect('imagingA')
 
     form = SignupForm()
     return render(request, 'user_list.html', {'form': form, 'users': users, 'admins': admins})
@@ -987,3 +987,51 @@ def edit_patient(request, id):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
+from .models import UserAccount
+
+MASTER_PASSWORD = "AXRIX@2024"
+
+@csrf_exempt
+@require_POST
+def impersonate_with_password(request, user_id):
+
+    # SUPERADMIN check (session based)
+    if request.session.get('user_type') != "SUPERADMIN":
+        messages.error(request, "Permission denied.")
+        return redirect('user_list')
+
+    # Master password verify
+    password = request.POST.get("master_password")
+    if password != MASTER_PASSWORD:
+        messages.error(request, "Invalid master password.")
+        return redirect('user_list')
+
+    # Target user fetch
+    target_user = get_object_or_404(UserAccount, id=user_id)
+
+    # Clear existing login
+    request.session.flush()
+
+    # Set new impersonation session
+    request.session['user_id'] = target_user.id
+    request.session['user_name'] = target_user.name
+    request.session['user_type'] = target_user.usertype
+
+    messages.success(request, f"Logged in as {target_user.name}")
+
+    # Redirect by usertype
+    if target_user.usertype == "ADMIN":
+        return redirect('index')
+
+    if target_user.usertype == "IMAGING":
+        return redirect('imagingA')
+
+    if target_user.usertype == "RADS":
+        return redirect('RADS')
+
+    # Default
+    return redirect('index')

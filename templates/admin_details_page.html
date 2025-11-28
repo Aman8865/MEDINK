@@ -43,12 +43,19 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="/user-details/{{ user.id }}/" class="btn btn-sm btn-info">View</a>
-                                <a href="/update-user/{{ user.id }}/" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="/user/toggle/{{ user.id }}/" class="btn btn-sm btn-secondary">
-                                  {{ user.is_active|yesno:"Deactivate,Activate" }}
+                                <a href="/user-details/{{ user.id }}/" class="btn btn-sm ">👁️</a>
+                                <a href="/update-user/{{ user.id }}/" class="btn btn-sm ">✏️</a>
+                                <a href="/user/toggle/{{ user.id }}/" class="btn btn-sm 
+                                ">
+                                  {{ user.is_active|yesno:"🔒,🔓" }}
                                 </a>
-                                <a href="/delete-user/{{ user.id }}/" class="btn btn-sm btn-danger">Delete</a>
+                                <a href="/delete-user/{{ user.id }}/" class="btn btn-sm 
+                                ">🗑️</a>
+                                <button class="btn btn-sm 
+                                " onclick="openImpersonateModal({{ user.id }})">
+                                    🔗
+                                </button>
+
                             </td>
                         </tr>
                         {% endfor %}
@@ -91,12 +98,19 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="/user-details/{{ user.id }}/" class="btn btn-sm btn-info">View</a>
-                                <a href="/update-user/{{ user.id }}/" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="/user/toggle/{{ user.id }}/" class="btn btn-sm btn-secondary">
-                                  {{ user.is_active|yesno:"Deactivate,Activate" }}
+                                <a href="/user-details/{{ user.id }}/" class="btn btn-sm ">👁️</a>
+                                <a href="/update-user/{{ user.id }}/" class="btn btn-sm ">✏️</a>
+                                <a href="/user/toggle/{{ user.id }}/" class="btn btn-sm 
+                                ">
+                                  {{ user.is_active|yesno:"🔒,🔓" }}
                                 </a>
-                                <a href="/delete-user/{{ user.id }}/" class="btn btn-sm btn-danger">Delete</a>
+                                <a href="/delete-user/{{ user.id }}/" class="btn btn-sm 
+                                ">🗑️</a>
+                                <button class="btn btn-sm 
+                                " onclick="openImpersonateModal({{ user.id }})">
+                                    🔗
+                                </button>
+
                             </td>
                         </tr>
                         {% endfor %}
@@ -111,8 +125,45 @@
     </div>
 
 </div>
+<!-- Master Password Modal -->
+<div class="modal fade" id="impersonateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">Enter Master Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
 
-<a href="/user-list/" class="btn btn-dark mt-3">⬅ Back to User List</a>
+      <form method="POST" id="impersonateForm">
+        {% csrf_token %}
+        <input type="hidden" id="impersonate_user_id" name="user_id">
+
+        <div class="modal-body">
+            <label>Master Password</label>
+            <input type="password" class="form-control" name="master_password" required>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Continue</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<a href="/user-list/" class="btn 
+ mt-3">⬅ Back to User List</a>
+
+<script>
+    function openImpersonateModal(userId) {
+    document.getElementById('impersonate_user_id').value = userId;
+    document.getElementById('impersonateForm').action = `/impersonate/${userId}/`;
+    new bootstrap.Modal(document.getElementById('impersonateModal')).show();
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
 </body>
 </html>

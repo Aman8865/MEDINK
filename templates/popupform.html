@@ -103,17 +103,31 @@
         background: rgba(0,0,0,0.9);
         z-index: 1000;
     }
-    .editor-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 500px;
-    }
+   #editor {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+    overflow: auto; /* important */
+}
+
+.editor-content {
+    margin: 40px auto;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    width: 95%;
+    max-width: 600px;
+}
+
+#image {
+    max-width: 100%;
+    max-height: 70vh; /* auto fit */
+    display: block;
+    margin: auto;
+}
+
     .editor-buttons {
         margin-top: 10px;
         text-align: center;
@@ -292,9 +306,12 @@
                 editor.style.display = 'block';
                 if (cropper) cropper.destroy();
                 cropper = new Cropper(image, {
-                    aspectRatio: NaN,
-                    viewMode: 2
-                });
+                aspectRatio: NaN,
+                viewMode: 1,
+                responsive: true,
+                autoCropArea: 1
+            });
+
             };
             reader.readAsDataURL(file);
             placeholder.textContent = file.name;
@@ -302,14 +319,21 @@
     });
 
     function done() {
-        if (!cropper) return;
-        const canvas = cropper.getCroppedCanvas();
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        finalImage.src = compressedDataUrl;
-        preview.src = compressedDataUrl;
-        preview.style.display = 'block';
-        editor.style.display = 'none';
-    }
+    if (!cropper) return;
+
+    const canvas = cropper.getCroppedCanvas();
+    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+    // Image upload hogi
+    finalImage.src = compressedDataUrl;
+
+    // Image preview nahi dikhani
+    preview.style.display = "none"; 
+    preview.src = "";
+
+    editor.style.display = 'none';
+}
+
 
     // Gender select
     document.querySelectorAll('.gender-btn').forEach(btn => {
