@@ -46,24 +46,41 @@
 
     /* Layout */
     .app {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 24px;
-      padding: 24px;
-    }
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
 
     /* Collapsed sidebar */
-    .sidebar.collapsed { width: 80px; }
+    /* Sidebar collapses only text, width DOES NOT change */
+.sidebar.collapsed {
+    width: 260px !important;
+}
+
+.sidebar.collapsed .nav-item div {
+    display: none;
+}
+
+.sidebar.collapsed .brand div:nth-child(2) {
+    display: none;
+}
+
     .sidebar {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 18px 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--soft-shadow);
-      height: calc(100vh - 48px);
-      overflow: auto;
-      transition: width .22s ease, transform .22s ease;
-    }
+  position: relative;
+  background: var(--card);
+  width: 260px;
+  height: 100vh;
+  padding: 18px 12px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: var(--soft-shadow);
+  border-radius: 0;
+}
+
 
     .brand {
       display: flex;
@@ -71,6 +88,7 @@
       gap: 12px;
       padding: 6px 6px 16px 6px;
     }
+    
 
     .brand .logo {
       width: 44px;
@@ -94,9 +112,12 @@
 
     /* Main content card */
     .main {
-      display:flex; flex-direction:column; gap:18px;
-      min-height: calc(100vh - 48px);
-    }
+  padding: 24px;
+  overflow-y: auto;
+  width: 100%;
+  height: 100vh;
+}
+
 
     .topbar {
       display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -213,9 +234,9 @@
     </div>
 
     <nav class="nav-list">
-      <div class="nav-item active" onclick="location.href='/'">
+      <div class="nav-item active" onclick="location.href='/super-admin/'">
         <svg width="18" height="18" viewBox="0 0 24 24" style="opacity:.9"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z"/></svg>
-        <div style="font-weight:600; font-size:14px;">Dashboard</div>
+        <div style="font-weight:600; font-size:14px;" >Dashboard</div>
       </div>
 
       <div class="nav-item" onclick="location.href='/user-list/'">
@@ -254,6 +275,25 @@
       </div>
     </nav>
   </aside>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let currentPath = window.location.pathname;
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+        let target = item.getAttribute("onclick");
+
+        if (target) {
+            let matchUrl = target.replace("location.href=", "").replace(/['";]/g, "");
+
+            if (currentPath.startsWith(matchUrl)) {
+                item.classList.add("active");
+            } else {
+                item.classList.remove("active");
+            }
+        }
+    });
+});
+</script>
 
   <!-- MAIN -->
   <main class="main">
@@ -516,10 +556,14 @@
 <script>
   // Sidebar collapse
   const sidebar = document.getElementById('sidebar');
-  const collapseBtn = document.getElementById('collapseBtn');
   collapseBtn.addEventListener('click', () => {
     sidebar.classList.toggle('collapsed');
-  });
+
+    // Don’t change grid layout
+    document.querySelector('.app').style.gridTemplateColumns = "260px 1fr";
+});
+
+
 
   // Dark mode toggle
   const darkToggle = document.getElementById('darkToggle');

@@ -1,256 +1,718 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Super Admin Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Super Admin Dashboard</title>
 
-    <!-- Bootstrap & ChartJS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <style>
-        body { background-color: #f4f6f9; }
-        .sidebar {
-            height: 100vh;
-            background: #343a40;
-            padding-top: 20px;
-        }
-        .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: white;
-            text-decoration: none;
-            font-size: 15px;
-        }
-        .sidebar a:hover { background: #495057; }
-        .content { padding: 25px; }
-    </style>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+:root{
+  --bg: #f5f6fa;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --border: #e7e9ef;
+  --accent: #007bff;
+  --text: #222;
+  --soft-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  --glass: rgba(255,255,255,0.6);
+}
+
+/* Dark mode vars */
+body.dark {
+  --bg: #0f1724;
+  --card: #0b1220;
+  --muted: #9aa4b2;
+  --border: rgba(255,255,255,0.06);
+  --accent: #3b82f6;
+  --text: #e6eef8;
+  --glass: rgba(255,255,255,0.02);
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+/* Layout */
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+
+/* Collapsed Sidebar – EXACT SAME */
+.sidebar.collapsed { width: 260px !important; }
+.sidebar.collapsed .nav-item div { display: none; }
+.sidebar.collapsed .brand div:nth-child(2) { display: none; }
+
+/* SIDEBAR (EXACT PAGE-1) */
+.sidebar {
+  position: relative;
+  background: var(--card);
+  width: 260px;
+  height: 100vh;
+  padding: 18px 12px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: var(--soft-shadow);
+  border-radius: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 6px 16px 6px;
+}
+
+.brand .logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0,123,255,0.12), rgba(0,123,255,0.06));
+  display:flex; align-items:center; justify-content:center; font-weight:700;
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+
+.brand h4 { margin:0; font-size: 16px; font-weight:600; color:var(--text); }
+
+.nav-list { margin-top: 8px; }
+
+.nav-item {
+  display:flex; align-items:center; gap:12px;
+  padding:10px; border-radius:8px;
+  color: var(--muted); cursor:pointer;
+  transition: background .12s ease, color .12s ease, transform .08s ease;
+}
+.nav-item:hover {
+  background: var(--glass); color: var(--text);
+  transform: translateY(-1px);
+}
+.nav-item.active {
+  background: rgba(0,123,255,0.08);
+  color: var(--accent);
+}
+
+.nav-item div {
+  font-weight: 600;
+}
+
+
+/* MAIN AREA — Page-2 style intact */
+.main {
+  padding: 24px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.topbar {
+  display:flex; justify-content:space-between; align-items:center;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  box-shadow: var(--soft-shadow);
+}
+
+.counter-card {
+  text-align: center;
+  padding: 25px;
+}
+
+/* Your requested font-size remains */
+.counter-number {
+  font-size: 45px;
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+.muted { color:var(--muted); }
+
+/* --- Modal custom styles --- */
+.modal .modal-content {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.96));
+  box-shadow: 0 12px 40px rgba(16,24,40,0.08);
+}
+
+.modal-header.custom {
+  padding: 18px 20px;
+  border-bottom: none;
+  background: linear-gradient(90deg, rgba(0,123,255,0.06), rgba(59,130,246,0.03));
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-title {
+  margin:0;
+  font-weight:700;
+  font-size:18px;
+  color:var(--text);
+}
+
+.modal-body {
+  padding: 18px 20px 8px 20px;
+}
+
+/* Form rows */
+.form-row {
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:12px;
+}
+
+.form-row .form-group {
+  flex:1;
+}
+
+/* Input with icon */
+.input-icon {
+  position: relative;
+}
+.input-icon .icon {
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:14px;
+  color:var(--muted);
+}
+.input-icon input,
+.input-icon select {
+  padding-left:38px;
+  height:44px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:transparent;
+}
+
+/* small muted helper text */
+.form-text.muted { color:var(--muted); font-size:13px; margin-top:4px; }
+
+/* Password toggle */
+.pwd-toggle {
+  position:absolute;
+  right:8px;
+  top:29%;
+  transform:translateY(-50%);
+  border:none;
+  background:transparent;
+  padding:6px;
+  cursor:pointer;
+  color:var(--muted);
+}
+
+/* Footer buttons */
+.modal-footer {
+  border-top: none;
+  padding: 12px 20px 20px 20px;
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+/* Responsive */
+@media (max-width:575px){
+  .form-row { flex-direction:column; }
+  .sidebar { display:none; }
+  .app { grid-template-columns: 1fr; }
+}
+/* SMALL KPI CARDS LIKE SCREENSHOT */
+.kpi-card {
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.kpi-title {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 3px;
+}
+.donut-small {
+  max-width: 260px;
+  margin: auto;
+  display: block;
+}
+.donut-box {
+  width: 260px;        /* chart width */
+  height: 260px;       /* chart height */
+  margin: auto;        /* center */
+}
+
+.donut-box canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+.line-chart-box {
+  height: 260px;       /* fixed beautiful height */
+  position: relative;
+}
+
+.line-chart-box canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+
+
+</style>
+
 </head>
-
 <body>
-<div class="row g-0">
-    <!-- Sidebar -->
-    <div class="col-2 sidebar">
-        <h4 class="text-center text-white mb-4">Super Admin</h4>
-        <a href="">Dashboard</a>
-        <a href="{% url 'user_list' %}">User Panel</a>
 
-        <a href="{% url 'patients' %}">Patients List</a>
-        <a href="{% url 'logout' %}" class="text-danger mt-3">Logout</a>
+<div class="app">
+
+ <!-- SIDEBAR -->
+  <aside class="sidebar fade-in" id="sidebar">
+    <div class="brand">
+      <div class="logo">M</div>
+      <div style="flex:1;">
+        <h4>Medink</h4>
+        <div class="muted" style="font-size:12px; margin-top:2px;">Admin Console</div>
+      </div>
+      <button class="btn btn-sm" id="collapseBtn" title="Toggle sidebar" style="border:1px solid var(--border); background:transparent;">
+        ☰
+      </button>
     </div>
 
-    <!-- Main Content -->
-    <div class="col-10 content">
-        
+    <nav class="nav-list">
+      <div class="nav-item active" onclick="location.href='/super-admin/'">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="opacity:.9"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z"/></svg>
+        <div style="font-weight:600; font-size:14px;" >Dashboard</div>
+      </div>
 
-        <!-- ✅ ADD USER BUTTON -->
-        <div class="d-flex justify-content-between align-items-center my-3">
-          <h2>Super Admin Control Panel</h2>
-            <h4 class="mb-0"></h4>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">➕ Add User</button>
-        </div>
+      <div class="nav-item" onclick="location.href='/user-list/'">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.96.05 1.16.84 1.96 1.97 1.96 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        <div style="font-weight:600; font-size:14px;">Users</div>
+      </div>
 
-        <!-- ✅ MESSAGE ALERT -->
-        {% if messages %}
-          {% for msg in messages %}
-            <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
-              {{ msg }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-          {% endfor %}
-        {% endif %}
-
-        <!-- ✅ USERS TABLE -->
-       
-
-        <!-- ✅ ADD USER MODAL -->
-        <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog">
-            <form method="POST" action="{% url 'add_user' %}">
-              {% csrf_token %}
-              <div class="modal-content shadow-lg">
-                <div class="modal-header bg-primary text-white">
-                  <h5 class="modal-title">Add New User</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-control" name="name" required>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">User ID</label>
-                    <input type="text" class="form-control" name="userid" required>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" name="password" required>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">User Type</label>
-                    <select class="form-select" name="usertype" id="usertypeSelect" required>
-                      <option value="">-- Select --</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="IMAGING">Imaging</option>
-                      <option value="RADS">RADS</option>
-                    </select>
-                  </div>
-
-                  <div class="mb-3" id="adminSelectContainer" style="display:none;">
-                    <label class="form-label">Select Admin</label>
-                    <select class="form-select" name="parent_admin_id">
-                      <option value="">-- Select Admin --</option>
-                      {% for admin in admins %}
-                        <option value="{{ admin.id }}">{{ admin.name }} ({{ admin.userid }})</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success">Create</button>
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- ✅ ADMIN DETAILS MODAL -->
-        <div class="modal fade" id="adminDetailsModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content shadow-lg">
-              <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">Admin Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <h5 id="adminName" class="text-primary mb-3"></h5>
-                <div class="row">
-                  <div class="col-md-6">
-                    <h6 class="text-success">📸 Imaging Users (<span id="imagingCount">0</span>)</h6>
-                    <table class="table table-sm table-bordered" id="imagingTable">
-                      <thead class="table-light"><tr><th>Name</th><th>User ID</th></tr></thead>
-                      <tbody></tbody>
-                    </table>
-                  </div>
-                  <div class="col-md-6">
-                    <h6 class="text-primary">🩻 RADS Users (<span id="radsCount">0</span>)</h6>
-                    <table class="table table-sm table-bordered" id="radsTable">
-                      <thead class="table-light"><tr><th>Name</th><th>User ID</th></tr></thead>
-                      <tbody></tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ✅ JS SCRIPT -->
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          const usertypeSelect = document.getElementById('usertypeSelect');
-          const adminSelectContainer = document.getElementById('adminSelectContainer');
-
-          if (usertypeSelect) {
-            usertypeSelect.addEventListener('change', function() {
-              adminSelectContainer.style.display = (this.value === 'IMAGING' || this.value === 'RADS') ? 'block' : 'none';
-            });
-          }
-
-          // ✅ Double click on Admin row
-          document.querySelectorAll('.admin-row').forEach(row => {
-            row.addEventListener('dblclick', function() {
-              const adminId = this.dataset.adminId;
-              fetch(`/admin-details/${adminId}/`)
-                .then(res => res.json())
-                .then(data => {
-                  if (data.error) { alert(data.error); return; }
-
-                  document.getElementById('adminName').textContent = `🧑‍💼 ${data.name} (${data.userid})`;
-                  document.getElementById('imagingCount').textContent = data.imaging_count;
-                  document.getElementById('radsCount').textContent = data.rads_count;
-
-                  const imagingBody = document.querySelector('#imagingTable tbody');
-                  const radsBody = document.querySelector('#radsTable tbody');
-                  imagingBody.innerHTML = '';
-                  radsBody.innerHTML = '';
-
-                  data.imaging_list.forEach(u => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${u.name}</td><td>${u.userid}</td>`;
-                    imagingBody.appendChild(tr);
-                  });
-
-                  data.rads_list.forEach(u => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${u.name}</td><td>${u.userid}</td>`;
-                    radsBody.appendChild(tr);
-                  });
-
-                  const modal = new bootstrap.Modal(document.getElementById('adminDetailsModal'));
-                  modal.show();
-                })
-                .catch(err => {
-                  console.error(err);
-                  alert('Failed to load admin details');
-                });
-            });
-          });
-        });
-        </script>
-
-        <hr>
-        <div class="row mt-4">
-          <div class="col-md-4">
-            <div class="card shadow text-center p-3">
-              <h4>Total Admin</h4>
-              <h1 class="count" data-target="{{ users|length }}">0</h1>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card shadow text-center p-3">
-              <h4>Imaging Centers</h4>
-              <h1 class="count" data-target="{{ centers|length }}">0</h1>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card shadow text-center p-3">
-              <h4>RADS Doctors</h4>
-              <h1 class="count" data-target="{{ rads|length }}">0</h1>
-            </div>
-          </div>
-        </div>
-    </div>
+      <div class="nav-item" onclick="location.href='#'">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 7h20L12 2zm0 3.3L18.6 7H5.4L12 5.3zM4 9v11h16V9H4z"/></svg>
+        <div style="font-weight:600; font-size:14px;">Reports</div>
+      </div>
+     <div class="nav-item" onclick="location.href='/patients/'">
+    <svg width="18" height="18" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/>
+    </svg>
+    <div style="font-weight:600; font-size:14px;">Patients List</div>
 </div>
 
-<!-- ✅ Counter Animation -->
+
+      <div class="nav-item" onclick="location.href='#'">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <div style="font-weight:600; font-size:14px;">Settings</div>
+      </div>
+
+      <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px;" class="muted">Management</div>
+
+      <div class="nav-item" onclick="location.href='#'">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <div style="font-weight:600; font-size:14px;">Projects</div>
+      </div>
+
+      <div class="nav-item" onclick="location.href='#'">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zM3 9h2V7H3v2z"/></svg>
+        <div style="font-weight:600; font-size:14px;">Logs</div>
+      </div>
+
+      <div style="height:30px"></div>
+
+      <div class="muted" style="font-size:12px; padding: 6px 6px 0 6px;">Quick actions</div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn btn-sm" onclick="location.href='/add-user/'" style="flex:1; border:1px solid var(--border);">+ Add</button>
+        <button class="btn btn-sm" onclick="location.href='/export-users/'" style="border:1px solid var(--border);">Export</button>
+      </div>
+    </nav>
+  </aside>
+  <script>
+document.addEventListener("DOMContentLoaded", function() {
+    let currentPath = window.location.pathname;
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+        let target = item.getAttribute("onclick");
+
+        if (target) {
+            let matchUrl = target.replace("location.href=", "").replace(/['";]/g, "");
+
+            if (currentPath.startsWith(matchUrl)) {
+                item.classList.add("active");
+            } else {
+                item.classList.remove("active");
+            }
+        }
+    });
+});
+</script>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <h2>Super Admin Dashboard</h2>
+
+      <div class="d-flex align-items-center gap-3">
+
+        <!-- Dark Mode -->
+        <div class="form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="darkToggle">
+          <label class="form-check-label muted">Dark</label>
+        </div>
+
+        <!-- Profile -->
+        <div class="dropdown">
+          <a class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown">
+            <div style="width:40px; height:40px; border-radius:10px; background:#e6f0ff; display:flex; justify-content:center; align-items:center;">A</div>
+          </a>
+
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item">Profile</a></li>
+            <li><a class="dropdown-item">Settings</a></li>
+            <li><hr></li>
+            <li><a class="dropdown-item" href="/logout/">Logout</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Add User Button -->
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add User</button>
+    </div>
+
+    <!-- Cards -->
+    
+
+<div class="row g-3 mt-3">
+
+  <div class="col-md-3 col-6">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Patients</div>
+      <div class="kpi-value count" data-target="{{ total_patients }}">0</div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-6">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Imaging Centers</div>
+      <div class="kpi-value count" data-target="{{ total_centers }}">0</div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-6">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Radiologists</div>
+      <div class="kpi-value count" data-target="{{ total_rads }}">0</div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-6">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Admins</div>
+      <div class="kpi-value count" data-target="{{ total_admins }}">0</div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="row mt-4">
+
+  <div class="col-md-6">
+  <div class="card shadow-sm p-3">
+    <h5 class="mb-3">Daily Scans</h5>
+
+    <div class="line-chart-box">
+        <canvas id="dailyScansChart"></canvas>
+    </div>
+
+  </div>
+</div>
+
+
+  <!-- PENDING VS COMPLETED DONUT CHART -->
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3">
+      <h5 class="mb-3">Pending vs Completed</h5>
+      <div class="donut-box">
+    <canvas id="statusChart"></canvas>
+</div>
+
+    </div>
+  </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* ---------------- DAILY SCANS LINE CHART ---------------- */
+/* ---------------- DAILY SCANS LINE CHART (FINAL WORKING) ---------------- */
+const dailyLabels = {{ daily_labels|safe }};
+const dailyScans = {{ daily_scans|safe }};
+
+const ctxDaily = document.getElementById('dailyScansChart').getContext('2d');
+
+// gradient
+const gradientLine = ctxDaily.createLinearGradient(0, 0, 0, 300);
+gradientLine.addColorStop(0, "rgba(0,123,255,0.25)");
+gradientLine.addColorStop(1, "rgba(0,123,255,0)");
+
+new Chart(ctxDaily, {
+    type: 'line',
+    data: {
+        labels: dailyLabels,
+        datasets: [{
+            label: "Daily Scans",
+            data: dailyScans,
+            borderColor: "#007bff",
+            borderWidth: 3,
+            backgroundColor: gradientLine,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: "#007bff",
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        animation: {
+            duration: 1500,
+            easing: "easeInOutQuart"
+        },
+
+        plugins: {
+            legend: { display: false }
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 },
+                grid: { color: "rgba(0,0,0,0.05)" }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    }
+});
+
+
+
+/* ---------------- STATUS DONUT CHART ---------------- */
+const pending = {{ pending_count }};
+const completed = {{ completed_count }};
+
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Pending'],
+        datasets: [{
+            data: [completed, pending],
+            backgroundColor: ['#0d6efd', '#28a745'],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '65%',  /* Smaller inner circle */
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+
+</script>
+
+
+
+    <!-- Add User Modal (updated/professional) -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" action="{% url 'add_user' %}" id="addUserForm" novalidate>
+          {% csrf_token %}
+          <div class="modal-content">
+            <div class="modal-header custom">
+              <div>
+                <h5 class="modal-title">Create New User</h5>
+                <div class="muted" style="font-size:13px; margin-top:4px;">Add a user and assign the correct role</div>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+              <!-- Row 1: Name + User ID -->
+              <div class="form-row">
+                <div class="form-group input-icon">
+                  <span class="icon">👤</span>
+                  <input name="name" class="form-control" placeholder="Full name" required>
+                  <div class="invalid-feedback">Name is required.</div>
+                </div>
+
+                <div class="form-group input-icon">
+                  <span class="icon">🆔</span>
+                  <input name="userid" class="form-control" placeholder="User ID" required>
+                  <div class="invalid-feedback">User ID is required.</div>
+                </div>
+              </div>
+
+              <!-- Row 2: Password + User Type -->
+              <div class="form-row">
+                <div class="form-group input-icon" style="position:relative;">
+                  <span class="icon">🔒</span>
+                  <input type="password" name="password" id="passwordField" class="form-control" placeholder="Password" required minlength="6" autocomplete="new-password">
+                  <button type="button" class="pwd-toggle" id="pwdToggle" aria-label="Toggle password">Show</button>
+                  <div class="form-text muted">Min 6 characters.</div>
+                  <div class="invalid-feedback">Password is required (min 6 chars).</div>
+                </div>
+
+                <div class="form-group">
+                  <!-- <label class="muted" style="font-size:13px; margin-bottom:6px;"></label> -->
+                  <select class="form-select" name="usertype" id="usertypeSelect" required>
+                    <option value="">-- Select --</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="IMAGING">Imaging</option>
+                    <option value="RADS">RADS</option>
+                  </select>
+                  <div class="invalid-feedback">Select a user type.</div>
+                </div>
+              </div>
+
+              <!-- Row 3: Admin assign (conditionally visible) -->
+              <div id="adminSelectContainer" style="display:none; margin-top:6px;">
+                <label class="muted" style="font-size:13px; margin-bottom:6px;">Assign Admin</label>
+                <select class="form-select" name="parent_admin_id">
+                  <option value="">-- Select --</option>
+                  {% for admin in admins %}
+                  <option value="{{ admin.id }}">{{ admin.name }}</option>
+                  {% endfor %}
+                </select>
+                <div class="form-text muted">Choose a parent admin for Imaging/RADS users.</div>
+              </div>
+
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success" id="createBtn">Create user</button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- COUNTER JS -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const counters = document.querySelectorAll('.count');
-  const speed = 100;
   counters.forEach(counter => {
-    const animate = () => {
-      const value = +counter.getAttribute('data-target');
-      const data = +counter.innerText;
-      const time = value / speed;
-      if (data < value) {
-        counter.innerText = Math.ceil(data + time);
-        setTimeout(animate, 70);
-      } else counter.innerText = value;
+    const update = () => {
+      const max = +counter.getAttribute("data-target");
+      const current = +counter.innerText;
+      const step = Math.ceil(max / 50);
+
+      if (current < max) {
+        counter.innerText = current + step;
+        setTimeout(update, 20);
+      } else {
+        counter.innerText = max;
+      }
     };
-    animate();
+    update();
   });
 });
+
 </script>
+
+<!-- Sidebar Collapse -->
+<script>
+const sidebar = document.getElementById("sidebar");
+collapseBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+
+    // Don’t change grid layout
+    document.querySelector('.app').style.gridTemplateColumns = "260px 1fr";
+});
+
+</script>
+
+<!-- Dark Mode -->
+<script>
+const darkToggle = document.getElementById("darkToggle");
+if(localStorage.getItem("medink-dark") === "1"){
+  document.body.classList.add("dark");
+  darkToggle.checked = true;
+}
+darkToggle.onchange = () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("medink-dark", document.body.classList.contains("dark") ? "1" : "0");
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    const usertypeSelect = document.getElementById("usertypeSelect");
+    const adminSelectContainer = document.getElementById("adminSelectContainer");
+
+    if (usertypeSelect) {
+        usertypeSelect.addEventListener("change", function () {
+            adminSelectContainer.style.display =
+                (this.value === "IMAGING" || this.value === "RADS") ? "block" : "none";
+        });
+    }
+});
+ // Password visibility toggle
+  const pwdToggle = document.getElementById("pwdToggle");
+  const passwordField = document.getElementById("passwordField");
+  pwdToggle && pwdToggle.addEventListener("click", () => {
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      pwdToggle.textContent = "Hide";
+    } else {
+      passwordField.type = "password";
+      pwdToggle.textContent = "Show";
+    }
+  });
+
+</script>
+
 </body>
 </html>

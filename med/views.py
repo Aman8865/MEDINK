@@ -577,46 +577,66 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth.hashers import make_password  # optional, recommended
 from .models import UserAccount
-def super_admin(request):
-    # if request.session.get('user_name', '').lower() != "admin":
-    #     return HttpResponse("Access Denied")
+from datetime import date, datetime, timedelta
+import json
 
-    # ✅ Sirf ADMIN users dikhao super admin page pe
+def super_admin(request):
+
+    # OLD DATA YOU ALREADY HAD
     users = UserAccount.objects.filter(usertype='ADMIN').order_by('-id')
     patients = Patient.objects.all().order_by('-entry_time')
     centers = UserAccount.objects.filter(usertype='IMAGING', is_active=True)
     admins = UserAccount.objects.filter(usertype='ADMIN', is_active=True)
+    rads = UserAccount.objects.filter(usertype='RADS', is_active=True)
 
-    # ✅ Today's stats
-    from datetime import date
-    today = date.today()
-    today_users = UserAccount.objects.filter(created_at__date=today).count()
-    today_patients = Patient.objects.filter(entry_time__date=today).count()
+    # ⭐ NEW LIVE STATS (for KPI cards)
+    total_patients = Patient.objects.count()
+    total_centers = centers.count()
+    total_rads = rads.count()
+    total_admins = admins.count()
 
-    # ✅ Monthly stats (current month)
-    from datetime import datetime
-    current_month = datetime.now().month
-    current_year = datetime.now().year
-    monthly_users = UserAccount.objects.filter(
-        created_at__month=current_month,
-        created_at__year=current_year
-    ).count()
-    monthly_patients = Patient.objects.filter(
-        entry_time__month=current_month,
-        entry_time__year=current_year
-    ).count()
+    # ⭐ NEW: Pending & Completed reports
+    # ⭐ Pending = UNREAD + PENDING (if any)
+    pending_count = Patient.objects.filter(status__iexact='UNREAD').count()
+    pending_count += Patient.objects.filter(status__iexact='PENDING').count()
+
+    # ⭐ Completed = FINAL
+    completed_count = Patient.objects.filter(status__iexact='FINAL').count()
+
+
+
+    # ⭐ NEW: Daily scans for last 7 days (line chart)
+    daily_labels = []
+    daily_scans = []
+
+    for i in range(6, -1, -1):
+        day = date.today() - timedelta(days=i)
+        daily_labels.append(day.strftime("%b %d"))
+
+        count = Patient.objects.filter(entry_time__date=day).count()
+        daily_scans.append(count)
 
     return render(request, 'super_admin.html', {
+        # original context
         'users': users,
         'patients': patients,
-        'rads': UserAccount.objects.filter(usertype='RADS', is_active=True),
+        'rads': rads,
         'centers': centers,
         'admins': admins,
-        'today_users': today_users,
-        'today_patients': today_patients,
-        'monthly_users': monthly_users,
-        'monthly_patients': monthly_patients,
+
+        # ⭐ NEW values for Dashboard UI
+        'total_patients': total_patients,
+        'total_centers': total_centers,
+        'total_rads': total_rads,
+        'total_admins': total_admins,
+
+        'pending_count': pending_count,
+        'completed_count': completed_count,
+
+        'daily_labels': json.dumps(daily_labels),
+        'daily_scans': json.dumps(daily_scans),
     })
+
 
     
 
