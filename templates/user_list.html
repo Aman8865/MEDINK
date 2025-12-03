@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Google Font (optional, subtle) -->
+  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -42,45 +42,33 @@
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
       color: var(--text);
       transition: background 0.25s ease, color 0.25s ease;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
 
     /* Layout */
     .app {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
-}
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      transition: grid-template-columns 0.22s cubic-bezier(.2,.8,.2,1);
+    }
 
-
-    /* Collapsed sidebar */
-    /* Sidebar collapses only text, width DOES NOT change */
-.sidebar.collapsed {
-    width: 260px !important;
-}
-
-.sidebar.collapsed .nav-item div {
-    display: none;
-}
-
-.sidebar.collapsed .brand div:nth-child(2) {
-    display: none;
-}
-
+    /* Sidebar */
     .sidebar {
-  position: relative;
-  background: var(--card);
-  width: 260px;
-  height: 100vh;
-  padding: 18px 12px;
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-shadow: var(--soft-shadow);
-  border-radius: 0;
-}
-
+      position: relative;
+      background: var(--card);
+      width: 200px;
+      height: 100vh;
+      padding: 18px 12px;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: var(--soft-shadow);
+      transition: width 0.22s cubic-bezier(.2,.8,.2,1), padding 0.22s ease;
+    }
 
     .brand {
       display: flex;
@@ -88,8 +76,6 @@
       gap: 12px;
       padding: 6px 6px 16px 6px;
     }
-    
-
     .brand .logo {
       width: 44px;
       height: 44px;
@@ -99,42 +85,92 @@
       color: var(--accent);
       border: 1px solid var(--border);
     }
-
     .brand h4 { margin:0; font-size: 16px; font-weight:600; color:var(--text); }
 
-    .nav-list { margin-top: 8px; }
+    .nav-list { margin-top: 8px; padding-bottom:18px; }
     .nav-item {
       display:flex; align-items:center; gap:12px; padding:10px; border-radius:8px;
       color: var(--muted); cursor:pointer; transition: background .12s ease, color .12s ease, transform .08s ease;
+      position: relative;
     }
+    .nav-item svg { flex-shrink:0; }
     .nav-item:hover { background: var(--glass); color: var(--text); transform: translateY(-1px); }
     .nav-item.active { background: rgba(0,123,255,0.08); color: var(--accent); font-weight:600; }
 
-    /* Main content card */
-    .main {
-  padding: 24px;
-  overflow-y: auto;
-  width: 100%;
-  height: 100vh;
-}
-
-
-    .topbar {
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    /* Collapsed behavior */
+    .sidebar.collapsed {
+      width: 72px !important;
+      padding-left: 8px !important;
+      padding-right: 8px !important;
     }
+    .sidebar.collapsed .brand h4,
+    .sidebar.collapsed .brand .muted,
+    .sidebar.collapsed .nav-item div,
+    .sidebar.collapsed .muted {
+      display: none !important;
+    }
+    .sidebar.collapsed .nav-item { justify-content: center; padding:12px 6px; }
+
+    /* hover tooltip when collapsed */
+    .sidebar.collapsed .nav-item:hover::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 78px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: var(--soft-shadow);
+      z-index: 9999;
+      color: var(--text);
+      font-weight:600;
+    }
+
+    /* App grid change on collapse */
+    .app.sidebar-collapsed {
+      grid-template-columns: 72px 1fr !important;
+    }
+
+    /* Topbar */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 200px;
+      right: 0;
+      height: 70px;
+      padding: 0 24px;
+      background: var(--card);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      transition: left 0.22s cubic-bezier(.2,.8,.2,1);
+      z-index: 60;
+    }
+    .app.sidebar-collapsed .topbar { left: 72px !important; padding-left: 12px; }
+
     .topbar-left { display:flex; align-items:center; gap:12px; }
     .page-title { display:flex; gap:12px; align-items:center; }
     .page-title h2 { margin:0; font-size:22px; font-weight:700; }
 
-    .search-wrapper {
-      width: 420px; max-width: 100%;
+    .main {
+      padding-top: 80px;
+      padding-left: 24px;
+      padding-right: 24px;
+      overflow: auto;
+      transition: margin-left 0.22s ease, padding-left 0.22s ease;
     }
+
+    .search-wrapper { width: 420px; max-width: 100%; }
     .search-box {
       display:flex; gap:8px; align-items:center;
-      background: var(--card); padding:8px; border-radius:10px; border:1px solid var(--border);
+      background: var(--card); padding:7px; border-radius:14px; border:1px solid var(--border);
       box-shadow: none;
     }
-    .search-box input { border: none; outline:none; background: transparent; color:var(--text); }
+    .search-box input { border: none; outline:none; background: transparent; color:var(--text); width:100%; }
 
     .card {
       background: var(--card);
@@ -144,76 +180,64 @@
       box-shadow: var(--soft-shadow);
     }
 
-    .table-wrapper {
-      overflow:auto;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    table {
-      border-collapse: collapse;
-      min-width: 920px;
-    }
+    .table-wrapper { overflow:auto; border-radius:10px; border:1px solid var(--border); }
+    table { border-collapse: collapse; min-width: 920px; }
     thead th {
-      background: transparent;
-      border-bottom: 1px solid var(--border);
-      color: var(--muted);
-      font-weight: 700;
-      padding: 14px 12px;
-      text-align: left;
-      font-size: 13px;
-      letter-spacing: .2px;
+      background: transparent; border-bottom: 1px solid var(--border); color: var(--muted); font-weight:700;
+      padding: 14px 12px; text-align:left; font-size:13px;
     }
     tbody td {
-      padding: 12px;
-      border-bottom: 1px solid rgba(0,0,0,0.03);
-      color: var(--text);
-      vertical-align: middle;
-      font-size: 14px;
+      padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.03); color: var(--text);
+      vertical-align: middle; font-size:14px;
     }
-
     tbody tr:hover { background: rgba(0,0,0,0.02); transform: translateY(-1px); transition: all .12s ease; }
 
-    .badge-compact {
-      padding: 6px 10px; border-radius: 8px; font-weight:600; font-size:12px;
-    }
+    .badge-compact { padding: 6px 10px; border-radius: 8px; font-weight:600; font-size:12px; }
 
-    /* Action buttons */
     .actions { display:flex; gap:8px; }
     .btn-action {
-      border: 1px solid var(--border);
-      background: transparent;
-      padding: 6px 8px;
-      border-radius: 8px;
-      min-width:36px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      transition: background .12s ease, transform .08s ease;
-      cursor:pointer;
-      color: var(--muted);
+      border: 1px solid var(--border); background: transparent; padding: 6px 8px; border-radius:8px;
+      min-width:36px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+      transition: background .12s ease, transform .08s ease; color:var(--muted);
     }
     .btn-action:hover { background: var(--glass); color: var(--text); transform: translateY(-2px); }
 
-    /* Pagination */
     .pagination-wrap { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:12px; flex-wrap:wrap; }
     .page-info { color:var(--muted); font-size:13px; }
 
-    /* Footer & responsive */
-    @media (max-width: 980px) {
-      .app { grid-template-columns: 1fr; padding: 16px; }
-      .sidebar { height: auto; width:100%; display:flex; flex-direction:row; gap:10px; overflow:auto; padding:10px; }
-      .main { margin-top: 6px; }
-      .search-wrapper { width:100%; }
-    }
-
-    /* small helpers */
     .muted { color: var(--muted); font-size:13px; }
     .rounded-sm { border-radius:8px; }
 
-    /* subtle transitions */
     .fade-in { animation: fadeIn .2s ease both; }
     @keyframes fadeIn { from { opacity:0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+
+    /* Modal tweaks */
+    .modal .modal-content { border-radius:12px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.96)); box-shadow: 0 12px 40px rgba(16,24,40,0.08); }
+    .modal-header.custom { padding: 18px 20px; border-bottom:none; background: linear-gradient(90deg, rgba(0,123,255,0.06), rgba(59,130,246,0.03)); border-radius: 12px 12px 0 0; }
+
+    .form-row { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+    .form-row .form-group { flex:1; }
+
+    .input-icon { position: relative; }
+    .input-icon .icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--muted); }
+    .input-icon input, .input-icon select { padding-left:38px; height:44px; border-radius:8px; border:1px solid var(--border); background:transparent; }
+
+    .pwd-toggle { position:absolute; right:8px; top:29%; transform:translateY(-50%); border:none; background:transparent; padding:6px; cursor:pointer; color:var(--muted); }
+
+    @media (max-width:980px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: fixed; left: -320px; top: 0; z-index: 1050; height: 100vh; transition: left .25s ease; width: 320px; padding: 16px; }
+      .sidebar.show { left: 0; }
+      .topbar { left: 0; }
+      .main { padding-top: 120px; }
+    }
+
+    @media (max-width:575px) {
+      .form-row { flex-direction:column; }
+      .sidebar { display:none; }
+      .app { grid-template-columns:1fr; }
+      .search-wrapper { width:100%; }
+    }
   </style>
 </head>
 <body>
@@ -221,111 +245,80 @@
 <div class="app">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar fade-in" id="sidebar">
-    <div class="brand">
-      <div class="logo">M</div>
+  <aside class="sidebar fade-in" id="sidebar" aria-label="Main Sidebar">
+    <div class="brand" role="group" aria-label="Brand & toggle">
+      <button class="btn btn-sm" id="collapseBtn" aria-label="Toggle sidebar" title="Toggle sidebar" style="border:1px solid var(--border); background:transparent;">
+        ☰
+      </button>
       <div style="flex:1;">
         <h4>Medink</h4>
         <div class="muted" style="font-size:12px; margin-top:2px;">Admin Console</div>
       </div>
-      <button class="btn btn-sm" id="collapseBtn" title="Toggle sidebar" style="border:1px solid var(--border); background:transparent;">
-        ☰
-      </button>
     </div>
 
-    <nav class="nav-list">
-      <div class="nav-item active" onclick="location.href='/super-admin/'">
-        <svg width="18" height="18" viewBox="0 0 24 24" style="opacity:.9"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z"/></svg>
+    <nav class="nav-list" role="navigation" aria-label="Main navigation">
+      <div class="nav-item active" onclick="location.href='/super-admin/'" role="button" data-label="Dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z"/></svg>
         <div style="font-weight:600; font-size:14px;" >Dashboard</div>
       </div>
 
-      <div class="nav-item" onclick="location.href='/user-list/'">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.96.05 1.16.84 1.96 1.97 1.96 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      <div class="nav-item" onclick="location.href='/user-list/'" role="button" data-label="Users">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.96.05 1.16.84 1.96 1.97 1.96 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
         <div style="font-weight:600; font-size:14px;">Users</div>
       </div>
 
-      <div class="nav-item" onclick="location.href='#'">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 7h20L12 2zm0 3.3L18.6 7H5.4L12 5.3zM4 9v11h16V9H4z"/></svg>
+      <div class="nav-item" onclick="location.href='#'" role="button" data-label="Reports">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2L2 7h20L12 2zm0 3.3L18.6 7H5.4L12 5.3zM4 9v11h16V9H4z"/></svg>
         <div style="font-weight:600; font-size:14px;">Reports</div>
       </div>
 
-      <div class="nav-item" onclick="location.href='#'">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <div class="nav-item" onclick="location.href='/patients/'" role="button" data-label="Patients">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        <div style="font-weight:600; font-size:14px;">Patients List</div>
+      </div>
+
+      <div class="nav-item" onclick="location.href='#'" role="button" data-label="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
         <div style="font-weight:600; font-size:14px;">Settings</div>
       </div>
 
       <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px;" class="muted">Management</div>
 
-      <div class="nav-item" onclick="location.href='#'">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <div style="font-weight:600; font-size:14px;">Projects</div>
-      </div>
-
-      <div class="nav-item" onclick="location.href='#'">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zM3 9h2V7H3v2z"/></svg>
-        <div style="font-weight:600; font-size:14px;">Logs</div>
-      </div>
-
       <div style="height:30px"></div>
-
-      <div class="muted" style="font-size:12px; padding: 6px 6px 0 6px;">Quick actions</div>
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="btn btn-sm" onclick="location.href='/add-user/'" style="flex:1; border:1px solid var(--border);">+ Add</button>
-        <button class="btn btn-sm" onclick="location.href='/export-users/'" style="border:1px solid var(--border);">Export</button>
-      </div>
     </nav>
   </aside>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    let currentPath = window.location.pathname;
-
-    document.querySelectorAll(".nav-item").forEach(item => {
-        let target = item.getAttribute("onclick");
-
-        if (target) {
-            let matchUrl = target.replace("location.href=", "").replace(/['";]/g, "");
-
-            if (currentPath.startsWith(matchUrl)) {
-                item.classList.add("active");
-            } else {
-                item.classList.remove("active");
-            }
-        }
-    });
-});
-</script>
 
   <!-- MAIN -->
-  <main class="main">
+  <main class="main" role="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
+    <!-- Topbar -->
+    <div class="topbar" role="banner">
       <div class="topbar-left">
         <div class="page-title">
-          <h2>All Users </h2>
-          <!-- <div class="muted">/ User List</div> -->
+          <!-- <h2>Users</h2> -->
+          <!-- <div class="muted" style="font-size:13px;">Manage and impersonate users</div> -->
         </div>
-
-        <!-- SEARCH -->
-        <div class="search-wrapper ms-3">
-          <div class="search-box">
-            <svg width="18" height="18" viewBox="0 0 24 24" style="opacity:.6"><path fill="currentColor" d="M9.5 3A6.5 6.5 0 1 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0-2A8.5 8.5 0 1 0 18 9.5 8.5 8.5 0 0 0 9.5 1z"/><path fill="currentColor" d="M21 21l-5.2-5.2"/></svg>
-            <input id="searchUser" type="search" placeholder="Search by name, user ID, or type..." aria-label="Search" />
+   <h1 class="logo-text">
+       <img height="40" style="border-radius: 30px;" src="data:image/png;base64,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" alt="Profile">
+    </h1>
+        <div class="ms-3 d-flex align-items-center">
+          <div class="search-wrapper">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" style="opacity:.6"><path fill="currentColor" d="M9.5 3A6.5 6.5 0 1 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0-2A8.5 8.5 0 1 0 18 9.5 8.5 8.5 0 0 0 9.5 1z"/><path fill="currentColor" d="M21 21l-5.2-5.2"/></svg>
+              <input id="searchUser" type="search" placeholder="Username, user ID, or type..." aria-label="Search" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="topbar-right d-flex align-items-center gap-2">
-        <!-- Pagination control (compact) -->
+      <div class="topbar-right d-flex align-items-center gap-3">
         <div class="page-info" id="topPageInfo">Showing <span id="shownCount">0</span> of <span id="totalCount">0</span></div>
 
-        <!-- Dark mode toggle -->
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="darkToggle">
+          <input class="form-check-input" type="checkbox" id="darkToggle" aria-label="Toggle dark mode">
           <label class="form-check-label muted" for="darkToggle">Dark</label>
         </div>
 
-        <!-- Profile dropdown -->
         <div class="dropdown">
           <a class="d-flex align-items-center text-decoration-none" href="#" id="profileMenu" data-bs-toggle="dropdown" aria-expanded="false">
             <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#e6f0ff,#fff); display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">
@@ -346,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     </div>
 
-    <!-- ALERTS -->
+    <!-- Alerts -->
     <div>
       {% if messages %}
         {% for msg in messages %}
@@ -358,9 +351,8 @@ document.addEventListener("DOMContentLoaded", function() {
       {% endif %}
     </div>
 
-    <!-- USERS CARD -->
+    <!-- Users Card -->
     <div class="card">
-
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <h5 style="margin:0; font-weight:700;">Users List</h5>
@@ -368,7 +360,6 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
 
         <div style="display:flex; gap:8px; align-items:center;">
-          <!-- Page size selector -->
           <div class="input-group input-group-sm" style="width:110px;">
             <label class="input-group-text muted" for="pageSize"></label>
             <select id="pageSize" class="form-select form-select-sm" style="padding:4px 8px; min-width:70px;">
@@ -379,12 +370,12 @@ document.addEventListener("DOMContentLoaded", function() {
             </select>
           </div>
 
-          <!-- <button class="btn btn-sm" onclick="location.href='/add-user/'" style="border:1px solid var(--border);">+ Add User</button> -->
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add User</button>
         </div>
       </div>
 
       <div class="table-wrapper rounded-sm">
-        <table id="usersTable" class="table">
+        <table id="usersTable" class="table mb-0">
           <thead>
             <tr>
               <th style="width:40px;">#</th>
@@ -415,11 +406,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 <td>{% if user.parent_admin %}{{ user.parent_admin.name }}{% else %}<span class="muted">-</span>{% endif %}</td>
                 <td>
                   <div class="actions">
-                    <button class="btn-action" onclick="viewUser({{ user.id }})" title="View">👁️</button>
-                    <button class="btn-action" onclick="editUser({{ user.id }})" title="Edit">✏️</button>
-                    <button class="btn-action" onclick="toggleStatus({{ user.id }})" title="Toggle Status">{% if user.is_active %}🔒{% else %}🔓{% endif %}</button>
-                    <button class="btn-action" onclick="openImpersonateModal({{ user.id }})" title="Impersonate">🔗</button>
-                    <button class="btn-action" onclick="deleteUser({{ user.id }}, '{{ user.name }}')" title="Delete">🗑️</button>
+                    <button class="btn-action" onclick="viewUser({{ user.id }})" title="View" aria-label="View">👁️</button>
+                    <button class="btn-action" onclick="editUser({{ user.id }})" title="Edit" aria-label="Edit">✏️</button>
+                    <button class="btn-action" onclick="toggleStatus({{ user.id }})" title="Toggle Status" aria-label="Toggle status">{% if user.is_active %}🔒{% else %}🔓{% endif %}</button>
+                    <button class="btn-action" onclick="openImpersonateModal({{ user.id }})" title="Impersonate" aria-label="Impersonate">🔗</button>
+                    <button class="btn-action" onclick="deleteUser({{ user.id }}, '{{ user.name }}')" title="Delete" aria-label="Delete">🗑️</button>
                   </div>
                 </td>
               </tr>
@@ -431,27 +422,87 @@ document.addEventListener("DOMContentLoaded", function() {
       <!-- Pagination Controls -->
       <div class="pagination-wrap">
         <div class="page-info" id="pageInfoLeft">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></div>
-
         <nav>
           <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
         </nav>
-
         <div class="page-info" id="pageInfoRight">Displaying <span id="displayFrom">0</span> - <span id="displayTo">0</span></div>
       </div>
+    </div>
 
-    </div> <!-- end card -->
-
-    <!-- FOOTER small -->
-    <div class="muted" style="font-size:13px;">© {{ now.year }} Medink - All rights reserved.</div>
-
+    <div class="muted" style="font-size:13px; margin-top:12px;">© {{ now.year }} Medink - All rights reserved.</div>
   </main>
+</div>
 
-</div> <!-- end app -->
+<!-- Modals -->
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="POST" action="{% url 'add_user' %}" id="addUserForm" novalidate>
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header custom">
+          <div>
+            <h5 class="modal-title">Create New User</h5>
+            <div class="muted" style="font-size:13px; margin-top:4px;">Add a user and assign the correct role</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
 
-<!-- ===========================
-     MODALS: Impersonate / View / Edit
-     (functionality preserved)
-     =========================== -->
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group input-icon">
+              <span class="icon">👤</span>
+              <input name="name" class="form-control" placeholder="Full name" required>
+              <div class="invalid-feedback">Name is required.</div>
+            </div>
+
+            <div class="form-group input-icon">
+              <span class="icon">🆔</span>
+              <input name="userid" class="form-control" placeholder="User ID" required>
+              <div class="invalid-feedback">User ID is required.</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group input-icon" style="position:relative;">
+              <span class="icon">🔒</span>
+              <input type="password" name="password" id="passwordField" class="form-control" placeholder="Password" required minlength="6" autocomplete="new-password">
+              <button type="button" class="pwd-toggle" id="pwdToggle" aria-label="Toggle password">Show</button>
+              <div class="form-text muted">Min 6 characters.</div>
+              <div class="invalid-feedback">Password is required (min 6 chars).</div>
+            </div>
+
+            <div class="form-group">
+              <select class="form-select" name="usertype" id="usertypeSelect" required>
+                <option value="">-- Select --</option>
+                <option value="ADMIN">Admin</option>
+                <option value="IMAGING">Imaging</option>
+                <option value="RADS">RADS</option>
+              </select>
+              <div class="invalid-feedback">Select a user type.</div>
+            </div>
+          </div>
+
+          <div id="adminSelectContainer" style="display:none; margin-top:6px;">
+            <label class="muted" style="font-size:13px; margin-bottom:6px;">Assign Admin</label>
+            <select class="form-select" name="parent_admin_id">
+              <option value="">-- Select --</option>
+              {% for admin in admins %}
+                <option value="{{ admin.id }}">{{ admin.name }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text muted">Choose a parent admin for Imaging/RADS users.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success" id="createBtn">Create user</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Impersonate Modal -->
 <div class="modal fade" id="impersonateModal" tabindex="-1">
@@ -550,100 +601,187 @@ document.addEventListener("DOMContentLoaded", function() {
   </div>
 </div>
 
-<!-- ===========================
-     SCRIPT: behavior & pagination
-     =========================== -->
+<!-- SCRIPTS -->
 <script>
-  // Sidebar collapse
+/* =========================
+   Sidebar collapse (single, robust implementation)
+   ========================= */
+(function(){
   const sidebar = document.getElementById('sidebar');
+  const collapseBtn = document.getElementById('collapseBtn');
+  const app = document.querySelector('.app');
+
+  if (!sidebar || !collapseBtn || !app) return;
+
+  // add data-label attributes to nav items (used for hover tooltip when collapsed)
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const labelEl = item.querySelector('div');
+    if (labelEl) item.setAttribute('data-label', labelEl.innerText.trim());
+  });
+
+  // Initialize from localStorage (synchronous on load)
+  const saved = localStorage.getItem('medink-sidebar-collapsed');
+  if (saved === '1') {
+    sidebar.classList.add('collapsed');
+    app.classList.add('sidebar-collapsed');
+  }
+
+  // Toggle
   collapseBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    app.classList.toggle('sidebar-collapsed');
+    localStorage.setItem('medink-sidebar-collapsed', isCollapsed ? '1' : '0');
+  });
 
-    // Don’t change grid layout
-    document.querySelector('.app').style.gridTemplateColumns = "260px 1fr";
-});
+  // Accessibility: keyboard toggle
+  collapseBtn.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault();
+      collapseBtn.click();
+    }
+  });
+})();
+</script>
 
-
-
-  // Dark mode toggle
+<script>
+/* Dark mode persistence */
+(function(){
   const darkToggle = document.getElementById('darkToggle');
-  // apply persisted mode
-  if(localStorage.getItem('medink-dark') === '1') {
+  if (localStorage.getItem('medink-dark') === '1') {
     document.body.classList.add('dark');
-    darkToggle.checked = true;
+    if (darkToggle) darkToggle.checked = true;
   }
-  darkToggle.addEventListener('change', () => {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('medink-dark', document.body.classList.contains('dark') ? '1' : '0');
+  if (darkToggle) {
+    darkToggle.addEventListener('change', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('medink-dark', document.body.classList.contains('dark') ? '1' : '0');
+    });
+  }
+})();
+</script>
+
+<script>
+/* Password toggle in Add User */
+document.addEventListener('DOMContentLoaded', () => {
+  const pwdToggle = document.getElementById('pwdToggle');
+  const passwordField = document.getElementById('passwordField');
+  if (pwdToggle && passwordField) {
+    pwdToggle.addEventListener('click', () => {
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        pwdToggle.textContent = 'Hide';
+      } else {
+        passwordField.type = 'password';
+        pwdToggle.textContent = 'Show';
+      }
+    });
+  }
+
+  // Show/hide parent admin select in Add User modal
+  const usertypeSelect = document.getElementById('usertypeSelect');
+  const adminSelectContainer = document.getElementById('adminSelectContainer');
+  if (usertypeSelect && adminSelectContainer) {
+    usertypeSelect.addEventListener('change', function () {
+      adminSelectContainer.style.display = (this.value === 'IMAGING' || this.value === 'RADS') ? 'block' : 'none';
+    });
+  }
+
+  // Show/hide parent admin select in Edit modal
+  const editUtype = document.getElementById('edit_usertype');
+  const editAdminContainer = document.getElementById('edit_adminSelectContainer');
+  if (editUtype && editAdminContainer) {
+    editUtype.addEventListener('change', function() {
+      editAdminContainer.style.display = (this.value === 'IMAGING' || this.value === 'RADS') ? 'block' : 'none';
+    });
+  }
+});
+</script>
+
+<script>
+/* Nav active detection (simple) */
+document.addEventListener("DOMContentLoaded", function() {
+  const currentPath = window.location.pathname;
+  document.querySelectorAll(".nav-item").forEach(item => {
+    const target = item.getAttribute("onclick");
+    if (target) {
+      const matchUrl = target.replace("location.href=", "").replace(/['";]/g, "");
+      if (matchUrl && currentPath.startsWith(matchUrl)) {
+        item.classList.add("active");
+      } else {
+        item.classList.remove("active");
+      }
+    }
   });
+});
+</script>
 
-  // Preserved functions from previous template (view/edit/toggle/delete/impersonate)
-  function openAdminDetails(adminId){
-    window.location.href = `/admin-details/${adminId}/`;
-  }
+<script>
+/* Utilities: view/edit/delete/impersonate handlers (preserve previous behaviour) */
+function openAdminDetails(adminId){
+  window.location.href = `/admin-details/${adminId}/`;
+}
 
-  function viewUser(userId){
-    fetch(`/user-details/${userId}/`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('view_name').textContent = data.name;
-        document.getElementById('view_userid').textContent = data.userid;
-        document.getElementById('view_usertype').textContent = data.usertype;
-        document.getElementById('view_status').textContent = data.is_active ? 'Active' : 'Inactive';
-        document.getElementById('view_created_at').textContent = data.created_at;
-        document.getElementById('view_parent_admin').textContent = data.parent_admin || '-';
-        new bootstrap.Modal(document.getElementById('viewUserModal')).show();
-      })
-      .catch(e => { console.error(e); alert('Failed to load user details'); });
-  }
+function viewUser(userId){
+  fetch(`/user-details/${userId}/`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('view_name').textContent = data.name;
+      document.getElementById('view_userid').textContent = data.userid;
+      document.getElementById('view_usertype').textContent = data.usertype;
+      document.getElementById('view_status').textContent = data.is_active ? 'Active' : 'Inactive';
+      document.getElementById('view_created_at').textContent = data.created_at;
+      document.getElementById('view_parent_admin').textContent = data.parent_admin || '-';
+      new bootstrap.Modal(document.getElementById('viewUserModal')).show();
+    })
+    .catch(e => { console.error(e); alert('Failed to load user details'); });
+}
 
-  function editUser(userId){
-    fetch(`/user-details/${userId}/`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('editUserForm').action = `/update-user/${userId}/`;
-        document.getElementById('edit_user_id').value = userId;
-        document.getElementById('edit_name').value = data.name || '';
-        document.getElementById('edit_userid').value = data.userid || '';
-        document.getElementById('edit_usertype').value = data.usertype || 'ADMIN';
-        document.getElementById('edit_is_active').value = data.is_active ? '1' : '0';
-        if(data.usertype === 'IMAGING' || data.usertype === 'RADS') {
-          document.getElementById('edit_adminSelectContainer').style.display = 'block';
-        } else {
-          document.getElementById('edit_adminSelectContainer').style.display = 'none';
-        }
-        if(data.parent_admin_id){
-          const sel = document.getElementById('edit_parent_admin_id');
-          if(sel) sel.value = data.parent_admin_id;
-        }
-        new bootstrap.Modal(document.getElementById('editUserModal')).show();
-      })
-      .catch(e => { console.error(e); alert('Failed to load user details'); });
-  }
+function editUser(userId){
+  fetch(`/user-details/${userId}/`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('editUserForm').action = `/update-user/${userId}/`;
+      document.getElementById('edit_user_id').value = userId;
+      document.getElementById('edit_name').value = data.name || '';
+      document.getElementById('edit_userid').value = data.userid || '';
+      document.getElementById('edit_usertype').value = data.usertype || 'ADMIN';
+      document.getElementById('edit_is_active').value = data.is_active ? '1' : '0';
+      if(data.usertype === 'IMAGING' || data.usertype === 'RADS') {
+        document.getElementById('edit_adminSelectContainer').style.display = 'block';
+      } else {
+        document.getElementById('edit_adminSelectContainer').style.display = 'none';
+      }
+      if(data.parent_admin_id){
+        const sel = document.getElementById('edit_parent_admin_id');
+        if(sel) sel.value = data.parent_admin_id;
+      }
+      new bootstrap.Modal(document.getElementById('editUserModal')).show();
+    })
+    .catch(e => { console.error(e); alert('Failed to load user details'); });
+}
 
-  function toggleStatus(userId){
-    if(confirm('Are you sure?')) window.location.href = `/user/toggle/${userId}/`;
-  }
+function toggleStatus(userId){
+  if(confirm('Are you sure?')) window.location.href = `/user/toggle/${userId}/`;
+}
 
-  function deleteUser(userId, userName){
-    if(confirm(`Delete ${userName}?`)) window.location.href = `/delete-user/${userId}/`;
-  }
+function deleteUser(userId, userName){
+  if(confirm(`Delete ${userName}?`)) window.location.href = `/delete-user/${userId}/`;
+}
 
-  function openImpersonateModal(userId){
-    document.getElementById('impersonate_user_id').value = userId;
-    document.getElementById('impersonateForm').action = `/impersonate/${userId}/`;
-    new bootstrap.Modal(document.getElementById('impersonateModal')).show();
-  }
+function openImpersonateModal(userId){
+  document.getElementById('impersonate_user_id').value = userId;
+  document.getElementById('impersonateForm').action = `/impersonate/${userId}/`;
+  new bootstrap.Modal(document.getElementById('impersonateModal')).show();
+}
+</script>
 
-  // Show/hide parent admin select when type changes in edit modal
-  document.getElementById('edit_usertype')?.addEventListener('change', function(){
-    document.getElementById('edit_adminSelectContainer').style.display = (this.value === 'IMAGING' || this.value === 'RADS') ? 'block' : 'none';
-  });
-
-  // ===========================
-  // Client-side Pagination + Search
-  // ===========================
+<script>
+/* ============================
+   Client-side Pagination + Search
+   ============================ */
+(function(){
   const tbody = document.getElementById('usersTbody');
+  if (!tbody) return;
   const rows = Array.from(tbody.querySelectorAll('tr'));
   const pageSizeSelect = document.getElementById('pageSize');
   const pagination = document.getElementById('pagination');
@@ -655,9 +793,16 @@ document.addEventListener("DOMContentLoaded", function() {
   const totalCount = document.getElementById('totalCount');
   const topPageInfo = document.getElementById('topPageInfo');
 
-  let filteredRows = rows.slice(); // initially all
-  let pageSize = parseInt(pageSizeSelect.value, 10);
+  let filteredRows = rows.slice();
+  let pageSize = parseInt(pageSizeSelect.value, 10) || 10;
   let currentPage = 1;
+
+  function renderTable(){
+    rows.forEach(r => r.style.display = 'none');
+    const start = (currentPage - 1) * pageSize;
+    const pageItems = filteredRows.slice(start, start + pageSize);
+    pageItems.forEach(r => r.style.display = '');
+  }
 
   function renderPagination(){
     const totalItems = filteredRows.length;
@@ -666,11 +811,10 @@ document.addEventListener("DOMContentLoaded", function() {
     currentPage = Math.min(currentPage, totalPages);
     currentPageEl.textContent = currentPage;
 
-    // build pagination buttons (compact: prev, page numbers, next)
     pagination.innerHTML = '';
-    const createPageBtn = (label, page, cls = '') => {
+    const createPageBtn = (label, page, classes = '') => {
       const li = document.createElement('li');
-      li.className = 'page-item ' + cls;
+      li.className = 'page-item ' + classes;
       const a = document.createElement('a');
       a.className = 'page-link';
       a.href = '#';
@@ -680,24 +824,20 @@ document.addEventListener("DOMContentLoaded", function() {
       return li;
     };
 
-    // prev
     pagination.appendChild(createPageBtn('«', Math.max(1, currentPage-1), currentPage === 1 ? 'disabled' : ''));
 
-    // smart range of pages
     const maxShown = 5;
     let start = Math.max(1, currentPage - Math.floor(maxShown/2));
     let end = Math.min(totalPages, start + maxShown - 1);
     if(end - start < maxShown - 1) start = Math.max(1, end - maxShown + 1);
 
     for(let p = start; p <= end; p++){
-      const li = createPageBtn(p, p, p === currentPage ? 'active' : '');
-      pagination.appendChild(li);
+      const cls = p === currentPage ? 'active' : '';
+      pagination.appendChild(createPageBtn(p, p, cls));
     }
 
-    // next
     pagination.appendChild(createPageBtn('»', Math.min(totalPages, currentPage+1), currentPage === totalPages ? 'disabled' : ''));
 
-    // display range
     const from = (currentPage - 1) * pageSize + 1;
     const to = Math.min(totalItems, currentPage * pageSize);
     displayFrom.textContent = totalItems === 0 ? 0 : from;
@@ -708,27 +848,11 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function gotoPage(page){
-    currentPage = Number(page);
+    currentPage = Number(page) || 1;
     renderTable();
     renderPagination();
   }
 
-  function renderTable(){
-    // hide all
-    rows.forEach(r => r.style.display = 'none');
-
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const pageItems = filteredRows.slice(start, end);
-
-    pageItems.forEach((r,i) => {
-      r.style.display = '';
-    });
-
-    // update counters
-  }
-
-  // Search input
   document.getElementById('searchUser').addEventListener('input', function(){
     const q = this.value.trim().toLowerCase();
     filteredRows = rows.filter(r => r.textContent.toLowerCase().includes(q));
@@ -737,21 +861,20 @@ document.addEventListener("DOMContentLoaded", function() {
     renderTable();
   });
 
-  // change page size
   pageSizeSelect.addEventListener('change', function(){
-    pageSize = parseInt(this.value, 10);
+    pageSize = parseInt(this.value, 10) || 10;
     currentPage = 1;
     renderPagination();
     renderTable();
   });
 
-  // initial render
   window.addEventListener('DOMContentLoaded', () => {
     filteredRows = rows.slice();
     renderPagination();
     renderTable();
   });
-
+})();
 </script>
+
 </body>
 </html>

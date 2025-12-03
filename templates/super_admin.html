@@ -47,23 +47,18 @@ html, body {
 /* Layout */
 .app {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 200px 1fr;
   height: 100vh;
   width: 100%;
   overflow: hidden;
+  transition: grid-template-columns 0.25s ease;
 }
 
-
-/* Collapsed Sidebar – EXACT SAME */
-.sidebar.collapsed { width: 260px !important; }
-.sidebar.collapsed .nav-item div { display: none; }
-.sidebar.collapsed .brand div:nth-child(2) { display: none; }
-
-/* SIDEBAR (EXACT PAGE-1) */
+/* --------- SIDEBAR (default) ---------- */
 .sidebar {
   position: relative;
   background: var(--card);
-  width: 260px;
+  width: 200px;
   height: 100vh;
   padding: 18px 12px;
   border-right: 1px solid var(--border);
@@ -71,7 +66,9 @@ html, body {
   overflow-x: hidden;
   box-shadow: var(--soft-shadow);
   border-radius: 0;
+  transition: width 0.25s ease;
 }
+
 
 .brand {
   display: flex;
@@ -113,18 +110,67 @@ html, body {
   font-weight: 600;
 }
 
-
-/* MAIN AREA — Page-2 style intact */
-.main {
-  padding: 24px;
-  overflow-y: auto;
-  width: 100%;
+/* ---------- COLLAPSED SIDEBAR (only icons) ---------- */
+/* When collapsed: smaller width and hide text labels */
+.sidebar.collapsed {
+  width: 72px;
 }
 
+.sidebar.collapsed .brand h4,
+.sidebar.collapsed .brand .muted,
+.sidebar.collapsed .nav-item div,
+.sidebar.collapsed .muted {
+  display: none !important;
+}
+
+/* keep logo centered when collapsed */
+.sidebar.collapsed .logo { margin-left: 4px; }
+
+/* shrink padding for nav-items when collapsed so icons center nicely */
+.sidebar.collapsed .nav-item { justify-content: center; padding:12px 6px; }
+
+/* APP layout switches when sidebar collapsed */
+.app.sidebar-collapsed {
+  grid-template-columns: 72px 1fr !important;
+}
+
+/* Topbar fixed and aligned with sidebar */
 .topbar {
-  display:flex; justify-content:space-between; align-items:center;
+  position: fixed;
+  top: 0;
+  left: 200px;
+  padding-left: 16px !important;
+  right: 0;
+  height: 70px;
+  align-items: center;
+  z-index: 999;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  /* transition: left 0.25s ease; */
+  transition: left 0.25s ease;
 }
 
+/* shift topbar when collapsed */
+.app.sidebar-collapsed .topbar {
+  left: 72px !important;
+  padding-left: 16px !important;
+}
+
+
+/* give main enough top padding to avoid overlap with fixed topbar */
+.main {
+  padding-top: 50px;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 24px;
+  transition: margin-left 0.25s ease, padding-left 0.25s ease;
+}
+
+
+/* other styling kept as before */
 .card {
   background: var(--card);
   border-radius: 12px;
@@ -138,7 +184,6 @@ html, body {
   padding: 25px;
 }
 
-/* Your requested font-size remains */
 .counter-number {
   font-size: 45px;
   font-weight: 800;
@@ -147,97 +192,7 @@ html, body {
 
 .muted { color:var(--muted); }
 
-/* --- Modal custom styles --- */
-.modal .modal-content {
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.96));
-  box-shadow: 0 12px 40px rgba(16,24,40,0.08);
-}
-
-.modal-header.custom {
-  padding: 18px 20px;
-  border-bottom: none;
-  background: linear-gradient(90deg, rgba(0,123,255,0.06), rgba(59,130,246,0.03));
-  border-radius: 12px 12px 0 0;
-}
-
-.modal-title {
-  margin:0;
-  font-weight:700;
-  font-size:18px;
-  color:var(--text);
-}
-
-.modal-body {
-  padding: 18px 20px 8px 20px;
-}
-
-/* Form rows */
-.form-row {
-  display:flex;
-  gap:12px;
-  align-items:flex-start;
-  margin-bottom:12px;
-}
-
-.form-row .form-group {
-  flex:1;
-}
-
-/* Input with icon */
-.input-icon {
-  position: relative;
-}
-.input-icon .icon {
-  position:absolute;
-  left:12px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:14px;
-  color:var(--muted);
-}
-.input-icon input,
-.input-icon select {
-  padding-left:38px;
-  height:44px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:transparent;
-}
-
-/* small muted helper text */
-.form-text.muted { color:var(--muted); font-size:13px; margin-top:4px; }
-
-/* Password toggle */
-.pwd-toggle {
-  position:absolute;
-  right:8px;
-  top:29%;
-  transform:translateY(-50%);
-  border:none;
-  background:transparent;
-  padding:6px;
-  cursor:pointer;
-  color:var(--muted);
-}
-
-/* Footer buttons */
-.modal-footer {
-  border-top: none;
-  padding: 12px 20px 20px 20px;
-  display:flex;
-  gap:10px;
-  justify-content:flex-end;
-}
-
-/* Responsive */
-@media (max-width:575px){
-  .form-row { flex-direction:column; }
-  .sidebar { display:none; }
-  .app { grid-template-columns: 1fr; }
-}
-/* SMALL KPI CARDS LIKE SCREENSHOT */
+/* SMALL KPI CARDS */
 .kpi-card {
   padding: 18px 22px;
   border-radius: 14px;
@@ -265,9 +220,9 @@ html, body {
   display: block;
 }
 .donut-box {
-  width: 260px;        /* chart width */
-  height: 260px;       /* chart height */
-  margin: auto;        /* center */
+  width: 260px;
+  height: 260px;
+  margin: auto;
 }
 
 .donut-box canvas {
@@ -275,7 +230,7 @@ html, body {
   height: 100% !important;
 }
 .line-chart-box {
-  height: 260px;       /* fixed beautiful height */
+  height: 260px;
   position: relative;
 }
 
@@ -284,10 +239,15 @@ html, body {
   height: 100% !important;
 }
 
-
-
-
-</style>
+/* Responsive: on small screens keep original behavior (sidebar hidden) */
+@media (max-width: 980px) {
+  .app, .main { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; left: -320px; top: 0; z-index: 1050; height: 100vh; transition: left .25s ease; }
+  .sidebar.show { left: 0; }
+  .topbar { left: 0; }
+  .main { padding-top: 100px; }
+}
+  </style>
 
 </head>
 <body>
@@ -295,86 +255,59 @@ html, body {
 <div class="app">
 
  <!-- SIDEBAR -->
-  <aside class="sidebar fade-in" id="sidebar">
+  <aside class="sidebar fade-in" id="sidebar" aria-label="Sidebar">
     <div class="brand">
-      <div class="logo">M</div>
+      <!-- collapse button -->
+      <button class="btn btn-sm" id="collapseBtn" aria-label="Toggle sidebar" title="Toggle sidebar" style="border:1px solid var(--border); background:transparent;">
+        ☰
+      </button>
       <div style="flex:1;">
         <h4>Medink</h4>
         <div class="muted" style="font-size:12px; margin-top:2px;">Admin Console</div>
       </div>
-      <button class="btn btn-sm" id="collapseBtn" title="Toggle sidebar" style="border:1px solid var(--border); background:transparent;">
-        ☰
-      </button>
+     
     </div>
-
-    <nav class="nav-list">
-      <div class="nav-item active" onclick="location.href='/super-admin/'">
+ 
+    <nav class="nav-list" role="navigation">
+      <div class="nav-item active" onclick="location.href='/super-admin/'" role="button">
         <svg width="18" height="18" viewBox="0 0 24 24" style="opacity:.9"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z"/></svg>
         <div style="font-weight:600; font-size:14px;" >Dashboard</div>
       </div>
 
-      <div class="nav-item" onclick="location.href='/user-list/'">
+      <div class="nav-item" onclick="location.href='/user-list/'" role="button">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.96.05 1.16.84 1.96 1.97 1.96 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
         <div style="font-weight:600; font-size:14px;">Users</div>
       </div>
 
-      <div class="nav-item" onclick="location.href='#'">
+      <div class="nav-item" onclick="location.href='#'" role="button">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 7h20L12 2zm0 3.3L18.6 7H5.4L12 5.3zM4 9v11h16V9H4z"/></svg>
         <div style="font-weight:600; font-size:14px;">Reports</div>
       </div>
-     <div class="nav-item" onclick="location.href='/patients/'">
-    <svg width="18" height="18" viewBox="0 0 24 24">
-      <path fill="currentColor" d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/>
-    </svg>
-    <div style="font-weight:600; font-size:14px;">Patients List</div>
-</div>
 
+     <div class="nav-item" onclick="location.href='/patients/'" role="button">
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      <div style="font-weight:600; font-size:14px;">Patients List</div>
+    </div>
 
-      <div class="nav-item" onclick="location.href='#'">
+      <div class="nav-item" onclick="location.href='#'" role="button">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
         <div style="font-weight:600; font-size:14px;">Settings</div>
       </div>
 
       <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px;" class="muted">Management</div>
 
-      <div class="nav-item" onclick="location.href='#'">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <div style="font-weight:600; font-size:14px;">Projects</div>
-      </div>
 
-      <div class="nav-item" onclick="location.href='#'">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zM3 9h2V7H3v2z"/></svg>
-        <div style="font-weight:600; font-size:14px;">Logs</div>
-      </div>
+
 
       <div style="height:30px"></div>
 
-      <div class="muted" style="font-size:12px; padding: 6px 6px 0 6px;">Quick actions</div>
+      
       <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="btn btn-sm" onclick="location.href='/add-user/'" style="flex:1; border:1px solid var(--border);">+ Add</button>
-        <button class="btn btn-sm" onclick="location.href='/export-users/'" style="border:1px solid var(--border);">Export</button>
-      </div>
+       </div>
     </nav>
   </aside>
-  <script>
-document.addEventListener("DOMContentLoaded", function() {
-    let currentPath = window.location.pathname;
-
-    document.querySelectorAll(".nav-item").forEach(item => {
-        let target = item.getAttribute("onclick");
-
-        if (target) {
-            let matchUrl = target.replace("location.href=", "").replace(/['";]/g, "");
-
-            if (currentPath.startsWith(matchUrl)) {
-                item.classList.add("active");
-            } else {
-                item.classList.remove("active");
-            }
-        }
-    });
-});
-</script>
 
   <!-- Main -->
   <main class="main">
@@ -408,15 +341,9 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     </div>
 
-    <!-- Add User Button -->
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add User</button>
-    </div>
-
     <!-- Cards -->
-    
+<div class="row g-3 mt-3" style="margin-left:0 !important;">
 
-<div class="row g-3 mt-3">
 
   <div class="col-md-3 col-6">
     <div class="kpi-card">
@@ -448,7 +375,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 </div>
 
-
 <div class="row mt-4">
 
   <div class="col-md-6">
@@ -462,8 +388,6 @@ document.addEventListener("DOMContentLoaded", function() {
   </div>
 </div>
 
-
-  <!-- PENDING VS COMPLETED DONUT CHART -->
   <div class="col-md-6">
     <div class="card shadow-sm p-3">
       <h5 class="mb-3">Pending vs Completed</h5>
@@ -475,168 +399,6 @@ document.addEventListener("DOMContentLoaded", function() {
   </div>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-/* ---------------- DAILY SCANS LINE CHART ---------------- */
-/* ---------------- DAILY SCANS LINE CHART (FINAL WORKING) ---------------- */
-const dailyLabels = {{ daily_labels|safe }};
-const dailyScans = {{ daily_scans|safe }};
-
-const ctxDaily = document.getElementById('dailyScansChart').getContext('2d');
-
-// gradient
-const gradientLine = ctxDaily.createLinearGradient(0, 0, 0, 300);
-gradientLine.addColorStop(0, "rgba(0,123,255,0.25)");
-gradientLine.addColorStop(1, "rgba(0,123,255,0)");
-
-new Chart(ctxDaily, {
-    type: 'line',
-    data: {
-        labels: dailyLabels,
-        datasets: [{
-            label: "Daily Scans",
-            data: dailyScans,
-            borderColor: "#007bff",
-            borderWidth: 3,
-            backgroundColor: gradientLine,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 4,
-            pointBackgroundColor: "#007bff",
-            pointHoverRadius: 8
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-
-        animation: {
-            duration: 1500,
-            easing: "easeInOutQuart"
-        },
-
-        plugins: {
-            legend: { display: false }
-        },
-
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1 },
-                grid: { color: "rgba(0,0,0,0.05)" }
-            },
-            x: {
-                grid: { display: false }
-            }
-        }
-    }
-});
-
-
-
-/* ---------------- STATUS DONUT CHART ---------------- */
-const pending = {{ pending_count }};
-const completed = {{ completed_count }};
-
-new Chart(document.getElementById('statusChart'), {
-    type: 'doughnut',
-    data: {
-        labels: ['Completed', 'Pending'],
-        datasets: [{
-            data: [completed, pending],
-            backgroundColor: ['#0d6efd', '#28a745'],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        cutout: '65%',  /* Smaller inner circle */
-        plugins: {
-            legend: { position: 'bottom' }
-        }
-    }
-});
-
-</script>
-
-
-
-    <!-- Add User Modal (updated/professional) -->
-    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <form method="POST" action="{% url 'add_user' %}" id="addUserForm" novalidate>
-          {% csrf_token %}
-          <div class="modal-content">
-            <div class="modal-header custom">
-              <div>
-                <h5 class="modal-title">Create New User</h5>
-                <div class="muted" style="font-size:13px; margin-top:4px;">Add a user and assign the correct role</div>
-              </div>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-              <!-- Row 1: Name + User ID -->
-              <div class="form-row">
-                <div class="form-group input-icon">
-                  <span class="icon">👤</span>
-                  <input name="name" class="form-control" placeholder="Full name" required>
-                  <div class="invalid-feedback">Name is required.</div>
-                </div>
-
-                <div class="form-group input-icon">
-                  <span class="icon">🆔</span>
-                  <input name="userid" class="form-control" placeholder="User ID" required>
-                  <div class="invalid-feedback">User ID is required.</div>
-                </div>
-              </div>
-
-              <!-- Row 2: Password + User Type -->
-              <div class="form-row">
-                <div class="form-group input-icon" style="position:relative;">
-                  <span class="icon">🔒</span>
-                  <input type="password" name="password" id="passwordField" class="form-control" placeholder="Password" required minlength="6" autocomplete="new-password">
-                  <button type="button" class="pwd-toggle" id="pwdToggle" aria-label="Toggle password">Show</button>
-                  <div class="form-text muted">Min 6 characters.</div>
-                  <div class="invalid-feedback">Password is required (min 6 chars).</div>
-                </div>
-
-                <div class="form-group">
-                  <!-- <label class="muted" style="font-size:13px; margin-bottom:6px;"></label> -->
-                  <select class="form-select" name="usertype" id="usertypeSelect" required>
-                    <option value="">-- Select --</option>
-                    <option value="ADMIN">Admin</option>
-                    <option value="IMAGING">Imaging</option>
-                    <option value="RADS">RADS</option>
-                  </select>
-                  <div class="invalid-feedback">Select a user type.</div>
-                </div>
-              </div>
-
-              <!-- Row 3: Admin assign (conditionally visible) -->
-              <div id="adminSelectContainer" style="display:none; margin-top:6px;">
-                <label class="muted" style="font-size:13px; margin-bottom:6px;">Assign Admin</label>
-                <select class="form-select" name="parent_admin_id">
-                  <option value="">-- Select --</option>
-                  {% for admin in admins %}
-                  <option value="{{ admin.id }}">{{ admin.name }}</option>
-                  {% endfor %}
-                </select>
-                <div class="form-text muted">Choose a parent admin for Imaging/RADS users.</div>
-              </div>
-
-            </div>
-
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success" id="createBtn">Create user</button>
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
   </main>
 
 </div>
@@ -661,19 +423,36 @@ document.addEventListener("DOMContentLoaded", () => {
     update();
   });
 });
-
 </script>
 
-<!-- Sidebar Collapse -->
+<!-- Sidebar Collapse: robust implementation -->
 <script>
-const sidebar = document.getElementById("sidebar");
-collapseBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
+(function(){
+  const sidebar = document.getElementById('sidebar');
+  const collapseBtn = document.getElementById('collapseBtn');
+  const app = document.querySelector('.app');
 
-    // Don’t change grid layout
-    document.querySelector('.app').style.gridTemplateColumns = "260px 1fr";
-});
+  // Safety: proceed only if elements exist
+  if (!sidebar || !collapseBtn || !app) return;
 
+  // Load persisted state
+  document.addEventListener('DOMContentLoaded', () => {
+    const collapsed = localStorage.getItem('medink-sidebar-collapsed');
+    if (collapsed === '1') {
+      sidebar.classList.add('collapsed');
+      app.classList.add('sidebar-collapsed');
+    }
+  });
+
+  // Toggle on click
+  collapseBtn.addEventListener('click', () => {
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    app.classList.toggle('sidebar-collapsed');
+
+    // persist
+    localStorage.setItem('medink-sidebar-collapsed', isCollapsed ? '1' : '0');
+  });
+})();
 </script>
 
 <!-- Dark Mode -->
@@ -681,37 +460,72 @@ collapseBtn.addEventListener('click', () => {
 const darkToggle = document.getElementById("darkToggle");
 if(localStorage.getItem("medink-dark") === "1"){
   document.body.classList.add("dark");
-  darkToggle.checked = true;
+  if (darkToggle) darkToggle.checked = true;
 }
-darkToggle.onchange = () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("medink-dark", document.body.classList.contains("dark") ? "1" : "0");
-};
+if (darkToggle) {
+  darkToggle.addEventListener('change', () => {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("medink-dark", document.body.classList.contains("dark") ? "1" : "0");
+  });
+}
+</script>
 
-document.addEventListener("DOMContentLoaded", function () {
-    const usertypeSelect = document.getElementById("usertypeSelect");
-    const adminSelectContainer = document.getElementById("adminSelectContainer");
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    if (usertypeSelect) {
-        usertypeSelect.addEventListener("change", function () {
-            adminSelectContainer.style.display =
-                (this.value === "IMAGING" || this.value === "RADS") ? "block" : "none";
-        });
+<script>
+/* Charts (same as before) */
+const dailyLabels = {{ daily_labels|safe }};
+const dailyScans = {{ daily_scans|safe }};
+
+const ctxDaily = document.getElementById('dailyScansChart').getContext('2d');
+const gradientLine = ctxDaily.createLinearGradient(0, 0, 0, 300);
+gradientLine.addColorStop(0, "rgba(0,123,255,0.25)");
+gradientLine.addColorStop(1, "rgba(0,123,255,0)");
+
+new Chart(ctxDaily, {
+    type: 'line',
+    data: {
+        labels: dailyLabels,
+        datasets: [{
+            label: "Daily Scans",
+            data: dailyScans,
+            borderColor: "#007bff",
+            borderWidth: 3,
+            backgroundColor: gradientLine,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: "#007bff",
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 1500, easing: "easeInOutQuart" },
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "rgba(0,0,0,0.05)" } },
+            x: { grid: { display: false } }
+        }
     }
 });
- // Password visibility toggle
-  const pwdToggle = document.getElementById("pwdToggle");
-  const passwordField = document.getElementById("passwordField");
-  pwdToggle && pwdToggle.addEventListener("click", () => {
-    if (passwordField.type === "password") {
-      passwordField.type = "text";
-      pwdToggle.textContent = "Hide";
-    } else {
-      passwordField.type = "password";
-      pwdToggle.textContent = "Show";
-    }
-  });
 
+const pending = {{ pending_count }};
+const completed = {{ completed_count }};
+
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Pending'],
+        datasets: [{ data: [completed, pending], backgroundColor: ['#0d6efd', '#28a745'], borderWidth: 1 }]
+    },
+    options: {
+        responsive: true,
+        cutout: '65%',
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
 </script>
 
 </body>
