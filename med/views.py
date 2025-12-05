@@ -723,7 +723,7 @@ def add_user(request):
 
     user.save()
     messages.success(request, f"User '{name}' सफलतापूर्वक बना दिया गया ✅")
-    return redirect('super_admin')
+    return redirect('user_list')
 
 
 from django.shortcuts import render, get_object_or_404
