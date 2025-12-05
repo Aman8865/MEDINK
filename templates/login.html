@@ -25,6 +25,9 @@ button:hover { background-color:#0056b3; }
 .logo-text img { height:50px; width:50px; }
 .error { color:red; text-align:center; margin-bottom:10px; }
 .links { display:flex; justify-content:space-between; font-size:small; margin-top:8px; }
+.input-container i{
+  top: 20px;
+}
   </style>
 </head>
 <body>
@@ -44,29 +47,81 @@ button:hover { background-color:#0056b3; }
 
       <!-- Username (userid) -->
       <div class="input-container">
-        <i class="fas fa-user"></i>
-        {{ form.userid }}
-      </div>
+    <i style="color: rgb(192, 191, 191);" class="fas fa-user"></i>
+    {{ form.userid }}
+</div>
 
-      <!-- Password -->
-      <div class="input-container">
-        <i class="fas fa-lock"></i>
-        {{ form.password }}
-      </div>
+<script>
+document.addEventListener("input", function () {
+    const userid = document.getElementById("id_userid");
+    if (userid) {
+        // 1️⃣ Non-alphabet remove
+        userid.value = userid.value.replace(/[^a-zA-Z]/g, "");
+
+        // 2️⃣ Always lowercase
+        userid.value = userid.value.toLowerCase();
+    }
+});
+</script>
+
+<style>
+/* Input display also lowercase */
+#id_userid {
+    text-transform: lowercase;
+}
+</style>
+
+
+     <div class="input-container" style="position: relative;">
+    <i style="color: rgb(192, 191, 191);"" class="fas fa-lock"></i>
+    {{ form.password }}
+
+    <!-- Toggle Button -->
+    <i  class="fas fa-eye toggle-password"
+       onclick="togglePassword()" 
+       style="
+          position: absolute; 
+          left: 230px; 
+          top: 50%; 
+          transform: translateY(-50%); 
+          cursor: pointer;
+          color: #555;
+       ">
+    </i>
+</div>
+<script>
+function togglePassword() {
+    const passwordField = document.getElementById("id_password");  
+    const icon = document.querySelector(".toggle-password");
+
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        passwordField.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
+
       
 
       <button type="submit">Login</button>
 
-      <div class="links">
-        <a href="#">Forgot Password?</a>
-        <a href="#">Sign Up</a>
-      </div>
+      
 
-      <h4 style="text-align:center; margin-top:15px;">Support</h4>
-      <h6 style="margin-left:10px;">
-        <i class="fas fa-phone"></i> +91-999-011-0123
-        <span> <i class="fas fa-envelope"></i> admin@axrix.co</span>
+      <!-- <h4 style="text-align:center; margin-top:15px;">Support</h4> -->
+      <h6 style=" display: flex; justify-content: space-between; font-size: 11px; align-items: center;">
+        <!-- <span><i class="fas fa-phone"></i> +91-999-011-0123</span>
+        <span> <i class="fas fa-envelope"></i> admin@axrix.co</span> -->
       </h6>
+      <br>
+      <footer style="text-align:center; padding:10px 0; color:#666; font-size:14px;">
+        Copyright © 2025 MEDink
+      </footer>
+
     </form>
 
   </div>
