@@ -181,7 +181,7 @@ body {
     #searchInput {
         width: 100% !important;
         padding: 8px 40px 8px 12px !important;
-        font-size: 15px;
+        font-size: 12px;
     }
 
     .nav2 i.fa-search {
@@ -269,7 +269,7 @@ tr.status-draft { background-color: #fef9e7 !important; }
 
 .status-option.active {
     font-weight: 700 !important;
-    color: rgb(142, 142, 224) !important;
+    color:  #007bff !important;
 }
 
 /* ======= MOBILE UI BEAUTIFICATION ======= */
@@ -319,6 +319,7 @@ tr.status-draft { background-color: #fef9e7 !important; }
         border: 1px solid #ddd;
         background: #fafafa;
         text-align: center;
+        
     }
 
     #statusFilter span {
@@ -371,6 +372,75 @@ tr.status-draft { background-color: #fef9e7 !important; }
     }
 }
 
+.add-btn {
+    background: #007bff;  
+    width: 100px;         /* blue */
+    color: white;
+    font-weight: 600;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;            /* smooth rounded */
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;                      /* icon gap */
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    transition: 0.25s ease-in-out; /* smooth animation */
+}
+
+.add-btn:hover {
+    background: #0056d2;           /* darker blue on hover */
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.45);
+    transform: translateY(-2px);   /* small lift effect */
+}
+
+.add-btn:active {
+    transform: scale(0.96);        /* click animation */
+}
+
+/* Date range */
+.date-chip-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid rgb(217, 217, 217);
+    /* padding: 8px 10px; */
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.chip {
+    cursor: pointer;
+    padding: 0 6px;
+    color: #1f1f20;
+    font-weight: 500;
+}
+
+.chip.active {
+    color: #007bff;
+    font-weight: 500;
+    font-weight: 600;
+}
+
+.divider {
+    color: #b0b0b0;
+}
+
+.calendar-icon {
+    padding: 4px 6px;
+    cursor: pointer;
+    background: #f0f6ff;
+    border-radius: 6px;
+    border: 1px solid #c9dfff;
+}
+
+.calendar-icon i {
+    color: #007bff;
+    font-size: 14px;
+}
 
     </style>
 </head>
@@ -391,48 +461,67 @@ tr.status-draft { background-color: #fef9e7 !important; }
 {% block body %}
 
 <div id="nav2"  class="nav2">
-    <button style="background-color: blue; color: white; font-weight: 600;" onclick="window.location.href='/popupform/'">
-        <i class="fas fa-plus"></i> Add New
-    </button>
-    <div style=" display: inline-block; margin-left: 4px; position: relative;">
-  <input type="search" id="searchInput" placeholder="Search details..."
-    style="margin-left: 0px;border: 1px solid #ccc; padding: 3px 35px 5px 10px; border-radius: 3px;  width: 200px; font-size: 16px;">
-  <i class="fa-solid fa-search" 
-     style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: gray; cursor: pointer;"></i>
+    <button style="font-weight: 600;" class="add-btn" onclick="window.location.href='/popupform/'">
+    <i class="fas fa-user-plus"></i> Add New
+</button>
+
+
+<div class="date-chip-box" style="box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);">
+
+    <span class="chip active" style="color: #007bff;" onclick="setDateFilter('ALL')">All</span>
+    <span class="divider">|</span>
+
+    <span class="chip" onclick="goPrevDay()">&lt;&lt;</span>
+
+    <span id="dayChip" class="chip" onclick="setDateFilter('TODAY')">TODAY</span>
+
+
+    <span class="chip" onclick="goNextDay()">&gt;&gt;</span>
+
+    <span class="divider">|</span>
+    <span class="chip" onclick="setDateFilter('MONTH')">MONTH</span>
+
+    <span class="calendar-icon" onclick="openDateRange()">
+        <i class="fa-regular fa-calendar"></i>
+    </span>
 </div>
 
-<div id="statusFilter" style="padding: 6px; background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
-    <span id="filter-all" class="status-option" style="cursor:pointer;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
-    <span id="filter-final" class="status-option" style="cursor:pointer; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
-    <span id="filter-unread" class="status-option" style="cursor:pointer; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
+<div id="statusFilter" style="padding: 6px; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); gap background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
+    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;color: #007bff; font-weight: 600;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+    <span id="filter-final" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
+    <span id="filter-unread" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
 
 </div>
-
-
-   
-     <button style="padding: 6px; background-color: white; font-size:12px; font-weight: 500;border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
-       <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
+     <button style="padding: 6px; background-color: white; font-size:12px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); font-weight: 500;border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
+       <span style="color: #007bff; font-weight: 600; cursor:pointer; font-weight: 600;" onclick="filterByScanType('ALL')">All</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('CT')">CT</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MRI')">MRI</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MG')">MG</span>
     </button>
 
+ <div style=" display: inline-block; margin-left: 4px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); position: relative;">
+  <input type="search" id="searchInput" placeholder="search scan..."
+    style="margin-left: 0px;border: 1px solid #ccc; color: rgb(232, 230, 230); padding: 3px 35px 5px 10px; border-radius: 5px; font-weight: 400;  width: 150px; font-size: 14px;">
 
-
-    <a href="" style="background-color: aliceblue; padding: 3px; border-radius: 8px;">
+</div>
+    <a href="" style="background-color: rgb(251, 250, 250);box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); border: 1px solid #ccc; color: #007bff;">
+        <i class="fa-solid fa-search"></i>
+    </a>
+    <a href="" style="background-color: rgb(251, 250, 250);box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); border: 1px solid #ccc; color: #007bff;">
         <i class="fa-solid fa-rotate-right"></i>
     </a>
 
-    <div class="date-filter">
-        <button id="dateFilterBtn">
-            <i class="fas fa-calendar"></i> Date Filter
-        </button>
-    </div>
+<input type="date" id="startDate" style="display:none;">
+<input type="date" id="endDate" style="display:none;">
+    <i class="fa-regular fa-calendar"></i>
+    </span>
 </div>
 
-
-
+<!-- Hidden date range fields -->
+<input type="date" id="startDate" style="display:none;" onchange="setDateFilter('RANGE')">
+<input type="date" id="endDate" style="display:none;" onchange="setDateFilter('RANGE')">
+</div>
 <div id="nav3" class="nav3">
     <table >
         <thead>
@@ -694,38 +783,136 @@ function toggleSelectAll(checkbox) {
     rowCheckboxes.forEach(cb => cb.checked = checkbox.checked);
 }
 
+// datae range
+let selectedDateFilter = "ALL";
+let tempSelectedDay = dateOnly(new Date());
+
+function dateOnly(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function setDateFilter(type) {
+    selectedDateFilter = type;
+
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    const chip = [...document.querySelectorAll(".chip")]
+        .find(x => x.textContent.toUpperCase().includes(type));
+    if (chip) chip.classList.add("active");
+
+    if (type === "TODAY") {
+        tempSelectedDay = dateOnly(new Date());
+    }
+
+    applyFilters();
+}
+
+function goPrevDay() {
+    tempSelectedDay = dateOnly(new Date());
+    tempSelectedDay.setDate(tempSelectedDay.getDate() - 1);
+
+    selectedDateFilter = "DAY-JUMP";
+
+    // UI Update
+    document.getElementById("dayChip").textContent = "YESTERDAY";
+
+    // Remove active from all chips
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+
+    applyFilters();
+}
+
+
+
+function goNextDay() {
+    tempSelectedDay = dateOnly(new Date());
+    selectedDateFilter = "TODAY";
+
+    // UI Update
+    document.getElementById("dayChip").textContent = "TODAY";
+
+    // Remove active and set TODAY active
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    document.getElementById("dayChip").classList.add("active");
+
+    applyFilters();
+}
+ 
+
+
+function openDateRange() {
+    document.getElementById("startDate").click();
+}
+
+document.getElementById("startDate").addEventListener("change", () => {
+    document.getElementById("endDate").click();
+});
+
+document.getElementById("endDate").addEventListener("change", () => {
+    selectedDateFilter = "RANGE";
+    applyFilters();
+});
+
 
 // 🟢 SEARCH + FILTER COMBINED
 // SEARCH + FILTER (FINAL WORKING VERSION)
 const searchInput = document.getElementById("searchInput");
 searchInput.addEventListener("keyup", applyFilters);
-
 function applyFilters() {
     const rows = document.querySelectorAll("#patientTable tr");
     const searchText = searchInput.value.trim().toUpperCase();
 
     rows.forEach(row => {
+
+        /* STATUS FILTER */
         const status = row.querySelector(".status")?.textContent.trim().toUpperCase();
-        const scanType = row.querySelector("td:nth-child(4)")?.textContent.trim().toUpperCase();
-
-        const name = row.querySelector("td:nth-child(2) strong")?.textContent.trim().toUpperCase();
-        const pid = row.querySelector("td:nth-child(2) small")?.textContent.trim().toUpperCase();
-
         const statusMatch = currentStatusFilter === "ALL" || status === currentStatusFilter;
+
+        /* SCAN FILTER */
+        const scanType = row.querySelector("td:nth-child(4)")?.textContent.trim().toUpperCase();
         const scanMatch = currentScanFilter === "ALL" || scanType === currentScanFilter;
 
-        const searchMatch =
-            searchText === "" ||
-            name.includes(searchText) ||
-            pid.includes(searchText);
+        /* SEARCH FILTER */
+        const name = row.querySelector("td:nth-child(2) strong")?.textContent.trim().toUpperCase();
+        const pid = row.querySelector("td:nth-child(2) small")?.textContent.trim().toUpperCase();
+        const searchMatch = searchText === "" || name.includes(searchText) || pid.includes(searchText);
 
-        if (statusMatch && scanMatch && searchMatch) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
+        /* DATE FILTER */
+        let dateMatch = true;
+        const dateText = row.querySelector("td small")?.textContent.split(" | ")[0];
+
+        if (dateText) {
+            const [d,m,y] = dateText.split("/");
+            const entryDate = dateOnly(new Date(`${y}-${m}-${d}`));
+
+            const today = dateOnly(new Date());
+            const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);  
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            if (selectedDateFilter === "TODAY")
+                dateMatch = (entryDate.getTime() === today.getTime());
+
+            // if (selectedDateFilter === "YESTERDAY")
+            //     dateMatch = (entryDate.getTime() === yesterday.getTime());
+
+            if (selectedDateFilter === "DAY-JUMP")
+                dateMatch = (entryDate.getTime() === tempSelectedDay.getTime());
+
+            if (selectedDateFilter === "MONTH")
+                dateMatch = (entryDate >= monthStart && entryDate <= monthEnd);
+
+            if (selectedDateFilter === "RANGE") {
+                const s = new Date(startDate.value);
+                const e = new Date(endDate.value);
+                dateMatch = (entryDate >= s && entryDate <= e);
+            }
         }
+
+        /* FINAL SHOW/HIDE */
+        row.style.display = (statusMatch && scanMatch && searchMatch && dateMatch) ? "" : "none";
     });
 }
+
 function filterPatients(status) {
     currentStatusFilter = status.toUpperCase();
     applyFilters();
