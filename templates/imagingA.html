@@ -13,7 +13,7 @@
 
 
     <style>
-       /* 🌐 GLOBAL STYLE */
+/* 🌐 GLOBAL STYLE */
 body {
     margin: 0;
     padding: 0;
@@ -29,8 +29,8 @@ body {
     left: 0;
     width: 100%;
     height: 60px;
-    background-color: #d6eefe; /* Light Sky Blue */
-    color: #0d47a1;            /* Deep Blue Text */
+    background-color: #d6eefe;
+    color: #0d47a1;
     display: flex;
     align-items: center;
     padding: 0 15px;
@@ -47,69 +47,6 @@ body {
     margin-left: 15px;
     font-size: 1.1rem;
 }
-
-/* 📑 SIDEBAR */
-.sidebar2 {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    height: 100%;
-    width: 60px;
-    background-color: #d6eefe; /* Light Blue */
-color: #0d47a1;            /* Dark Blue Icons */
-
-    transition: width 0.3s ease;
-    overflow-x: hidden;
-    z-index: 999;
-}
-
-.sidebar2:hover {
-    width: 130px;
-}
-
-.sidebar2 a {
-    display: flex;
-    align-items: center;
-    color: white;
-    padding: 12px;
-    text-decoration: none;
-    font-size: 18px;
-    white-space: nowrap;
-    transition: background-color 0.3s ease;
-}
-
-.sidebar2 a:hover {
-    /* background-color: white; */
-    border-radius: 30px;
-    /* color: black; */
-    background-color: #e8f1ff;
-    color: #0d47a1;
-}
-
-.sidebar2 a i {
-    min-width: 40px;
-    text-align: center;
-    color: black;
-}
-
-.sidebar2 a span {
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    color: gray;
-}
-
-.sidebar2:hover a span {
-    opacity: 1;
-    transform: translateX(0);
-}
-/* 🔄 Hide Sidebar when toggled */
-.sidebar-hidden {
-    width: 0 !important;
-    overflow: hidden;
-}
-
-
 
 /* Toggle Button */
 .toggle-btn {
@@ -131,8 +68,6 @@ color: #0d47a1;            /* Dark Blue Icons */
 
 /* 🧭 SECOND NAVBAR (Filters) */
 .nav2 {
-    /* background-color: #606160; */
-    /* color: white; */
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -146,7 +81,8 @@ color: #0d47a1;            /* Dark Blue Icons */
     color: #0d47a1;
 }
 
-.nav2 button, .nav2 a {
+.nav2 button,
+.nav2 a {
     padding: 6px 10px;
     font-size: 12px;
     font-weight: 500;
@@ -180,7 +116,8 @@ color: #0d47a1;            /* Dark Blue Icons */
     font-size: 13px;
 }
 
-.nav3 th, .nav3 td {
+.nav3 th,
+.nav3 td {
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #ddd;
@@ -211,125 +148,233 @@ color: #0d47a1;            /* Dark Blue Icons */
 }
 
 /* 📱 RESPONSIVE DESIGN */
+
+/* TABLE + FILTERS FOR TABLETS */
 @media (max-width: 992px) {
-    .sidebar2 {
-        width: 55px;
-    }
     .nav2 {
-        margin-left: 55px;
         flex-direction: column;
         align-items: flex-start;
+        width: 100%;
     }
     .nav3 {
-        margin-left: 55px;
+        margin-left: 0px;
+        width: 100%;
     }
 }
 
+/* TABLE + FILTERS FOR MOBILE */
 @media (max-width: 768px) {
     .top-navbar span {
         font-size: 1rem;
     }
+
     .nav2 {
         flex-direction: column;
-        gap: 6px;
+        gap: 10px;
+        align-items: stretch !important;
     }
-    .nav2 button {
-        width: 100%;
+
+    .nav2 > * {
+        width: 100% !important;
     }
+
+    #searchInput {
+        width: 100% !important;
+        padding: 8px 40px 8px 12px !important;
+        font-size: 15px;
+    }
+
+    .nav2 i.fa-search {
+        right: 12px !important;
+    }
+
     .nav3 table {
         font-size: 11px;
+        min-width: 850px;
     }
-    .nav3 th, .nav3 td {
+
+    .nav3 th,
+    .nav3 td {
         padding: 6px;
-    }
-    .toggle-btn {
-        top: 70px;
-        left: 10px;
     }
 }
 
+/* MOBILE SMALL SCREEN FIX */
 @media (max-width: 480px) {
     .top-navbar {
         justify-content: space-between;
         padding: 0 10px;
     }
+
     .top-navbar span {
         display: none;
     }
-    .sidebar2 {
-        width: 0;
-    }
+
     .nav2 {
-        margin-left: 0;
         padding: 8px;
+        margin-left: 0;
     }
+
     .nav3 {
         margin-left: 0;
     }
-    .nav3 table {
-        font-size: 10px;
-    }
+
     th:nth-child(6), td:nth-child(6),
     th:nth-child(9), td:nth-child(9) {
-        display: none; /* hide extra columns on small screen */
+        display: none;
+    }
+
+    td strong,
+    td small {
+        font-size: 11px;
+    }
+
+    td {
+        padding: 4px !important;
+    }
+
+    #statusFilter span {
+        font-size: 12px;
+        padding: 4px;
     }
 }
 
-
+/* TABLE SCROLL & STICKY HEADER */
 #nav3 {
-  max-height: 450px;         /* scroll height adjust kar lo */
-  overflow-y: auto;           /* sirf vertical scroll */
-  border: 1px solid #ddd;     /* optional border */
-}
-
-#nav3 table {
-  width: 100%;
-  border-collapse: collapse;
+    max-height: 450px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
 }
 
 #nav3 thead th {
-  position: sticky;
-  top: 0;
-  background-color: rgb(230, 228, 228);    /* ya apne theme ke hisab se */
-  z-index: 10;
-  border-bottom: 2px solid #ccc;
+    position: sticky;
+    top: 0;
+    background-color: rgb(230, 228, 228);
+    z-index: 10;
+    border-bottom: 2px solid #ccc;
 }
 
-#nav3 th, #nav3 td {
-  padding: 8px 12px;
-  text-align: left;
-  border: 1px solid #eee;
-}
-
-#statusFilter .active {
-  color: #00ffcc;
-  font-weight: bold;
-}
-/* EVERY ENTRY ROW SOFT LIGHT BLUE */
+/* ROW COLORS */
 tr {
-    background-color: #f7fbff !important;   /* universal super-light blue */
+    background-color: #f7fbff !important;
 }
 
-/* OPTIONAL: Row hover soft highlight */
 tr:hover {
     background-color: #eef6ff !important;
 }
-tr.status-final  { background-color: #f2fbf2 !important; }  /* light mint */
-tr.status-unread { background-color: #fff4f4 !important; }  /* light pink */
-tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 
+tr.status-final { background-color: #f2fbf2 !important; }
+tr.status-unread { background-color: #fff4f4 !important; }
+tr.status-draft { background-color: #fef9e7 !important; }
+
+.status-option.active {
+    font-weight: 700 !important;
+    color: rgb(142, 142, 224) !important;
+}
+
+/* ======= MOBILE UI BEAUTIFICATION ======= */
+@media (max-width: 480px) {
+
+    body {
+        background: #eef3f8;
+        padding: 0 6px;
+    }
+
+    /* Top section & Add New button */
+    #nav2 {
+        background: white;
+        border-radius: 10px;
+        padding: 12px;
+        gap: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        width: 100%;
+    }
+
+    /* Add New button full width */
+    #nav2 button:first-child {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    /* Search box styling */
+    #searchInput {
+        width: 100% !important;
+        padding: 10px 40px 10px 12px !important;
+        border-radius: 8px !important;
+        border: 1px solid #ccc !important;
+        background: #fafafa;
+        font-size: 14px;
+    }
+    .nav2 i.fa-search {
+        right: 15px !important;
+    }
+
+    /* Status filter bar */
+    #statusFilter {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fafafa;
+        text-align: center;
+    }
+
+    #statusFilter span {
+        padding: 4px 6px;
+        border-radius: 4px;
+    }
+
+    /* Scan filter chip bar */
+    .nav2 button:nth-child(4) {
+        width: 100%;
+        border-radius: 8px;
+        padding: 8px;
+        background: #eef6ff !important;
+        border: 1px solid #c8defd !important;
+    }
+
+    /* Date Filter button full width */
+    .date-filter button {
+        width: 100%;
+        border-radius: 8px;
+        padding: 8px;
+        background: #eef6ff;
+        border: 1px solid #c8defd;
+    }
+
+    /* TABLE container card */
+    #nav3 {
+        margin-top: 12px;
+        background: white;
+        border-radius: 10px;
+        padding: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        width: 100%;
+    }
+
+    table {
+        min-width: 750px; /* prevents squeezing */
+    }
+
+    td strong {
+        font-size: 13px;
+    }
+    td small {
+        font-size: 11px;
+    }
+
+    /* Extra clean spacing */
+    .nav2 > * {
+        margin-bottom: 5px;
+    }
+}
 
 
     </style>
 </head>
 <body>
-    
-    
-<!-- side navbar -->
-
-
-
-
 <div class="top-navbar">
     <img height="40" style="border-radius: 30px;" src="data:image/png;base64,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" alt="Profile">
     
@@ -349,38 +394,30 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
     <button style="background-color: blue; color: white; font-weight: 600;" onclick="window.location.href='/popupform/'">
         <i class="fas fa-plus"></i> Add New
     </button>
-    <div style=" display: inline-block; margin-left: 4px;">
+    <div style=" display: inline-block; margin-left: 4px; position: relative;">
   <input type="search" id="searchInput" placeholder="Search details..."
-    style="margin-left: 0px; padding: 3px 35px 5px 10px; border-radius: 3px; border: none; width: 200px; font-size: 16px;">
-  <i class="fa-solid fa-" 
+    style="margin-left: 0px;border: 1px solid #ccc; padding: 3px 35px 5px 10px; border-radius: 3px;  width: 200px; font-size: 16px;">
+  <i class="fa-solid fa-search" 
      style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: gray; cursor: pointer;"></i>
 </div>
 
-    <button onclick="filterPatients('UNREAD')" style="color: red; font-weight: 600;">
-        UNREAD
-    </button>
+<div id="statusFilter" style="padding: 6px; background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
+    <span id="filter-all" class="status-option" style="cursor:pointer;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+    <span id="filter-final" class="status-option" style="cursor:pointer; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
+    <span id="filter-unread" class="status-option" style="cursor:pointer; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
 
-    <button onclick="filterPatients('FINAL')" style="color: green; font-weight: 600;">
-        FINAL
-    </button>
+</div>
 
-    <button onclick="filterPatients('ALL')" style="color: green; font-weight: 600;">
-        ALL
-    </button>
 
-    <button style="color: rgb(143, 143, 228);">
-        All RADS <i class="fas fa-caret-down"></i>
-    </button>
-     <button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: 0px; margin-top: 0px;">
+   
+     <button style="padding: 6px; background-color: white; font-size:12px; font-weight: 500;border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
        <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">Xray</span> | 
+       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
     </button>
-<button onclick="exportSelectedToExcel()" style="background-color: #4CAF50; font-weight: 600; color: white;">
-    Export Excel
-</button>
+
 
 
     <a href="" style="background-color: aliceblue; padding: 3px; border-radius: 8px;">
@@ -420,8 +457,8 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
             
             {% for patient in patients %}
             <tr onclick="window.location.href='/report/{{patient.id}}/'" 
-                style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#e8f5e9{% elif patient.status == 'DRAFT' %}#fff3e0{% else %}#ffebee{% endif %}">
-                
+    style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#e8f5e9{% elif patient.status == 'DRAFT' %}#fff3e0{% else %}#ffebee{% endif %}">
+
                 <td>
                     
                     <input type="checkbox" class="rowCheckbox" data-id="{{patient.id}}" onclick="event.stopPropagation()">
@@ -470,35 +507,6 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 
 
 <script>
-const sidebar = document.querySelector('.sidebar2');
-const toggleBtn = document.getElementById('toggleBtn');
-const nav2 = document.getElementById('nav2');
-const nav3 = document.getElementById('nav3');
-
-toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('sidebar-hidden');
-
-
-    const icon = toggleBtn.querySelector('i');
-
-    if (sidebar.classList.contains('sidebar-hidden')) {
-        // Sidebar hidden → shift right
-        icon.classList.remove('fa-chevron-left');
-        icon.classList.add('fa-chevron-right');
-
-        // Smooth shift
-        nav2.style.marginLeft = "0px";
-        nav3.style.marginLeft = "0px";
-
-    } else {
-        // Sidebar visible → shift back
-        icon.classList.remove('fa-chevron-right');
-        icon.classList.add('fa-chevron-left');
-
-        nav2.style.marginLeft = "60px";
-        nav3.style.marginLeft = "60px";
-    }
-});
 
 // filteration
 let currentStatusFilter = 'ALL';
@@ -531,24 +539,6 @@ function filterByScanType(scanType) {
     }
 }
 
-function applyFilters() {
-    const rows = document.querySelectorAll('#patientTable tr');
-
-    rows.forEach(row => {
-        const statusSpan = row.querySelector('.status');
-        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
-        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
-
-        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
-        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
-
-        if (statusMatch && scanMatch) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
 
 // Add these functions to your existing script section
 
@@ -706,42 +696,49 @@ function toggleSelectAll(checkbox) {
 
 
 // 🟢 SEARCH + FILTER COMBINED
-const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('keyup', applyFilters);
+// SEARCH + FILTER (FINAL WORKING VERSION)
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("keyup", applyFilters);
 
 function applyFilters() {
-    const rows = document.querySelectorAll('#patientTable tr');
-    const searchText = document.getElementById('searchInput').value.trim().toUpperCase();
+    const rows = document.querySelectorAll("#patientTable tr");
+    const searchText = searchInput.value.trim().toUpperCase();
 
     rows.forEach(row => {
-        const statusSpan = row.querySelector('.status');
-        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
-        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
+        const status = row.querySelector(".status")?.textContent.trim().toUpperCase();
+        const scanType = row.querySelector("td:nth-child(4)")?.textContent.trim().toUpperCase();
 
-        const nameCell = row.querySelector('td:nth-child(2) strong');
-        const idCell = row.querySelector('td:nth-child(2) small');
-        const nameText = nameCell ? nameCell.textContent.trim().toUpperCase() : '';
-        const idText = idCell ? idCell.textContent.trim().toUpperCase() : '';
+        const name = row.querySelector("td:nth-child(2) strong")?.textContent.trim().toUpperCase();
+        const pid = row.querySelector("td:nth-child(2) small")?.textContent.trim().toUpperCase();
 
-        // Existing filters (status + scan)
-        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
-        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
+        const statusMatch = currentStatusFilter === "ALL" || status === currentStatusFilter;
+        const scanMatch = currentScanFilter === "ALL" || scanType === currentScanFilter;
 
-        // New search match (name + patient ID)
-        const searchMatch = (
-            searchText === '' || 
-            nameText.includes(searchText) || 
-            idText.includes(searchText)
-        );
+        const searchMatch =
+            searchText === "" ||
+            name.includes(searchText) ||
+            pid.includes(searchText);
 
-        // Final combined check
         if (statusMatch && scanMatch && searchMatch) {
-            row.style.display = '';
+            row.style.display = "";
         } else {
-            row.style.display = 'none';
+            row.style.display = "none";
         }
     });
 }
+function filterPatients(status) {
+    currentStatusFilter = status.toUpperCase();
+    applyFilters();
+
+    // Remove active from all
+    document.querySelectorAll(".status-option").forEach(x => {
+        x.classList.remove("active");
+    });
+
+    // Add active to clicked
+    document.getElementById(`filter-${status.toLowerCase()}`).classList.add("active");
+}
+
 </script>
 
 </body>

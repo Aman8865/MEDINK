@@ -28,6 +28,10 @@ button:hover { background-color:#0056b3; }
 .input-container i{
   top: 20px;
 }
+/* Input display also lowercase */
+#id_userid {
+    text-transform: lowercase;
+}
   </style>
 </head>
 <body>
@@ -51,29 +55,9 @@ button:hover { background-color:#0056b3; }
     {{ form.userid }}
 </div>
 
-<script>
-document.addEventListener("input", function () {
-    const userid = document.getElementById("id_userid");
-    if (userid) {
-        // 1️⃣ Non-alphabet remove
-        userid.value = userid.value.replace(/[^a-zA-Z]/g, "");
-
-        // 2️⃣ Always lowercase
-        userid.value = userid.value.toLowerCase();
-    }
-});
-</script>
-
-<style>
-/* Input display also lowercase */
-#id_userid {
-    text-transform: lowercase;
-}
-</style>
-
 
      <div class="input-container" style="position: relative;">
-    <i style="color: rgb(192, 191, 191);"" class="fas fa-lock"></i>
+    <i style="color: rgb(192, 191, 191);" class="fas fa-lock"></i>
     {{ form.password }}
 
     <!-- Toggle Button -->
@@ -90,6 +74,16 @@ document.addEventListener("input", function () {
     </i>
 </div>
 <script>
+  document.addEventListener("input", function () {
+    const userid = document.getElementById("id_userid");
+    if (userid) {
+        // 1️⃣ Non-alphabet remove
+        userid.value = userid.value.replace(/[^a-zA-Z]/g, "");
+
+        // 2️⃣ Always lowercase
+        userid.value = userid.value.toLowerCase();
+    }
+});
 function togglePassword() {
     const passwordField = document.getElementById("id_password");  
     const icon = document.querySelector(".toggle-password");
@@ -105,13 +99,7 @@ function togglePassword() {
     }
 }
 </script>
-
-      
-
       <button type="submit">Login</button>
-
-      
-
       <!-- <h4 style="text-align:center; margin-top:15px;">Support</h4> -->
       <h6 style=" display: flex; justify-content: space-between; font-size: 11px; align-items: center;">
         <!-- <span><i class="fas fa-phone"></i> +91-999-011-0123</span>

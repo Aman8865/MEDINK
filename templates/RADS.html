@@ -49,64 +49,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* 📑 SIDEBAR */
-.sidebar2 {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    height: 100%;
-    width: 60px;
-    background-color: #d6eefe; /* Light Blue */
-color: #0d47a1;            /* Dark Blue Icons */
 
-    transition: width 0.3s ease;
-    overflow-x: hidden;
-    z-index: 999;
-}
-
-.sidebar2:hover {
-    width: 130px;
-}
-
-.sidebar2 a {
-    display: flex;
-    align-items: center;
-    color: white;
-    padding: 12px;
-    text-decoration: none;
-    font-size: 18px;
-    white-space: nowrap;
-    transition: background-color 0.3s ease;
-}
-
-.sidebar2 a:hover {
-    background-color: white;
-    border-radius: 30px;
-    color: black;
-}
-
-.sidebar2 a i {
-    min-width: 40px;
-    text-align: center;
-    color: black;
-}
-
-.sidebar2 a span {
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    color: gray;
-}
-
-.sidebar2:hover a span {
-    opacity: 1;
-    transform: translateX(0);
-}
-/* 🔄 Hide Sidebar when toggled */
-.sidebar-hidden {
-    width: 0 !important;
-    overflow: hidden;
-}
 
 
 
@@ -211,9 +154,7 @@ color: #0d47a1;            /* Dark Blue Icons */
 
 /* 📱 RESPONSIVE DESIGN */
 @media (max-width: 992px) {
-    .sidebar2 {
-        width: 55px;
-    }
+    
     .nav2 {
         margin-left: 55px;
         flex-direction: column;
@@ -255,9 +196,7 @@ color: #0d47a1;            /* Dark Blue Icons */
     .top-navbar span {
         display: none;
     }
-    .sidebar2 {
-        width: 0;
-    }
+   
     .nav2 {
         margin-left: 0;
         padding: 8px;
@@ -344,22 +283,16 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
         <i class="fas fa-plus"></i> Add New
     </button> -->
 
-    <button onclick="filterPatients('UNREAD')" style="color: red; font-weight: 600;">
-        UNREAD
-    </button>
-
-    <button onclick="filterPatients('FINAL')" style="color: green; font-weight: 600;">
-        FINAL
-    </button>
-
-    <button onclick="filterPatients('ALL')" style="color: green; font-weight: 600;">
-        ALL
-    </button>
+    <div id="statusFilter" style="padding: 6px; background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
+  <span id="filter-all" style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;"  onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+  <span id="filter-final" style="cursor:pointer; color:black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
+  <span id="filter-unread" style="cursor:pointer; color:black;" onclick="filterPatients('UNREAD')">UNREAD</span>
+</div>
 
     <button style="color: rgb(143, 143, 228);">
         All RADS <i class="fas fa-caret-down"></i>
     </button>
-     <button style="padding: 6px; font-size:12px; font-weight: 500; margin-left: 0px; margin-top: 0px;">
+     <button style="padding: 6px; font-size:12px; font-weight: 500;background-color: white; border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
        <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">Xray</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
@@ -458,35 +391,7 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 
 
 <script>
-const sidebar = document.querySelector('.sidebar2');
-const toggleBtn = document.getElementById('toggleBtn');
-const nav2 = document.getElementById('nav2');
-const nav3 = document.getElementById('nav3');
 
-toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('sidebar-hidden');
-
-
-    const icon = toggleBtn.querySelector('i');
-
-    if (sidebar.classList.contains('sidebar-hidden')) {
-        // Sidebar hidden → shift right
-        icon.classList.remove('fa-chevron-left');
-        icon.classList.add('fa-chevron-right');
-
-        // Smooth shift
-        nav2.style.marginLeft = "0px";
-        nav3.style.marginLeft = "0px";
-
-    } else {
-        // Sidebar visible → shift back
-        icon.classList.remove('fa-chevron-right');
-        icon.classList.add('fa-chevron-left');
-
-        nav2.style.marginLeft = "60px";
-        nav3.style.marginLeft = "60px";
-    }
-});
 
 // filteration
 let currentStatusFilter = 'ALL';
