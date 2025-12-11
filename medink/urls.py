@@ -59,9 +59,7 @@ urlpatterns = [
     path("api/delete-multiple/", delete_multiple, name="delete_multiple"),
     path("api/patient/<int:id>/edit/", edit_patient),
     path('impersonate/<int:user_id>/', impersonate_with_password, name='impersonate'),
-    
-
-    
+    path("api/patient/<int:pk>/save-cropped-image/", save_cropped_image),
     
 ]
     

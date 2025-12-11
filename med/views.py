@@ -1055,3 +1055,31 @@ def impersonate_with_password(request, user_id):
 
     # Default
     return redirect('index')
+
+
+import base64
+from django.http import JsonResponse
+from .models import Patient
+import json
+
+@csrf_exempt
+def save_cropped_image(request, pk):
+    if request.method == "POST":
+        try:
+            patient = Patient.objects.get(id=pk)
+            data = json.loads(request.body)
+            cropped_img = data.get("scan_image")
+
+            # Remove base64 header
+            cropped_img = cropped_img.split(",")[1]
+
+            # Save in DB
+            patient.scan_image = cropped_img
+            patient.save()
+
+            return JsonResponse({"status": "success"})
+
+        except Patient.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Patient not found"})
+
+
