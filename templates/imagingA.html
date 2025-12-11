@@ -10,6 +10,8 @@
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+
 
 
     <style>
@@ -432,15 +434,25 @@ tr.status-draft { background-color: #fef9e7 !important; }
 .calendar-icon {
     padding: 4px 6px;
     cursor: pointer;
-    background: #f0f6ff;
+    background: #ffffff;
     border-radius: 6px;
-    border: 1px solid #c9dfff;
+    /* border: 1px solid #c9dfff; */
 }
 
 .calendar-icon i {
     color: #007bff;
     font-size: 14px;
 }
+#dayChip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;       /* FIXED WIDTH */
+    height: 26px;
+    padding: 0 !important;
+    text-align: center;
+}
+
 
     </style>
 </head>
@@ -468,17 +480,17 @@ tr.status-draft { background-color: #fef9e7 !important; }
 
 <div class="date-chip-box" style="box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);">
 
-    <span class="chip active" style="color: #007bff;" onclick="setDateFilter('ALL')">All</span>
-    <span class="divider">|</span>
+    <!-- <span class="chip active" style="color: #007bff;" onclick="setDateFilter('ALL')">All</span> -->
+    <!-- <span class="divider">|</span> -->
 
-    <span class="chip" onclick="goPrevDay()">&lt;&lt;</span>
+    <span style="color:#007bff ; font-weight: bold;" class="chip" onclick="goPrevDay()">&lt;&lt;</span>
 
-    <span id="dayChip" class="chip" onclick="setDateFilter('TODAY')">TODAY</span>
+    <span id="dayChip" class="chip active" onclick="setDateFilter('TODAY')">TODAY</span>
 
 
-    <span class="chip" onclick="goNextDay()">&gt;&gt;</span>
+    <span style="color:#007bff; font-weight: bold;" class="chip" onclick="goNextDay()">&gt;&gt;</span>
 
-    <span class="divider">|</span>
+    <!-- <span class="divider">|</span> -->
     <span class="chip" onclick="setDateFilter('MONTH')">MONTH</span>
 
     <span class="calendar-icon" onclick="openDateRange()">
@@ -512,16 +524,17 @@ tr.status-draft { background-color: #fef9e7 !important; }
         <i class="fa-solid fa-rotate-right"></i>
     </a>
 
-<input type="date" id="startDate" style="display:none;">
-<input type="date" id="endDate" style="display:none;">
-    <i class="fa-regular fa-calendar"></i>
-    </span>
-</div>
+<div id="calendarContainer" style="display:none; margin-left: -700px; margin-top:15px; position:relative;">
+    <div id="calendarBox" style="position:absolute; z-index:9999; background:white; padding:10px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+        
+        <input type="text" id="calendarInput" readonly 
+               style="width:240px; padding:8px; border:1px solid #ccc; border-radius:6px; display: none;">
 
-<!-- Hidden date range fields -->
-<input type="date" id="startDate" style="display:none;" onchange="setDateFilter('RANGE')">
-<input type="date" id="endDate" style="display:none;" onchange="setDateFilter('RANGE')">
+        <div id="litepickerInline" style="margin-top:8px;"></div>
+    </div>
 </div>
+</div>   <!-- Close nav2 properly -->
+
 <div id="nav3" class="nav3">
     <table >
         <thead>
@@ -784,7 +797,7 @@ function toggleSelectAll(checkbox) {
 }
 
 // datae range
-let selectedDateFilter = "ALL";
+let selectedDateFilter = "TODAY";
 let tempSelectedDay = dateOnly(new Date());
 
 function dateOnly(d) {
@@ -836,21 +849,17 @@ function goNextDay() {
 
     applyFilters();
 }
+window.onload = function() {
+    document.getElementById("dayChip").classList.add("active");
+    selectedDateFilter = "TODAY";
+    tempSelectedDay = dateOnly(new Date());
+    applyFilters();
+};
+
  
 
 
-function openDateRange() {
-    document.getElementById("startDate").click();
-}
 
-document.getElementById("startDate").addEventListener("change", () => {
-    document.getElementById("endDate").click();
-});
-
-document.getElementById("endDate").addEventListener("change", () => {
-    selectedDateFilter = "RANGE";
-    applyFilters();
-});
 
 
 // 🟢 SEARCH + FILTER COMBINED
@@ -901,11 +910,13 @@ function applyFilters() {
             if (selectedDateFilter === "MONTH")
                 dateMatch = (entryDate >= monthStart && entryDate <= monthEnd);
 
-            if (selectedDateFilter === "RANGE") {
-                const s = new Date(startDate.value);
-                const e = new Date(endDate.value);
+           if (selectedDateFilter === "RANGE" && startDate && endDate) {
+                const s = dateOnly(startDate);
+                const e = dateOnly(endDate);
                 dateMatch = (entryDate >= s && entryDate <= e);
             }
+
+
         }
 
         /* FINAL SHOW/HIDE */
@@ -926,7 +937,81 @@ function filterPatients(status) {
     document.getElementById(`filter-${status.toLowerCase()}`).classList.add("active");
 }
 
-</script>
 
+
+function openDateRange() {
+    const box = document.getElementById("calendarContainer");
+    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+}
+function closeCalendar() {
+    document.getElementById("calendarContainer").style.display = "none";
+}
+
+let selectedStart = null;
+let selectedEnd = null;
+
+const picker = new Litepicker({
+    element: document.getElementById('calendarInput'),
+    inlineMode: true,
+    container: document.getElementById('litepickerInline'),
+    singleMode: false,
+    numberOfMonths: 1,
+    numberOfColumns: 1,
+    format: 'YYYY-MM-DD',
+    autoApply: true, // autoApply off because we'll manually apply when both dates selected
+    setup: (pickerInstance) => {
+        pickerInstance.on('selected', (start, end) => {
+            // start or end are Luxon-like objects from Litepicker; get native Date:
+            selectedStart = start ? start.dateInstance : null;
+            selectedEnd = end ? end.dateInstance : null;
+
+            if (selectedStart && selectedEnd) {
+                // update visible input (optional)
+                document.getElementById('calendarInput').value =
+                    pickerInstance.getStartDate('YYYY-MM-DD') + " → " +
+                    pickerInstance.getEndDate('YYYY-MM-DD');
+
+                // set global range vars used by applyFilters()
+                startDate = selectedStart;
+                endDate = selectedEnd;
+                selectedDateFilter = "RANGE";
+
+                // close the calendar UI
+                closeCalendar();
+
+                // apply filters immediately
+                applyFilters();
+            }
+        });
+
+        // optional: if user clears selection, reset variables
+        pickerInstance.on('clear', () => {
+            selectedStart = null;
+            selectedEnd = null;
+            startDate = null;
+            endDate = null;
+            selectedDateFilter = "ALL";
+            document.getElementById('calendarInput').value = '';
+            applyFilters();
+        });
+    }
+});
+
+
+function applyDateRange() {
+    if (!selectedStart || !selectedEnd) {
+        alert("Please select a valid range.");
+        return;
+    }
+
+    startDate = selectedStart;
+    endDate = selectedEnd;
+    selectedDateFilter = "RANGE";
+
+    closeCalendar();
+    applyFilters();
+}
+
+</script>
 </body>
 </html>

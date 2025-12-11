@@ -53,6 +53,14 @@ body {
     align-items: center;
     position: relative;
 }
+/* FIX: X-ray image background always BLACK */
+.cropper-container, 
+.cropper-wrap-box, 
+.cropper-canvas, 
+.cropper-view-box {
+    background-color: black !important;
+}
+
 
 #xrayImage {
     max-height: 100%;

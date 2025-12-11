@@ -10,10 +10,10 @@
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 
     <style>
-       /* 🌐 GLOBAL STYLE */
+ /* 🌐 GLOBAL STYLE */
 body {
     margin: 0;
     padding: 0;
@@ -48,10 +48,6 @@ body {
     margin-left: 15px;
     font-size: 1.1rem;
 }
-
-
-
-
 
 /* Toggle Button */
 .toggle-btn {
@@ -255,14 +251,67 @@ tr.status-final  { background-color: #f2fbf2 !important; }  /* light mint */
 tr.status-unread { background-color: #fff4f4 !important; }  /* light pink */
 tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 
+.status-option.active {
+    font-weight: 700 !important;
+    color:  #007bff !important;
+}
+
+/* Date range */
+.date-chip-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid rgb(217, 217, 217);
+    /* padding: 8px 10px; */
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.chip {
+    cursor: pointer;
+    padding: 0 6px;
+    color: #1f1f20;
+    font-weight: 500;
+}
+
+.chip.active {
+    color: #007bff;
+    font-weight: 500;
+    font-weight: 600;
+}
+
+.divider {
+    color: #b0b0b0;
+}
+
+.calendar-icon {
+    padding: 4px 6px;
+    cursor: pointer;
+    background: #ffffff;
+    border-radius: 6px;
+    /* border: 1px solid #c9dfff; */
+}
+
+.calendar-icon i {
+    color: #007bff;
+    font-size: 14px;
+}
+#dayChip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;       /* FIXED WIDTH */
+    height: 26px;
+    padding: 0 !important;
+    text-align: center;
+}
 
 
     </style>
 </head>
 <body>
-    
-   
-
 <div class="top-navbar">
     <img height="40" style="border-radius: 30px;" src="data:image/png;base64,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" alt="Profile">
     
@@ -282,41 +331,63 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
     <!-- <button style="background-color: blue; color: white; font-weight: 600;" onclick="window.location.href='/popupform/'">
         <i class="fas fa-plus"></i> Add New
     </button> -->
+   
+    <div class="date-chip-box" style="box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);">
 
-    <div id="statusFilter" style="padding: 6px; background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
-  <span id="filter-all" style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;"  onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
-  <span id="filter-final" style="cursor:pointer; color:black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
-  <span id="filter-unread" style="cursor:pointer; color:black;" onclick="filterPatients('UNREAD')">UNREAD</span>
+    <!-- <span class="chip active" style="color: #007bff;" onclick="setDateFilter('ALL')">All</span> -->
+    <!-- <span class="divider">|</span> -->
+
+    <span style="color:#007bff ; font-weight: bold;" class="chip" onclick="goPrevDay()">&lt;&lt;</span>
+
+    <span id="dayChip" class="chip active" onclick="setDateFilter('TODAY')">TODAY</span>
+
+
+    <span style="color:#007bff; font-weight: bold;" class="chip" onclick="goNextDay()">&gt;&gt;</span>
+
+    <!-- <span class="divider">|</span> -->
+    <span class="chip" onclick="setDateFilter('MONTH')">MONTH</span>
+
+    <span class="calendar-icon" onclick="openDateRange()">
+        <i class="fa-regular fa-calendar"></i>
+    </span>
 </div>
 
-    <button style="color: rgb(143, 143, 228);">
-        All RADS <i class="fas fa-caret-down"></i>
-    </button>
-     <button style="padding: 6px; font-size:12px; font-weight: 500;background-color: white; border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
-       <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">Xray</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
-    </button>
-<button onclick="exportSelectedToExcel()" style="background-color: #4CAF50; font-weight: 600; color: white;">
-    Export Excel
-</button>
+<div id="statusFilter" style="padding: 6px; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); gap background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
+    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;color: #007bff; font-weight: 600;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+    <span id="filter-final" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
+    <span id="filter-unread" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
 
+</div>
+     <button style="padding: 6px; background-color: white; font-size:12px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); font-weight: 500;border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
+       <span style="color: #007bff; font-weight: 600; cursor:pointer; font-weight: 600;" onclick="filterByScanType('ALL')">All</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('CT')">CT</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MRI')">MRI</span> | 
+       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MG')">MG</span>
+    </button>
 
-    <a href="" style="background-color: aliceblue; padding: 3px; border-radius: 8px;">
+ <div style=" display: inline-block; margin-left: 4px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); position: relative;">
+  <input type="search" id="searchInput" placeholder="search scan..."
+    style="margin-left: 0px;border: 1px solid #ccc; color: rgb(232, 230, 230); padding: 3px 35px 5px 10px; border-radius: 5px; font-weight: 400;  width: 150px; font-size: 14px;">
+
+</div>
+    <a href="" style="background-color: rgb(251, 250, 250);box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); border: 1px solid #ccc; color: #007bff;">
+        <i class="fa-solid fa-search"></i>
+    </a>
+    <a href="" style="background-color: rgb(251, 250, 250);box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); border: 1px solid #ccc; color: #007bff;">
         <i class="fa-solid fa-rotate-right"></i>
     </a>
 
-    <div class="date-filter">
-        <button id="dateFilterBtn">
-            <i class="fas fa-calendar"></i> Date Filter
-        </button>
+<div id="calendarContainer" style="display:none; margin-left: -700px; margin-top:15px; position:relative;">
+    <div id="calendarBox" style="position:absolute; z-index:9999; background:white; padding:10px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+        
+        <input type="text" id="calendarInput" readonly 
+               style="width:240px; padding:8px; border:1px solid #ccc; border-radius:6px; display: none;">
+
+        <div id="litepickerInline" style="margin-top:8px;"></div>
     </div>
 </div>
-
-
-
+</div>   <!-- Close nav2 properly -->
 <div id="nav3" class="nav3">
     <table >
         <thead>
@@ -392,7 +463,6 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 
 <script>
 
-
 // filteration
 let currentStatusFilter = 'ALL';
 let currentScanFilter = 'ALL';
@@ -424,24 +494,6 @@ function filterByScanType(scanType) {
     }
 }
 
-function applyFilters() {
-    const rows = document.querySelectorAll('#patientTable tr');
-
-    rows.forEach(row => {
-        const statusSpan = row.querySelector('.status');
-        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
-        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
-
-        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
-        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
-
-        if (statusMatch && scanMatch) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
 
 // Add these functions to your existing script section
 
@@ -596,6 +648,223 @@ function toggleSelectAll(checkbox) {
     const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
     rowCheckboxes.forEach(cb => cb.checked = checkbox.checked);
 }
+
+// datae range
+let selectedDateFilter = "TODAY";
+let tempSelectedDay = dateOnly(new Date());
+
+function dateOnly(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function setDateFilter(type) {
+    selectedDateFilter = type;
+
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    const chip = [...document.querySelectorAll(".chip")]
+        .find(x => x.textContent.toUpperCase().includes(type));
+    if (chip) chip.classList.add("active");
+
+    if (type === "TODAY") {
+        tempSelectedDay = dateOnly(new Date());
+    }
+
+    applyFilters();
+}
+
+function goPrevDay() {
+    tempSelectedDay = dateOnly(new Date());
+    tempSelectedDay.setDate(tempSelectedDay.getDate() - 1);
+
+    selectedDateFilter = "DAY-JUMP";
+
+    // UI Update
+    document.getElementById("dayChip").textContent = "YESTERDAY";
+
+    // Remove active from all chips
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+
+    applyFilters();
+}
+
+
+
+function goNextDay() {
+    tempSelectedDay = dateOnly(new Date());
+    selectedDateFilter = "TODAY";
+
+    // UI Update
+    document.getElementById("dayChip").textContent = "TODAY";
+
+    // Remove active and set TODAY active
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    document.getElementById("dayChip").classList.add("active");
+
+    applyFilters();
+}
+window.onload = function() {
+    document.getElementById("dayChip").classList.add("active");
+    selectedDateFilter = "TODAY";
+    tempSelectedDay = dateOnly(new Date());
+    applyFilters();
+};
+
+ 
+
+
+
+
+
+// 🟢 SEARCH + FILTER COMBINED
+// SEARCH + FILTER (FINAL WORKING VERSION)
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("keyup", applyFilters);
+function applyFilters() {
+    const rows = document.querySelectorAll("#patientTable tr");
+    const searchText = searchInput.value.trim().toUpperCase();
+
+    rows.forEach(row => {
+
+        /* STATUS FILTER */
+        const status = row.querySelector(".status")?.textContent.trim().toUpperCase();
+        const statusMatch = currentStatusFilter === "ALL" || status === currentStatusFilter;
+
+        /* SCAN FILTER */
+        const scanType = row.querySelector("td:nth-child(4)")?.textContent.trim().toUpperCase();
+        const scanMatch = currentScanFilter === "ALL" || scanType === currentScanFilter;
+
+        /* SEARCH FILTER */
+        const name = row.querySelector("td:nth-child(2) strong")?.textContent.trim().toUpperCase();
+        const pid = row.querySelector("td:nth-child(2) small")?.textContent.trim().toUpperCase();
+        const searchMatch = searchText === "" || name.includes(searchText) || pid.includes(searchText);
+
+        /* DATE FILTER */
+        let dateMatch = true;
+        const dateText = row.querySelector("td small")?.textContent.split(" | ")[0];
+
+        if (dateText) {
+            const [d,m,y] = dateText.split("/");
+            const entryDate = dateOnly(new Date(`${y}-${m}-${d}`));
+
+            const today = dateOnly(new Date());
+            const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);  
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            if (selectedDateFilter === "TODAY")
+                dateMatch = (entryDate.getTime() === today.getTime());
+
+            // if (selectedDateFilter === "YESTERDAY")
+            //     dateMatch = (entryDate.getTime() === yesterday.getTime());
+
+            if (selectedDateFilter === "DAY-JUMP")
+                dateMatch = (entryDate.getTime() === tempSelectedDay.getTime());
+
+            if (selectedDateFilter === "MONTH")
+                dateMatch = (entryDate >= monthStart && entryDate <= monthEnd);
+
+           if (selectedDateFilter === "RANGE" && startDate && endDate) {
+                const s = dateOnly(startDate);
+                const e = dateOnly(endDate);
+                dateMatch = (entryDate >= s && entryDate <= e);
+            }
+
+
+        }
+
+        /* FINAL SHOW/HIDE */
+        row.style.display = (statusMatch && scanMatch && searchMatch && dateMatch) ? "" : "none";
+    });
+}
+
+function filterPatients(status) {
+    currentStatusFilter = status.toUpperCase();
+    applyFilters();
+
+    // Remove active from all
+    document.querySelectorAll(".status-option").forEach(x => {
+        x.classList.remove("active");
+    });
+
+    // Add active to clicked
+    document.getElementById(`filter-${status.toLowerCase()}`).classList.add("active");
+}
+
+
+
+function openDateRange() {
+    const box = document.getElementById("calendarContainer");
+    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+}
+function closeCalendar() {
+    document.getElementById("calendarContainer").style.display = "none";
+}
+
+let selectedStart = null;
+let selectedEnd = null;
+
+const picker = new Litepicker({
+    element: document.getElementById('calendarInput'),
+    inlineMode: true,
+    container: document.getElementById('litepickerInline'),
+    singleMode: false,
+    numberOfMonths: 1,
+    numberOfColumns: 1,
+    format: 'YYYY-MM-DD',
+    autoApply: true, // autoApply off because we'll manually apply when both dates selected
+    setup: (pickerInstance) => {
+        pickerInstance.on('selected', (start, end) => {
+            // start or end are Luxon-like objects from Litepicker; get native Date:
+            selectedStart = start ? start.dateInstance : null;
+            selectedEnd = end ? end.dateInstance : null;
+
+            if (selectedStart && selectedEnd) {
+                // update visible input (optional)
+                document.getElementById('calendarInput').value =
+                    pickerInstance.getStartDate('YYYY-MM-DD') + " → " +
+                    pickerInstance.getEndDate('YYYY-MM-DD');
+
+                // set global range vars used by applyFilters()
+                startDate = selectedStart;
+                endDate = selectedEnd;
+                selectedDateFilter = "RANGE";
+
+                // close the calendar UI
+                closeCalendar();
+
+                // apply filters immediately
+                applyFilters();
+            }
+        });
+
+        // optional: if user clears selection, reset variables
+        pickerInstance.on('clear', () => {
+            selectedStart = null;
+            selectedEnd = null;
+            startDate = null;
+            endDate = null;
+            selectedDateFilter = "ALL";
+            document.getElementById('calendarInput').value = '';
+            applyFilters();
+        });
+    }
+});
+
+
+function applyDateRange() {
+    if (!selectedStart || !selectedEnd) {
+        alert("Please select a valid range.");
+        return;
+    }
+
+    startDate = selectedStart;
+    endDate = selectedEnd;
+    selectedDateFilter = "RANGE";
+
+    closeCalendar();
+    applyFilters();
+}
+
 </script>
 
 </body>

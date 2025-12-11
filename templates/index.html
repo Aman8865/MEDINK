@@ -239,11 +239,7 @@ body {
     color: white;
 }
 
-.nav2 .date-filter {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+
 
 
 
@@ -473,6 +469,137 @@ body.dark-mode .nav3 table tr:hover {
   background: #2d3b50 !important;
 }
 
+/* date filter */
+
+/* Date range */
+.date-chip-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid rgb(217, 217, 217);
+    /* padding: 8px 10px; */
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.chip {
+    cursor: pointer;
+    padding: 0 6px;
+    color: #1f1f20;
+    font-weight: 500;
+}
+
+.chip.active {
+    color: #007bff;
+    font-weight: 500;
+    font-weight: 600;
+}
+
+.divider {
+    color: #b0b0b0;
+}
+
+.calendar-icon {
+    padding: 4px 6px;
+    cursor: pointer;
+    background: #ffffff;
+    border-radius: 6px;
+    /* border: 1px solid #c9dfff; */
+}
+
+.calendar-icon i {
+    color: #007bff;
+    font-size: 14px;
+}
+#dayChip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;       /* FIXED WIDTH */
+    height: 26px;
+    padding: 0 !important;
+    text-align: center;
+}
+.add-btn {
+    background: #007bff;  
+    width: 100px;         /* blue */
+    color: white;
+    font-weight: 600;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;            /* smooth rounded */
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;                      /* icon gap */
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    transition: 0.25s ease-in-out; /* smooth animation */
+}
+
+.add-btn:hover {
+    background: #0056d2;           /* darker blue on hover */
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.45);
+    transform: translateY(-2px);   /* small lift effect */
+}
+
+.add-btn:active {
+    transform: scale(0.96);        /* click animation */
+}
+.status-option.active {
+    font-weight: 700 !important;
+    color:  #007bff !important;
+}
+.filter-box {
+    display: flex;
+    /* gap: 10px; */
+    padding: 1px 8px;
+    border: 1px solid rgb(204, 204, 204);
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25);
+    align-items: center;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 7px;
+    border-right: 1px solid #ccc;
+    position: relative;
+    cursor: pointer;
+}
+
+.filter-item:last-child {
+    border-right: none;
+}
+
+.filter-label {
+    font-size: 12px;
+    /* font-weight: 700; */
+    color: black;
+}
+
+.filter-item i {
+    font-size: 10px;
+    color: black;
+}
+
+/* Hide the original select */
+.hidden-select {
+    position: absolute;
+    opacity: 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+
     </style>
 </head>
 <body>  
@@ -614,48 +741,89 @@ function toggleTheme() {
 {% block body %}
 
 <div id="nav2"  class="nav2">
-    <button style="background-color: blue; color: white; font-weight: 600;" onclick="window.location.href='/popupform/'">
-        <i class="fas fa-plus"></i> Add New
-    </button>
+   <button style="font-weight: 600;" class="add-btn" onclick="window.location.href='/popupform/'">
+    <i class="fas fa-user-plus"></i> Add New
+</button>
 
-<div id="statusFilter" style="padding: 6px; background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
-  <span id="filter-all" style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;"  onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
-  <span id="filter-final" style="cursor:pointer; color:black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
-  <span id="filter-unread" style="cursor:pointer; color:black;" onclick="filterPatients('UNREAD')">UNREAD</span>
+<div id="statusFilter" style="padding: 6px; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); gap background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
+    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;color: #007bff; font-weight: 600;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+    <span id="filter-final" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
+    <span id="filter-unread" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
+
 </div>
 
-   <select style="padding: 5px; border-radius: 4px;" id="centerSelect" name="center">
-    <option value="ALL">All Imaging</option>
-    {% for c in centers %}
-        <option value="{{ c.name }}">{{ c.name }}</option>
-    {% endfor %}
-</select>
-<label for="radsSelect"></label>
-<select id="radsSelect" name="rads" style="padding: 5px; border-radius: 4px;">
-    <option value="ALL">All Rads</option>
-    {% for r in rads %}
-        <option value="{{ r.name }}">{{ r.name }}</option>
-    {% endfor %}
-</select>
+   <div class="filter-box">
+    <!-- ALL IMAGING Dropdown -->
+    <div class="filter-item">
+        <span class="filter-label" id="centerLabel">IMAGING</span>
+        <i class="fa-solid fa-chevron-down"></i>
 
-<!-- <p style="color:red;">{{ centers.count }} imaging centers found</p> -->
+        <select id="centerSelect" onchange="updateCenterLabel()" class="hidden-select">
+            <option value="ALL">IMAGING</option>
+            {% for c in centers %}
+                <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
+    <!-- ALL RADS Dropdown -->
+    <div class="filter-item">
+        <span class="filter-label" id="radsLabel">RADS</span>
+        <i class="fa-solid fa-chevron-down"></i>
 
-     <button style="padding: 6px; background-color: white; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px;">
-       <span style="color: rgb(142, 142, 224); font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
+        <select id="radsSelect" onchange="updateRadsLabel()" class="hidden-select">
+            <option value="ALL">RADS</option>
+            {% for r in rads %}
+                <option value="{{ r.name }}">{{ r.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+   
+    <!-- all assign -->
+<div class="filter-item">
+    <span class="filter-label" id="assignLabel"><i class="fa-solid fa-filter" style="font-size:14px; color:#007bff;"></i>
+</span>
+    <!-- <i class="fa-solid fa-chevron-down"></i> -->
+
+    <select id="assignSelect" onchange="updateAssignLabel()" class="hidden-select">
+        <option value="ALL"><i class="fa-solid fa-filter" style="font-size:14px; color:#242527;"></i></option>
+        <option value="ASSIGNED">ASSIGNED</option>
+        <option value="UNASSIGNED">UNASSIGNED</option>
+    </select>
+</div>
+
+</div>
+
+<script>
+function updateCenterLabel() {
+    let select = document.getElementById("centerSelect");
+    let label = document.getElementById("centerLabel");
+    label.textContent = select.options[select.selectedIndex].text;
+}
+
+function updateRadsLabel() {
+    let select = document.getElementById("radsSelect");
+    let label = document.getElementById("radsLabel");
+    label.textContent = select.options[select.selectedIndex].text;
+}
+</script>
+
+     <button style="padding: 6px; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.45); background-color: white; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px;">
+       <span style="color: #007bff; font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
        <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
     </button>
-<button onclick="exportSelectedToExcel()" style="background-color: #4CAF50; font-weight: 600; color: white;">
+<!-- <button onclick="exportSelectedToExcel()" style="background-color: #4CAF50; font-weight: 600; color: white;">
     E-xcel
-</button>
+</button> -->
 
     <!-- <a href="" style="background-color: aliceblue; padding: 3px; border-radius: 8px;">
         <i class="fa-solid fa-rotate-right"></i>
     </a> -->
-
+<!-- 
    <div class="date-filter">
   <button id="dateFilterBtn"><i class="fas fa-calendar"></i></button>
 
@@ -668,15 +836,45 @@ function toggleTheme() {
     <span id="dateCycleLabel">DATE</span>
     <i class="fas fa-arrow-right" onclick="changeDateFilter('right', event)"></i>
   </button>
+</div> -->
+<div class="date-chip-box" style="box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);">
+
+    <span class="chip active" style="color: #007bff;" onclick="setDateFilter('ALL')">All</span>
+    <span class="divider">|</span>
+
+    <span style="color:#007bff ; font-weight: bold;" class="chip" onclick="goPrevDay()">&lt;&lt;</span>
+
+    <span id="dayChip" class="chip" onclick="setDateFilter('TODAY')">TODAY</span>
+
+
+    <span style="color:#007bff; font-weight: bold;" class="chip" onclick="goNextDay()">&gt;&gt;</span>
+
+    <!-- <span class="divider">|</span> -->
+    <span class="chip" onclick="setDateFilter('MONTH')">MONTH</span>
+
+    <span class="calendar-icon" onclick="openDateRange()">
+        <i class="fa-regular fa-calendar"></i>
+        
+    </span>
+    
+    
+</div>
+<div id="calendarContainer" style="display:none; margin-left: -500px; margin-top:5px; position:relative;">
+    <div id="calendarBox" style="position:absolute; z-index:9999; background:white; padding:10px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+        
+        
+        <input type="text" id="calendarInput" readonly 
+               style="width:240px; padding:8px; border:1px solid #ccc; border-radius:6px; display: none;">
+
+        <div id="litepickerInline" style="margin-top:8px;"></div>
+    </div>
 </div>
 
-
-
-  <div style=" display: inline-block; margin-left: 4px;">
+  <div style=" display: inline-block; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.45); margin-left: 4px;">
     <input type="search" id="searchInput" placeholder="Search det..."
       style="margin-left: 0px; padding: 3px 35px 5px 10px; border-radius: 3px; border: 1px solid #ccc; width: 150px; font-size: 16px;">
   </div>
-</div>
+<!-- </div> -->
 
 
     <span id="refreshTimer" style="margin-left: 0px; font-weight: 500; color: white;">
@@ -684,16 +882,16 @@ function toggleTheme() {
 
 
 </span>
-<a href="" style="background-color: rgb(219, 234, 248); padding: 6px; margin-left: 90px; border-radius: 8px;">
+<!-- <a href="" style="background-color: rgb(219, 234, 248); padding: 6px; margin-left: 90px; border-radius: 8px;">
         <i class="fa-solid fa-rotate-right"></i>
-    </a>
+    </a> -->
 
 </div>
 
   <!-- 🔵 TOP TAB BAR WITH ICONS -->
 <div id="patientTabs" style="
     position: fixed;
-    top: 100px;
+    top: 106px;
     left: 60px;
     right: 0;
     height: 20px;
@@ -1034,22 +1232,68 @@ function filterByScanType(scanType) {
 
 function applyFilters() {
     const rows = document.querySelectorAll('#patientTable tr');
+    const searchText = document.getElementById('searchInput').value.trim().toUpperCase();
+
+    const today = dateOnly(new Date());
+    const yesterday = dateOnly(new Date(new Date().setDate(today.getDate() - 1)));
 
     rows.forEach(row => {
-        const statusSpan = row.querySelector('.status');
-        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
-        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
+        let show = true;
 
-        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
-        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
+        /* ---------------- STATUS FILTER ---------------- */
+        const rowStatus = row.querySelector('.status')?.textContent.trim().toUpperCase() || "";
+        if (currentStatusFilter !== "ALL" && rowStatus !== currentStatusFilter)
+            show = false;
 
-        if (statusMatch && scanMatch) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+        /* ---------------- SCAN FILTER ------------------ */
+        const rowScan = row.querySelector("td:nth-child(4)")?.textContent.trim().toUpperCase() || "";
+        if (currentScanFilter !== "ALL" && rowScan !== currentScanFilter)
+            show = false;
+
+        /* ---------------- SEARCH FILTER ---------------- */
+        const name = row.querySelector("td:nth-child(2) strong")?.textContent.trim().toUpperCase() || "";
+        const pid = row.querySelector("td:nth-child(2) small")?.textContent.trim().toUpperCase() || "";
+        if (searchText && !name.includes(searchText) && !pid.includes(searchText))
+            show = false;
+        
+        /* ---------------- ASSIGN FILTER ------------------ */
+        const assignFilter = document.getElementById("assignSelect").value;
+
+        const rowRads = (row.dataset.rads || "").toUpperCase();  
+        const isAssigned = rowRads !== "" && rowRads !== "NONE";
+
+        if (assignFilter === "ASSIGNED" && !isAssigned)
+            show = false;
+
+        if (assignFilter === "UNASSIGNED" && isAssigned)
+            show = false;
+    
+
+
+        /* ---------------- DATE FILTER ------------------ */
+        const dateText = row.querySelector("td small")?.textContent.split(" | ")[0]; // d/m/Y
+        if (dateText) {
+            const [d, m, y] = dateText.split("/");
+            const rowDate = dateOnly(new Date(`${y}-${m}-${d}`));
+
+            if (selectedDateFilter === "TODAY" && rowDate.getTime() !== today.getTime())
+                show = false;
+
+            if (selectedDateFilter === "DAY-JUMP" && rowDate.getTime() !== tempSelectedDay.getTime())
+                show = false;
+
+            if (selectedDateFilter === "MONTH") {
+                let monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                let monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                if (rowDate < monthStart || rowDate > monthEnd)
+                    show = false;
+            }
         }
+
+        row.style.display = show ? "" : "none";
     });
 }
+
 
 // Add these functions to your existing script section
 
@@ -1210,39 +1454,8 @@ function toggleSelectAll(checkbox) {
 const searchInput = document.getElementById('searchInput');
 searchInput.addEventListener('keyup', applyFilters);
 
-function applyFilters() {
-    const rows = document.querySelectorAll('#patientTable tr');
-    const searchText = document.getElementById('searchInput').value.trim().toUpperCase();
 
-    rows.forEach(row => {
-        const statusSpan = row.querySelector('.status');
-        const rowStatus = statusSpan ? statusSpan.textContent.trim().toUpperCase() : '';
-        const rowScanType = row.querySelector('td:nth-child(4)').textContent.trim().toUpperCase();
 
-        const nameCell = row.querySelector('td:nth-child(2) strong');
-        const idCell = row.querySelector('td:nth-child(2) small');
-        const nameText = nameCell ? nameCell.textContent.trim().toUpperCase() : '';
-        const idText = idCell ? idCell.textContent.trim().toUpperCase() : '';
-
-        // Existing filters (status + scan)
-        const statusMatch = (currentStatusFilter === 'ALL' || rowStatus === currentStatusFilter);
-        const scanMatch = (currentScanFilter === 'ALL' || rowScanType === currentScanFilter);
-
-        // New search match (name + patient ID)
-        const searchMatch = (
-            searchText === '' || 
-            nameText.includes(searchText) || 
-            idText.includes(searchText)
-        );
-
-        // Final combined check
-        if (statusMatch && scanMatch && searchMatch) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
 
 const centerSelect = document.getElementById("centerSelect");
 centerSelect.addEventListener("change", function() {
@@ -1383,142 +1596,29 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // tbody refresh function
     function refreshTbody() {
-        fetch(window.location.href)
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-                const newTbody = doc.querySelector("tbody");
-                const oldTbody = document.querySelector("tbody");
+    fetch(window.location.href)
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newTbody = doc.querySelector("tbody");
+            const oldTbody = document.querySelector("tbody");
 
-                if (newTbody && oldTbody) {
-                    oldTbody.innerHTML = newTbody.innerHTML;
-                }
-            })
-            .catch(err => console.error("Error refreshing tbody:", err));
-    }
+            if (newTbody && oldTbody) {
+                oldTbody.innerHTML = newTbody.innerHTML;
+
+                // ⭐ Refresh के बाद filter फिर से apply करो
+                applyFilters();
+            }
+        })
+        .catch(err => console.error("Error refreshing tbody:", err));
+}
+
 
     // timer update every 1 second
     setInterval(updateTimer, 1000);
 });
 
-
-// date range filter
- function ymdToNumber(ymd) {
-    if (!ymd) return null;
-    var parts = ymd.split('-');
-    return Number(parts[0] + parts[1].padStart(2,'0') + parts[2].padStart(2,'0'));
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    const dateRangeInput = document.getElementById('dateRangeInput');
-    const dateFilterBtn = document.getElementById('dateFilterBtn');
-    const clearDateBtn = document.getElementById('clearDateBtn');
-
-    const picker = new Litepicker({
-      element: dateRangeInput,
-      singleMode: false,
-      numberOfMonths: 2,
-      numberOfColumns: 2,
-      format: 'YYYY-MM-DD',
-      setup: (picker) => {
-        picker.on('selected', (start, end) => {
-          dateRangeInput.value = start.format('YYYY-MM-DD') + ' — ' + end.format('YYYY-MM-DD');
-          applyDateFilter(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-        });
-      }
-    });
-
-    dateFilterBtn.addEventListener('click', e => {
-      e.preventDefault();
-      picker.show();
-    });
-
-    dateRangeInput.addEventListener('click', () => picker.show());
-
-    clearDateBtn.addEventListener('click', () => {
-      dateRangeInput.value = '';
-      applyDateFilter(null, null);
-    });
-  });
-
-  function applyDateFilter(startYmd, endYmd) {
-    const rows = document.querySelectorAll('#patientTable tr');
-    const startNum = startYmd ? ymdToNumber(startYmd) : null;
-    const endNum   = endYmd   ? ymdToNumber(endYmd)   : null;
-
-    rows.forEach(row => {
-      const rowYmd = row.getAttribute('data-entry-date');
-      const rowNum = rowYmd ? ymdToNumber(rowYmd) : null;
-
-      let show = true;
-      if (startNum && endNum && rowNum) {
-        show = (rowNum >= startNum && rowNum <= endNum);
-      }
-      row.style.display = show ? '' : 'none';
-    });
-  }
-
-  function filterByDate(type) {
-    const rows = document.querySelectorAll('#patientTable tr');
-    const today = new Date();
-    let targetDate = new Date(today);
-
-    // Determine target date
-    if (type === 'yesterday') {
-        targetDate.setDate(today.getDate() - 1);
-    }
-
-    // Format date in YYYY-MM-DD (same as data-entry-date attribute)
-    const targetDateStr = targetDate.toISOString().split('T')[0];
-
-    // Filter rows
-    rows.forEach(row => {
-        const entryDate = row.getAttribute('data-entry-date');
-        if (type === 'today' || type === 'yesterday') {
-            if (entryDate === targetDateStr) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        } else {
-            // show all if type is 'all'
-            row.style.display = '';
-        }
-    });
-
-    // Highlight active filter button (optional)
-    document.querySelectorAll('.nav2 button').forEach(btn => btn.classList.remove('active-filter'));
-    const activeBtn = [...document.querySelectorAll('.nav2 button')].find(b => b.textContent.trim().toLowerCase() === type);
-    if (activeBtn) activeBtn.classList.add('active-filter');
-}
-
-  // Available filter options
-  const dateOptions = ["Date", "Today", "Yesterday"];
-  let currentIndex = 0; // start with Clear
-
-  function changeDateFilter(direction, event) {
-    // Stop button click bubbling
-    event.stopPropagation();
-
-    if (direction === "right") {
-      currentIndex = (currentIndex + 1) % dateOptions.length;
-    } else if (direction === "left") {
-      currentIndex = (currentIndex - 1 + dateOptions.length) % dateOptions.length;
-    }
-
-    // Update label text
-    const label = document.getElementById("dateCycleLabel");
-    label.textContent = dateOptions[currentIndex];
-
-    // Apply corresponding filter
-    const selected = dateOptions[currentIndex].toLowerCase();
-    if (selected === "DATE") {
-      applyDateFilter(null, null); // clear all date filters
-    } else {
-      filterByDate(selected); // use your existing function
-    }
-  }
 
 
 function filterPatients(status) {
@@ -1825,6 +1925,147 @@ document.getElementById("selectAll").addEventListener("change", function(){
     all.forEach(cb => cb.checked = this.checked);
     updateBulkIcons();
 });
+
+// datae range
+let selectedDateFilter = "ALL";
+let tempSelectedDay = dateOnly(new Date());
+
+function dateOnly(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function setDateFilter(type) {
+    selectedDateFilter = type;
+
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    const chip = [...document.querySelectorAll(".chip")]
+        .find(x => x.textContent.toUpperCase().includes(type));
+    if (chip) chip.classList.add("active");
+
+    if (type === "TODAY") {
+        tempSelectedDay = dateOnly(new Date());
+    }
+
+    applyFilters();
+}
+
+function goPrevDay() {
+    tempSelectedDay = dateOnly(new Date());
+    tempSelectedDay.setDate(tempSelectedDay.getDate() - 1);
+
+    selectedDateFilter = "DAY-JUMP";
+
+    // UI Update
+    document.getElementById("dayChip").textContent = "YESTERDAY";
+
+    // Remove active from all chips
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+
+    applyFilters();
+}
+
+
+
+function goNextDay() {
+    tempSelectedDay = dateOnly(new Date());
+    selectedDateFilter = "TODAY";
+
+    // UI Update
+    document.getElementById("dayChip").textContent = "TODAY";
+
+    // Remove active and set TODAY active
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    document.getElementById("dayChip").classList.add("active");
+
+    applyFilters();
+}
+window.onload = function() {
+    document.getElementById("dayChip").classList.add("active");
+    selectedDateFilter = "TODAY";
+    tempSelectedDay = dateOnly(new Date());
+    applyFilters();
+};
+
+
+function openDateRange() {
+    const box = document.getElementById("calendarContainer");
+    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+}
+function closeCalendar() {
+    document.getElementById("calendarContainer").style.display = "none";
+}
+
+let selectedStart = null;
+let selectedEnd = null;
+
+const picker = new Litepicker({
+    element: document.getElementById('calendarInput'),
+    inlineMode: true,
+    container: document.getElementById('litepickerInline'),
+    singleMode: false,
+    numberOfMonths: 1,
+    numberOfColumns: 1,
+    format: 'YYYY-MM-DD',
+    autoApply: true, // autoApply off because we'll manually apply when both dates selected
+    setup: (pickerInstance) => {
+        pickerInstance.on('selected', (start, end) => {
+            // start or end are Luxon-like objects from Litepicker; get native Date:
+            selectedStart = start ? start.dateInstance : null;
+            selectedEnd = end ? end.dateInstance : null;
+
+            if (selectedStart && selectedEnd) {
+                // update visible input (optional)
+                document.getElementById('calendarInput').value =
+                    pickerInstance.getStartDate('YYYY-MM-DD') + " → " +
+                    pickerInstance.getEndDate('YYYY-MM-DD');
+
+                // set global range vars used by applyFilters()
+                startDate = selectedStart;
+                endDate = selectedEnd;
+                selectedDateFilter = "RANGE";
+
+                // close the calendar UI
+                closeCalendar();
+
+                // apply filters immediately
+                applyFilters();
+            }
+        });
+
+        // optional: if user clears selection, reset variables
+        pickerInstance.on('clear', () => {
+            selectedStart = null;
+            selectedEnd = null;
+            startDate = null;
+            endDate = null;
+            selectedDateFilter = "ALL";
+            document.getElementById('calendarInput').value = '';
+            applyFilters();
+        });
+    }
+});
+
+
+function applyDateRange() {
+    if (!selectedStart || !selectedEnd) {
+        alert("Please select a valid range.");
+        return;
+    }
+
+    startDate = selectedStart;
+    endDate = selectedEnd;
+    selectedDateFilter = "RANGE";
+
+    closeCalendar();
+    applyFilters();
+}
+function updateAssignLabel() {
+    let select = document.getElementById("assignSelect");
+    let label = document.getElementById("assignLabel");
+    label.textContent = select.options[select.selectedIndex].text;
+    applyFilters();   // ⭐ Change होते ही filter चलेगा
+}
+
 
 </script>
 </body>
