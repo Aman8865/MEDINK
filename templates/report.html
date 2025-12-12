@@ -203,6 +203,17 @@ body {
     background-color: white !important;
     border-color: white !important;
 }
+#patientTabs {
+    background: #ffffff;
+    border-bottom: 1px solid #d5ddea;
+    padding: 5px 10px;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    gap: 6px;
+    height: 22px;
+}
+
 
 </style>
 </head>
@@ -211,8 +222,9 @@ body {
 
 <!-- TABS -->
 <div id="patientTabs">
-    <div class="tab-item" onclick="window.location.href='/index/'">PATIENT LIST</div>
+    <div class="tab-item" onclick="goBack()">← PATIENT LIST</div>
 </div>
+
 
 <!-- HEADER -->
 <div class="header">
@@ -440,6 +452,13 @@ document.addEventListener("keydown", function (event) {
         toggleFullscreen();
     }
 });
+
+// report sections
+    function goBack() {
+    const params = new URLSearchParams(window.location.search);
+    const returnURL = params.get("return") || "/index/";
+    window.location.href = returnURL;
+}
 </script>
 
 </body>

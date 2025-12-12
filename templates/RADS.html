@@ -252,15 +252,26 @@ tr.status-unread { background-color: #fff4f4 !important; }  /* light pink */
 tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 
 .status-option.active {
+    font-weight: 600;
+    color: #007bff;
+}
+.scan-option {
+    color: black !important;
+    font-weight: 400 !important;
+    cursor: pointer;
+    padding: 0 6px;
+}
+
+.scan-option.active {
+    color: #007bff !important;
     font-weight: 700 !important;
-    color:  #007bff !important;
 }
 
 /* Date range */
 .date-chip-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    /* gap: 8px; */
     background: #ffffff;
     border: 1px solid rgb(217, 217, 217);
     /* padding: 8px 10px; */
@@ -353,22 +364,22 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 </div>
 
 <div id="statusFilter" style="padding: 6px; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); gap background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
-    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;color: #007bff; font-weight: 600;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
     <span id="filter-final" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
     <span id="filter-unread" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
 
 </div>
      <button style="padding: 6px; background-color: white; font-size:12px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); font-weight: 500;border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
-       <span style="color: #007bff; font-weight: 600; cursor:pointer; font-weight: 600;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('CT')">CT</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MRI')">MRI</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MG')">MG</span>
+       <span class="scan-option" style=" " onclick="filterByScanType('ALL')">All</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('CT')">CT</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MRI')">MRI</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MG')">MG</span>
     </button>
 
  <div style=" display: inline-block; margin-left: 4px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); position: relative;">
   <input type="search" id="searchInput" placeholder="search scan..."
-    style="margin-left: 0px;border: 1px solid #ccc; color: rgb(232, 230, 230); padding: 3px 35px 5px 10px; border-radius: 5px; font-weight: 400;  width: 150px; font-size: 14px;">
+    style="margin-left: 0px;border: 1px solid #ccc; color:black; padding: 3px 35px 5px 10px; border-radius: 5px; font-weight: 400;  width: 150px; font-size: 14px;">
 
 </div>
     <a href="" style="background-color: rgb(251, 250, 250);box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); border: 1px solid #ccc; color: #007bff;">
@@ -411,7 +422,7 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
         <tbody  id="patientTable">
             
             {% for patient in patients %}
-            <tr onclick="window.location.href='/report/{{patient.id}}/'" 
+            <tr onclick="goToReport({{ patient.id }})"
                 style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#e8f5e9{% elif patient.status == 'DRAFT' %}#fff3e0{% else %}#ffebee{% endif %}">
                 
                 <td>
@@ -467,31 +478,23 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 let currentStatusFilter = 'ALL';
 let currentScanFilter = 'ALL';
 
-function filterPatients(status) {
-    currentStatusFilter = status.toUpperCase();
-    applyFilters();
 
-    // Active button highlight
-    const buttons = document.querySelectorAll('.nav2 button');
-    buttons.forEach(btn => btn.classList.remove('active-filter'));
-    const activeBtn = [...buttons].find(btn => btn.textContent.trim().toUpperCase().includes(status));
-    if (activeBtn) activeBtn.classList.add('active-filter');
-}
+
 
 function filterByScanType(scanType) {
     currentScanFilter = scanType.toUpperCase();
     applyFilters();
 
-    // Active button highlight for scan type spans
-    const btnSpans = document.querySelectorAll('.nav2 span');
-    btnSpans.forEach(span => span.style.fontWeight = '');
-    if(scanType !== 'ALL') {
-        const activeSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === scanType.toUpperCase());
-        if(activeSpan) activeSpan.style.fontWeight = '600';
-    } else {
-        const allSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === 'ALL');
-        if(allSpan) allSpan.style.fontWeight = '600';
-    }
+    // Remove active from all scan-option
+    document.querySelectorAll(".scan-option").forEach(x => {
+        x.classList.remove("active");
+    });
+
+    // Add active to the clicked scan option
+    const el = [...document.querySelectorAll(".scan-option")]
+        .find(x => x.textContent.trim().toUpperCase() === scanType.toUpperCase());
+
+    if (el) el.classList.add("active");
 }
 
 
@@ -673,35 +676,42 @@ function setDateFilter(type) {
 }
 
 function goPrevDay() {
-    tempSelectedDay = dateOnly(new Date());
-    tempSelectedDay.setDate(tempSelectedDay.getDate() - 1);
+    const today = dateOnly(new Date());
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
 
+    tempSelectedDay = yesterday;
     selectedDateFilter = "DAY-JUMP";
 
-    // UI Update
-    document.getElementById("dayChip").textContent = "YESTERDAY";
+    // UI text update
+    const dayChip = document.getElementById("dayChip");
+    dayChip.textContent = "Y-DAY";
 
-    // Remove active from all chips
-    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    // REMOVE all active classes from date chips
+    document.querySelectorAll(".date-chip-box .chip").forEach(c => {
+        c.classList.remove("active");
+    });
+
+    // APPLY active to YESTERDAY
+    dayChip.classList.add("active");
 
     applyFilters();
 }
-
 
 
 function goNextDay() {
     tempSelectedDay = dateOnly(new Date());
     selectedDateFilter = "TODAY";
 
-    // UI Update
+    // UI update
     document.getElementById("dayChip").textContent = "TODAY";
 
-    // Remove active and set TODAY active
     document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
     document.getElementById("dayChip").classList.add("active");
 
     applyFilters();
 }
+
 window.onload = function() {
     document.getElementById("dayChip").classList.add("active");
     selectedDateFilter = "TODAY";
@@ -781,13 +791,18 @@ function filterPatients(status) {
     currentStatusFilter = status.toUpperCase();
     applyFilters();
 
-    // Remove active from all
+    // Sare status-option inactive karo
     document.querySelectorAll(".status-option").forEach(x => {
         x.classList.remove("active");
+        x.style.color = "black";
+        x.style.fontWeight = "400";
     });
 
-    // Add active to clicked
-    document.getElementById(`filter-${status.toLowerCase()}`).classList.add("active");
+    // Jis par click hua, usko active karo
+    const activeBtn = document.getElementById(`filter-${status.toLowerCase()}`);
+    activeBtn.classList.add("active");
+    activeBtn.style.color = "#007bff";
+    activeBtn.style.fontWeight = "600";
 }
 
 
@@ -864,6 +879,18 @@ function applyDateRange() {
     closeCalendar();
     applyFilters();
 }
+// Report section
+function goToReport(id) {
+    const returnURL = window.location.pathname + window.location.search;
+    window.location.href = `/report/${id}/?return=${encodeURIComponent(returnURL)}`;
+}
+window.onload = function() {
+    filterPatients("ALL");     // Status filter default
+    filterByScanType("ALL");   // 🔥 Scan filter default
+    applyFilters();
+};
+
+
 
 </script>
 

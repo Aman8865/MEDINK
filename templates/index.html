@@ -475,7 +475,7 @@ body.dark-mode .nav3 table tr:hover {
 .date-chip-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    /* gap: 8px; */
     background: #ffffff;
     border: 1px solid rgb(217, 217, 217);
     /* padding: 8px 10px; */
@@ -599,6 +599,17 @@ body.dark-mode .nav3 table tr:hover {
     cursor: pointer;
 }
 
+.scan-option {
+    color: black !important;
+    font-weight: 400 !important;
+    cursor: pointer;
+    padding: 0 6px;
+}
+
+.scan-option.active {
+    color: #007bff !important;
+    font-weight: 700 !important;
+}
 
     </style>
 </head>
@@ -745,8 +756,9 @@ function toggleTheme() {
     <i class="fas fa-user-plus"></i> Add New
 </button>
 
+
 <div id="statusFilter" style="padding: 6px; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); gap background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
-    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;color: #007bff; font-weight: 600;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
     <span id="filter-final" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
     <span id="filter-unread" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
 
@@ -809,12 +821,12 @@ function updateRadsLabel() {
 }
 </script>
 
-     <button style="padding: 6px; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.45); background-color: white; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px;">
-       <span style="color: #007bff; font-weight: 600; cursor:pointer;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('CT')">CT</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('MRI')">MRI</span> | 
-       <span style="cursor:pointer;" onclick="filterByScanType('MG')">MG</span>
+    <button style="padding: 6px; background-color: white; font-size:12px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); font-weight: 500;border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
+       <span class="scan-option" style=" " onclick="filterByScanType('ALL')">All</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('CT')">CT</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MRI')">MRI</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MG')">MG</span>
     </button>
 <!-- <button onclick="exportSelectedToExcel()" style="background-color: #4CAF50; font-weight: 600; color: white;">
     E-xcel
@@ -1207,28 +1219,31 @@ function filterPatients(status) {
     currentStatusFilter = status.toUpperCase();
     applyFilters();
 
-    // Active button highlight
-    const buttons = document.querySelectorAll('.nav2 button');
-    buttons.forEach(btn => btn.classList.remove('active-filter'));
-    const activeBtn = [...buttons].find(btn => btn.textContent.trim().toUpperCase().includes(status));
-    if (activeBtn) activeBtn.classList.add('active-filter');
+    // Remove active from all
+    document.querySelectorAll(".status-option").forEach(x => {
+        x.classList.remove("active");
+    });
+
+    // Add active to clicked
+    document.getElementById(`filter-${status.toLowerCase()}`).classList.add("active");
 }
 
 function filterByScanType(scanType) {
     currentScanFilter = scanType.toUpperCase();
     applyFilters();
 
-    // Active button highlight for scan type spans
-    const btnSpans = document.querySelectorAll('.nav2 span');
-    btnSpans.forEach(span => span.style.fontWeight = '');
-    if(scanType !== 'ALL') {
-        const activeSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === scanType.toUpperCase());
-        if(activeSpan) activeSpan.style.fontWeight = '600';
-    } else {
-        const allSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === 'ALL');
-        if(allSpan) allSpan.style.fontWeight = '600';
-    }
+    // Reset all scan options
+    document.querySelectorAll(".scan-option").forEach(x => {
+        x.classList.remove("active");
+    });
+
+    // Highlight clicked scan button
+    const el = [...document.querySelectorAll(".scan-option")]
+        .find(x => x.textContent.trim().toUpperCase() === scanType.toUpperCase());
+
+    if (el) el.classList.add("active");
 }
+
 
 function applyFilters() {
     const rows = document.querySelectorAll('#patientTable tr');
@@ -1950,16 +1965,24 @@ function setDateFilter(type) {
 }
 
 function goPrevDay() {
-    tempSelectedDay = dateOnly(new Date());
-    tempSelectedDay.setDate(tempSelectedDay.getDate() - 1);
+    const today = dateOnly(new Date());
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
 
+    tempSelectedDay = yesterday;
     selectedDateFilter = "DAY-JUMP";
 
-    // UI Update
-    document.getElementById("dayChip").textContent = "YESTERDAY";
+    // UI text update
+    const dayChip = document.getElementById("dayChip");
+    dayChip.textContent = "Y-DAY";
 
-    // Remove active from all chips
-    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    // REMOVE all active classes from date chips
+    document.querySelectorAll(".date-chip-box .chip").forEach(c => {
+        c.classList.remove("active");
+    });
+
+    // APPLY active to YESTERDAY
+    dayChip.classList.add("active");
 
     applyFilters();
 }
@@ -1970,10 +1993,9 @@ function goNextDay() {
     tempSelectedDay = dateOnly(new Date());
     selectedDateFilter = "TODAY";
 
-    // UI Update
+    // UI update
     document.getElementById("dayChip").textContent = "TODAY";
 
-    // Remove active and set TODAY active
     document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
     document.getElementById("dayChip").classList.add("active");
 
@@ -2066,7 +2088,11 @@ function updateAssignLabel() {
     applyFilters();   // ⭐ Change होते ही filter चलेगा
 }
 
-
+window.onload = function() {
+    filterPatients("ALL");     // Status filter default
+    filterByScanType("ALL");   // 🔥 Scan filter default
+    applyFilters();
+};
 </script>
 </body>
 </html>

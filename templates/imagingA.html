@@ -11,6 +11,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
 
 
 
@@ -274,6 +277,19 @@ tr.status-draft { background-color: #fef9e7 !important; }
     color:  #007bff !important;
 }
 
+.scan-option {
+    color: black !important;
+    font-weight: 400 !important;
+    cursor: pointer;
+    padding: 0 6px;
+}
+
+.scan-option.active {
+    color: #007bff !important;
+    font-weight: 700 !important;
+}
+
+
 /* ======= MOBILE UI BEAUTIFICATION ======= */
 @media (max-width: 480px) {
 
@@ -378,7 +394,7 @@ tr.status-draft { background-color: #fef9e7 !important; }
     background: #007bff;  
     width: 100px;         /* blue */
     color: white;
-    font-weight: 600;
+    
     padding: 10px 18px;
     border: none;
     border-radius: 8px;            /* smooth rounded */
@@ -405,7 +421,7 @@ tr.status-draft { background-color: #fef9e7 !important; }
 .date-chip-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    /* gap: 8px; */
     background: #ffffff;
     border: 1px solid rgb(217, 217, 217);
     /* padding: 8px 10px; */
@@ -424,7 +440,7 @@ tr.status-draft { background-color: #fef9e7 !important; }
 .chip.active {
     color: #007bff;
     font-weight: 500;
-    font-weight: 600;
+    
 }
 
 .divider {
@@ -473,9 +489,277 @@ tr.status-draft { background-color: #fef9e7 !important; }
 {% block body %}
 
 <div id="nav2"  class="nav2">
-    <button style="font-weight: 600;" class="add-btn" onclick="window.location.href='/popupform/'">
+    <button style="" class="add-btn" onclick="window.location.href='/popupform/'">
     <i class="fas fa-user-plus"></i> Add New
 </button>
+<button class="add-btn" id="openAddPatientPopup">
+    <i class="fas fa-user-plus"></i> Add New
+</button>
+
+<!-- ========================= ADD PATIENT POPUP ========================= -->
+
+<div id="addPatientOverlay" style="
+    position: fixed; inset:0;
+    background: rgba(0,0,0,0.6);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index: 99999;
+">
+    <div style="
+        width:95%; max-width:430px;
+        background:white;
+        border-radius:12px;
+        padding:18px;
+        position:relative;
+        max-height:90vh;
+        overflow-y:auto;
+    ">
+        <h3 style="text-align:center; margin-top:0;">⟪ Patient Details ⟫</h3>
+
+        <span onclick="closeAddPatient()" style="
+            position:absolute; top:8px; right:12px;
+            font-size:22px; cursor:pointer; color:#444;
+        ">×</span>
+
+        <!-- FORM -->
+        <form id="patientPopupForm">
+
+            <!-- Patient ID -->
+            <div class="floating-label-container">
+                <label>Patient ID</label>
+                <input type="text" id="pop_patientId">
+            </div>
+
+            <!-- Name + Age + Gender -->
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="floating-label-container" style="flex:2;">
+                    <label>Patient Name</label>
+                    <input type="text" id="pop_patientName" required>
+                </div>
+
+                <div class="floating-label-container" style="flex:1;">
+                    <label>Age</label>
+                    <input type="number" id="pop_age" required>
+                </div>
+
+                <button type="button" class="gender-btn" data-gender="M">M</button>
+                <button type="button" class="gender-btn" data-gender="F">F</button>
+                <input type="hidden" id="pop_gender">
+            </div>
+
+            <!-- History -->
+            <div class="floating-label-container">
+                <label>History</label>
+                <input type="text" id="pop_history" required>
+            </div>
+
+            <!-- Modality + Body Part -->
+            <div style="display:flex; gap:10px;">
+                <div class="floating-label-container" style="flex:1;">
+                    <label>Modality</label>
+                    <select id="pop_scanType">
+                        <option value="X-RAY">X-RAY</option>
+                        <option value="CT">CT</option>
+                        <option value="MRI">MRI</option>
+                        <option value="MG">MG</option>
+                    </select>
+                </div>
+
+                <div class="floating-label-container" style="flex:1;">
+                    <label>Body Part</label>
+                    <input type="text" id="pop_bodyPart" required>
+                </div>
+            </div>
+
+            <!-- Ref By -->
+            <div class="floating-label-container">
+                <label>Referred By</label>
+                <input type="text" id="pop_refBy" required>
+            </div>
+
+            <!-- Upload -->
+            <div class="upload-box" style="margin-top:-5px;">
+                <input type="file" id="pop_uploadScan" accept="image/*">
+                <input type="hidden" id="pop_center" value="{{ request.session.user_name }}">
+                <span class="placeholder">Upload Scan</span>
+                <i class="fas fa-upload"></i>
+            </div>
+
+            <img id="pop_preview" style="max-width:100%; margin-top:10px; display:none;">
+
+            <button type="submit" class="submit-btn" style="margin-top:12px;">
+                Submit
+            </button>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- ===== FULLSCREEN CROP EDITOR ===== -->
+<div id="cropEditor" style="
+    display:none; 
+    position:fixed; 
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    z-index:100000;
+    padding:30px;
+">
+    <div style="
+        max-width:600px; 
+        margin:auto; 
+        background:white; 
+        padding:15px; 
+        border-radius:8px;
+    ">
+        <img id="cropImage" style="max-width:100%; max-height:75vh;">
+
+        <div style="text-align:center; margin-top:10px;">
+            <button onclick="closeCropper()">Cancel</button>
+            <button onclick="finishCrop()" style="
+                padding:8px 18px;
+                background:#28a745; 
+                color:white; 
+                border:none; 
+                border-radius:6px;
+            ">Done</button>
+        </div>
+    </div>
+</div>
+
+<img id="pop_finalImage" style="display:none;">
+
+<script>
+let cropper;
+
+document.getElementById("openAddPatientPopup").onclick = () => {
+    resetPopupForm();
+    document.getElementById("addPatientOverlay").style.display = "flex";
+};
+
+function closeAddPatient() {
+    document.getElementById("addPatientOverlay").style.display = "none";
+}
+
+function newPatientId() {
+    let d = new Date();
+    return `P${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;
+}
+
+function resetPopupForm() {
+    document.getElementById("patientPopupForm").reset();
+    document.getElementById("pop_preview").style.display = "none";
+    document.getElementById("pop_gender").value = "";
+    document.querySelectorAll(".gender-btn").forEach(btn => btn.classList.remove("active"));
+}
+
+
+// ---------------- GENDER ----------------
+document.querySelectorAll(".gender-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll(".gender-btn").forEach(x => x.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("pop_gender").value = btn.dataset.gender;
+    };
+});
+
+// IMAGE UPLOAD + CROPPER
+document.getElementById("pop_uploadScan").addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        const cropImg = document.getElementById("cropImage");
+        cropImg.src = e.target.result;
+
+        document.getElementById("cropEditor").style.display = "block";
+
+        if (cropper) cropper.destroy();
+
+        cropper = new Cropper(cropImg, {
+            viewMode: 1,
+            autoCropArea: 1,
+        });
+    };
+
+    reader.readAsDataURL(file);
+});
+
+// FINISH CROP
+function finishCrop() {
+    const canvas = cropper.getCroppedCanvas();
+    const base64 = canvas.toDataURL("image/jpeg", 0.7);
+
+    // final image save
+    document.getElementById("pop_finalImage").src = base64;
+
+    // Preview (optional)
+    const preview = document.getElementById("pop_preview");
+    preview.src = base64;
+    preview.style.display = "block";
+
+    document.getElementById("cropEditor").style.display = "none";
+}
+
+function closeCropper() {
+    document.getElementById("cropEditor").style.display = "none";
+}
+
+
+
+// ---------------- CSRF ----------------
+function getCookie(name) {
+    let cookieValue = null;
+    document.cookie.split(";").forEach(cookie => {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + "=")) cookieValue = cookie.split("=")[1];
+    });
+    return cookieValue;
+}
+
+
+// ---------------- SUBMIT FORM ----------------
+document.getElementById("patientPopupForm").onsubmit = function(e) {
+    e.preventDefault();
+
+    let id = document.getElementById("pop_patientId").value.trim();
+    if (id === "") id = newPatientId();
+
+    const data = {
+        patient_id: id,
+        name: document.getElementById("pop_patientName").value,
+        age: document.getElementById("pop_age").value,
+        gender: document.getElementById("pop_gender").value,
+        history: document.getElementById("pop_history").value,
+        scanType: document.getElementById("pop_scanType").value,
+        bodyPart: document.getElementById("pop_bodyPart").value,
+        refBy: document.getElementById("pop_refBy").value,
+        scan: document.getElementById("pop_finalImage").src,
+        center: document.getElementById("pop_center").value
+    };
+
+    fetch("/api/patient/add/", {
+        method: "POST",
+        headers: {
+            "Content-Type":"application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r=>r.json())
+    .then(res=>{
+        if(res.status==="success"){
+            closeAddPatient();
+            location.reload();
+        } else {
+            alert("Error: "+res.message);
+        }
+    });
+};
+</script>
 
 
 <div class="date-chip-box" style="box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);">
@@ -499,17 +783,17 @@ tr.status-draft { background-color: #fef9e7 !important; }
 </div>
 
 <div id="statusFilter" style="padding: 6px; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); gap background-color: white; border-radius: 5px; font-size:12px; font-weight: 500; margin-left: 0px; border: 1px solid #ccc; margin-top: 0px; ">
-    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;color: #007bff; font-weight: 600;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
+    <span id="filter-all" class="status-option" style="cursor:pointer; padding: 0 6px;" onclick="filterPatients('ALL')">All</span><span style="color: black;"> |</span>
     <span id="filter-final" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('FINAL')">FINAL</span><span style="color: black;"> |</span>
     <span id="filter-unread" class="status-option" style="cursor:pointer; padding: 0 6px; color: black;" onclick="filterPatients('UNREAD')">UNREAD</span>
 
 </div>
      <button style="padding: 6px; background-color: white; font-size:12px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); font-weight: 500;border: 1px solid #ccc; margin-left: 0px; margin-top: 0px;">
-       <span style="color: #007bff; font-weight: 600; cursor:pointer; font-weight: 600;" onclick="filterByScanType('ALL')">All</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('CT')">CT</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MRI')">MRI</span> | 
-       <span style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MG')">MG</span>
+       <span class="scan-option" style=" " onclick="filterByScanType('ALL')">All</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('X-RAY')">X-RAY</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('CT')">CT</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MRI')">MRI</span> | 
+       <span class="scan-option" style="cursor:pointer; padding: 0 6px;" onclick="filterByScanType('MG')">MG</span>
     </button>
 
  <div style=" display: inline-block; margin-left: 4px;box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); position: relative;">
@@ -551,14 +835,14 @@ tr.status-draft { background-color: #fef9e7 !important; }
                 <th>Amount</th>
                 <!-- <th>Action</th> -->
             </tr>
-            
+           
         </thead>
-        
+    
         
         <tbody  id="patientTable">
             
             {% for patient in patients %}
-            <tr onclick="window.location.href='/report/{{patient.id}}/'" 
+            <tr onclick="goToReport({{ patient.id }})" 
     style="cursor:pointer; background-color: {% if patient.status == 'FINAL' %}#e8f5e9{% elif patient.status == 'DRAFT' %}#fff3e0{% else %}#ffebee{% endif %}">
 
                 <td>
@@ -614,32 +898,24 @@ tr.status-draft { background-color: #fef9e7 !important; }
 let currentStatusFilter = 'ALL';
 let currentScanFilter = 'ALL';
 
-function filterPatients(status) {
-    currentStatusFilter = status.toUpperCase();
-    applyFilters();
 
-    // Active button highlight
-    const buttons = document.querySelectorAll('.nav2 button');
-    buttons.forEach(btn => btn.classList.remove('active-filter'));
-    const activeBtn = [...buttons].find(btn => btn.textContent.trim().toUpperCase().includes(status));
-    if (activeBtn) activeBtn.classList.add('active-filter');
-}
 
 function filterByScanType(scanType) {
     currentScanFilter = scanType.toUpperCase();
     applyFilters();
 
-    // Active button highlight for scan type spans
-    const btnSpans = document.querySelectorAll('.nav2 span');
-    btnSpans.forEach(span => span.style.fontWeight = '');
-    if(scanType !== 'ALL') {
-        const activeSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === scanType.toUpperCase());
-        if(activeSpan) activeSpan.style.fontWeight = '600';
-    } else {
-        const allSpan = [...btnSpans].find(s => s.textContent.trim().toUpperCase() === 'ALL');
-        if(allSpan) allSpan.style.fontWeight = '600';
-    }
+    // Reset all scan options
+    document.querySelectorAll(".scan-option").forEach(x => {
+        x.classList.remove("active");
+    });
+
+    // Highlight clicked scan button
+    const el = [...document.querySelectorAll(".scan-option")]
+        .find(x => x.textContent.trim().toUpperCase() === scanType.toUpperCase());
+
+    if (el) el.classList.add("active");
 }
+
 
 
 // Add these functions to your existing script section
@@ -818,37 +1094,43 @@ function setDateFilter(type) {
 
     applyFilters();
 }
-
 function goPrevDay() {
-    tempSelectedDay = dateOnly(new Date());
-    tempSelectedDay.setDate(tempSelectedDay.getDate() - 1);
+    const today = dateOnly(new Date());
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
 
+    tempSelectedDay = yesterday;
     selectedDateFilter = "DAY-JUMP";
 
-    // UI Update
-    document.getElementById("dayChip").textContent = "YESTERDAY";
+    // UI text update
+    const dayChip = document.getElementById("dayChip");
+    dayChip.textContent = "Y-DAY";
 
-    // Remove active from all chips
-    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    // REMOVE all active classes from date chips
+    document.querySelectorAll(".date-chip-box .chip").forEach(c => {
+        c.classList.remove("active");
+    });
+
+    // APPLY active to YESTERDAY
+    dayChip.classList.add("active");
 
     applyFilters();
 }
-
 
 
 function goNextDay() {
     tempSelectedDay = dateOnly(new Date());
     selectedDateFilter = "TODAY";
 
-    // UI Update
+    // UI update
     document.getElementById("dayChip").textContent = "TODAY";
 
-    // Remove active and set TODAY active
     document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
     document.getElementById("dayChip").classList.add("active");
 
     applyFilters();
 }
+
 window.onload = function() {
     document.getElementById("dayChip").classList.add("active");
     selectedDateFilter = "TODAY";
@@ -1011,6 +1293,17 @@ function applyDateRange() {
     closeCalendar();
     applyFilters();
 }
+// report section
+function goToReport(id) {
+    const returnURL = window.location.pathname + window.location.search;
+    window.location.href = `/report/${id}/?return=${encodeURIComponent(returnURL)}`;
+}
+window.onload = function() {
+    filterPatients("ALL");     // Status filter default
+    filterByScanType("ALL");   // 🔥 Scan filter default
+    applyFilters();
+};
+
 
 </script>
 </body>
