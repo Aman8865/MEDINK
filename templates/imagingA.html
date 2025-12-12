@@ -245,11 +245,7 @@ body {
 }
 
 /* TABLE SCROLL & STICKY HEADER */
-#nav3 {
-    max-height: 450px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-}
+
 
 #nav3 thead th {
     position: sticky;
@@ -389,6 +385,19 @@ tr.status-draft { background-color: #fef9e7 !important; }
         margin-bottom: 5px;
     }
 }
+#nav3 {
+    position: fixed;
+    top: 110px;     /* nav2 height (approx 95px) */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+    background: white;
+    padding: 0 5px;
+    max-height: auto;
+}
+
 
 .add-btn {
     background: #007bff;  
@@ -468,8 +477,10 @@ tr.status-draft { background-color: #fef9e7 !important; }
     padding: 0 !important;
     text-align: center;
 }
-
-
+#refreshTimer {
+  font-size: 14px;
+  color: #007bff;
+}
     </style>
 </head>
 <body>
@@ -807,6 +818,10 @@ document.getElementById("patientPopupForm").onsubmit = function(e) {
     <a href="" style="background-color: rgb(251, 250, 250);box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); border: 1px solid #ccc; color: #007bff;">
         <i class="fa-solid fa-rotate-right"></i>
     </a>
+    <div style="margin-top: 10px;">
+     <span id="refreshTimer" style="margin-left: 0px; font-size: 10px; font-weight: 500; color: white;">
+    <span id="live-seconds" style=" color:white;">30s</span>
+    </div>
 
 <div id="calendarContainer" style="display:none; margin-left: -700px; margin-top:15px; position:relative;">
     <div id="calendarBox" style="position:absolute; z-index:9999; background:white; padding:10px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
@@ -889,8 +904,6 @@ document.getElementById("patientPopupForm").onsubmit = function(e) {
 </div>
 
 {% endblock %}
-
-
 
 <script>
 
@@ -1305,6 +1318,54 @@ window.onload = function() {
 };
 
 
+// ✅ Auto-refresh countdown + refresh
+document.addEventListener("DOMContentLoaded", function() {
+    let countdown = 25; // 30 seconds timer
+    const timerDisplay = document.getElementById("live-seconds");
+
+   function updateTimer() {
+        if (!timerDisplay) return;
+
+        // Change color based on remaining seconds
+        if (countdown > 5) {
+            timerDisplay.style.color = "blue"; // normal
+        }  else {
+            timerDisplay.style.color = "red"; // danger
+        }
+
+        timerDisplay.textContent = countdown + "s";
+        countdown--;
+
+        if (countdown < 0) {
+            countdown = 30; // reset timer
+            refreshTbody(); // refresh tbody data
+        }
+    }
+
+    // tbody refresh function
+    function refreshTbody() {
+    fetch(window.location.href)
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newTbody = doc.querySelector("tbody");
+            const oldTbody = document.querySelector("tbody");
+
+            if (newTbody && oldTbody) {
+                oldTbody.innerHTML = newTbody.innerHTML;
+
+                // ⭐ Refresh के बाद filter फिर से apply करो
+                applyFilters();
+            }
+        })
+        .catch(err => console.error("Error refreshing tbody:", err));
+}
+
+
+    // timer update every 1 second
+    setInterval(updateTimer, 1000);
+});
 </script>
 </body>
 </html>
