@@ -481,6 +481,60 @@ tr.status-draft { background-color: #fef9e7 !important; }
   font-size: 14px;
   color: #007bff;
 }
+
+/* ===== FOOTER PAGINATION ===== */
+#footerPagination {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45px;
+    background: #ffffff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    z-index: 9999;
+    font-size: 13px;
+}
+
+.footer-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#pageSummary,
+#displaySummary {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#footerPagination select {
+    padding: 4px 6px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#footerPagination button {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#pageNumber {
+    background: #007bff;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+
+
     </style>
 </head>
 <body>
@@ -905,44 +959,31 @@ document.getElementById("patientPopupForm").onsubmit = function(e) {
 
 {% endblock %}
 <!-- ===== FOOTER PAGINATION ===== -->
-<div id="footerPagination" style="
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 45px;
-    background: #ffffff;
-    border-top: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 15px;
-    z-index: 999;
-    font-size: 13px;
-">
+<div id="footerPagination">
 
     <!-- LEFT -->
-    <div id="pageSummary">Page 1 of 1</div>
+    <div id="pageSummary"> 1 of 1</div>
+    <span style="text-align:center; padding:10px 0; color:#666; font-size:14px;">Copyright © 2025 MEDink</span>
+        
+
 
     <!-- CENTER -->
-    <div style="display:flex; align-items:center; gap:8px;">
-        <span>Rows</span>
-        <select id="rowsPerPageSelect"
-            onchange="changeRowsPerPage(this.value)"
-            style="padding:4px 6px; border-radius:5px;">
-            <option value="5" selected>5</option>
-            <option value="10">10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-        </select>
-
+    <div class="footer-center">
+        
         <button onclick="prevPage()">«</button>
-        <span id="pageNumber">1</span>
-        <button onclick="nextPage()">»</button>
+        <span id="displaySummary" class="display-mid">0 – 0 of 0</span>
+        <button  onclick="nextPage()">»</button>
+        <select style="padding: 3px; font-size: 11px;" id="rowsPerPageSelect" onchange="changeRowsPerPage(this.value)">
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <!-- <option value="15">15</option>
+            <option value="20">20</option> -->
+        </select>
     </div>
+    
 
     <!-- RIGHT -->
-    <div id="displaySummary">Displaying 0 – 0 of 0</div>
+    <!-- <div id="displaySummary"> 0 – 0 of 0</div> -->
 
 </div>
 
@@ -950,7 +991,7 @@ document.getElementById("patientPopupForm").onsubmit = function(e) {
 
 <script>
 let currentPage = 1;
-let rowsPerPage = 5;
+let rowsPerPage = 25;
 // filteration
 let currentStatusFilter = 'ALL';
 let currentScanFilter = 'ALL';
@@ -1522,12 +1563,12 @@ function paginateTable() {
     document.getElementById("pageSummary").textContent =
         `Page ${currentPage} of ${totalPages}`;
 
-    document.getElementById("pageNumber").textContent = currentPage;
+    // document.getElementById("pageNumber").textContent = currentPage;
 
     document.getElementById("displaySummary").textContent =
         totalRows === 0
-            ? "Displaying 0 – 0 of 0"
-            : `Displaying ${startIndex + 1} – ${endIndex} of ${totalRows}`;
+            ? " 0 – 0 of 0"
+            : ` ${startIndex + 1} – ${endIndex} of ${totalRows}`;
 }
 
 

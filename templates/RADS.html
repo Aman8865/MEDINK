@@ -323,6 +323,59 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
   font-size: 14px;
   color: #007bff;
 }
+
+/* ===== FOOTER PAGINATION ===== */
+#footerPagination {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45px;
+    background: #ffffff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    z-index: 9999;
+    font-size: 13px;
+}
+
+.footer-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#pageSummary,
+#displaySummary {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#footerPagination select {
+    padding: 4px 6px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#footerPagination button {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#pageNumber {
+    background: #007bff;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+
     </style>
 </head>
 <body>
@@ -476,15 +529,47 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
 
 {% endblock %}
 
+<div id="footerPagination">
+
+    <!-- LEFT -->
+    <div id="pageSummary"> 1 of 1</div>
+    <span style="text-align:center; padding:10px 0; color:#666; font-size:14px;">Copyright © 2025 MEDink</span>
+        
+
+
+    <!-- CENTER -->
+    <div class="footer-center">
+        
+        <button onclick="prevPage()">«</button>
+        <span id="displaySummary" class="display-mid">0 – 0 of 0</span>
+        <button  onclick="nextPage()">»</button>
+        <select style="padding: 3px; font-size: 11px;" id="rowsPerPageSelect" onchange="changeRowsPerPage(this.value)">
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <!-- <option value="15">15</option>
+            <option value="20">20</option> -->
+        </select>
+    </div>
+    
+
+    <!-- RIGHT -->
+    <!-- <div id="displaySummary"> 0 – 0 of 0</div> -->
+
+</div>
 
 
 <script>
-
+let currentPage = 1;
+let rowsPerPage = 25;
 // filteration
 let currentStatusFilter = 'ALL';
 let currentScanFilter = 'ALL';
 
-
+function changeRowsPerPage(value) {
+    rowsPerPage = parseInt(value, 10);
+    currentPage = 1;   // hamesha page 1 se start
+    paginateTable();
+}
 
 
 function filterByScanType(scanType) {
@@ -799,6 +884,8 @@ window.onload = function () {
     filterPatients("ALL");
     filterByScanType("ALL");
     applyFilters();
+    paginateTable();
+document.getElementById("rowsPerPageSelect").value = rowsPerPage;
 };
 
  
@@ -863,10 +950,14 @@ function applyFilters() {
 
 
         }
+const match = statusMatch && scanMatch && searchMatch && dateMatch;
 
-        /* FINAL SHOW/HIDE */
-        row.style.display = (statusMatch && scanMatch && searchMatch && dateMatch) ? "" : "none";
+// 🔥 FILTER RESULT MARK KARO
+row.dataset.visible = match ? "1" : "0";
     });
+    // 🔥 PAGINATION RESET AFTER FILTER
+    currentPage = 1;
+    paginateTable();
 }
 
 function filterPatients(status) {
@@ -1017,7 +1108,57 @@ document.addEventListener("DOMContentLoaded", function() {
     // timer update every 1 second
     setInterval(updateTimer, 1000);
 });
+function paginateTable() {
 
+    const rows = Array.from(document.querySelectorAll("#patientTable tr"))
+        .filter(row => row.dataset.visible === "1");
+
+    const totalRows = rows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    // hide all rows
+    document.querySelectorAll("#patientTable tr")
+        .forEach(r => r.style.display = "none");
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+
+    rows.slice(startIndex, endIndex).forEach(r => {
+        r.style.display = "";
+    });
+
+    // 🔹 FOOTER TEXT UPDATE
+    document.getElementById("pageSummary").textContent =
+        `Page ${currentPage} of ${totalPages}`;
+
+    // document.getElementById("pageNumber").textContent = currentPage;
+
+    document.getElementById("displaySummary").textContent =
+        totalRows === 0
+            ? " 0 – 0 of 0"
+            : ` ${startIndex + 1} – ${endIndex} of ${totalRows}`;
+}
+
+
+function nextPage() {
+    const rows = document.querySelectorAll('#patientTable tr[data-visible="1"]');
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    if (currentPage < totalPages) {
+        currentPage++;
+        paginateTable();
+    }
+}
+
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        paginateTable();
+    }
+}
 </script>
 
 </body>

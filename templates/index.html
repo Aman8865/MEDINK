@@ -610,6 +610,57 @@ body.dark-mode .nav3 table tr:hover {
     color: #007bff !important;
     font-weight: 700 !important;
 }
+/* ===== FOOTER PAGINATION ===== */
+#footerPagination {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45px;
+    background: #ffffff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    z-index: 9999;
+    font-size: 13px;
+}
+
+.footer-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#pageSummary,
+#displaySummary {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#footerPagination select {
+    padding: 4px 6px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#footerPagination button {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#pageNumber {
+    background: #007bff;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
 
     </style>
 </head>
@@ -716,6 +767,7 @@ body.dark-mode .profile-item:hover {
     color: white !important;
     border-color: #1055b6 !important;
 }
+
 </style>
 <script>
 // Open / Close Dropdown
@@ -1161,6 +1213,90 @@ function saveEdit() {
 </div>
 
 {% endblock %}
+<!-- ===== FOOTER PAGINATION ===== -->
+<div id="footerPagination">
+
+    <!-- LEFT -->
+    <div id="pageSummary"> 1 of 1</div>
+    <span style="text-align:center; padding:10px 0; color:#666; font-size:14px;">Copyright © 2025 MEDink</span>
+        
+
+
+    <!-- CENTER -->
+    <div class="footer-center">
+        
+        <button onclick="prevPage()">«</button>
+        <span id="displaySummary" class="display-mid">0 – 0 of 0</span>
+        <button  onclick="nextPage()">»</button>
+        <select style="padding: 3px; font-size: 11px;" id="rowsPerPageSelect" onchange="changeRowsPerPage(this.value)">
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <!-- <option value="15">15</option>
+            <option value="20">20</option> -->
+        </select>
+    </div>
+    
+
+    <!-- RIGHT -->
+    <!-- <div id="displaySummary"> 0 – 0 of 0</div> -->
+
+</div>
+<script>
+let currentPage = 1;
+let rowsPerPage = 25;
+
+function changeRowsPerPage(value) {
+    rowsPerPage = parseInt(value);
+    currentPage = 1;
+    paginateTable();
+}
+
+function paginateTable() {
+    const rows = Array.from(document.querySelectorAll("#patientTable tr"))
+        .filter(row => row.dataset.visible === "1");
+
+    const totalRows = rows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    // hide all first
+    document.querySelectorAll("#patientTable tr")
+        .forEach(r => r.style.display = "none");
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = Math.min(start + rowsPerPage, totalRows);
+
+    rows.slice(start, end).forEach(r => r.style.display = "");
+
+    document.getElementById("pageSummary").innerText =
+        ` ${currentPage} of ${totalPages}`;
+
+    // document.getElementById("pageNumber").innerText = currentPage;
+
+    document.getElementById("displaySummary").textContent =
+        totalRows === 0
+            ? " 0 – 0 of 0"
+            : ` ${startIndex + 1} – ${endIndex} of ${totalRows}`;
+}
+
+
+function nextPage() {
+    currentPage++;
+    paginateTable();
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        paginateTable();
+    }
+}
+
+window.addEventListener("load", () => {
+    paginateTable();
+});
+</script>
 
 
 
@@ -1215,18 +1351,7 @@ toggleBtn.addEventListener('click', () => {
 let currentStatusFilter = 'ALL';
 let currentScanFilter = 'ALL';
 
-function filterPatients(status) {
-    currentStatusFilter = status.toUpperCase();
-    applyFilters();
 
-    // Remove active from all
-    document.querySelectorAll(".status-option").forEach(x => {
-        x.classList.remove("active");
-    });
-
-    // Add active to clicked
-    document.getElementById(`filter-${status.toLowerCase()}`).classList.add("active");
-}
 
 function filterByScanType(scanType) {
     currentScanFilter = scanType.toUpperCase();
@@ -1305,8 +1430,14 @@ function applyFilters() {
             }
         }
 
-        row.style.display = show ? "" : "none";
-    });
+     row.dataset.visible = show ? "1" : "0";
+row.style.display = show ? "" : "none";
+});
+
+// 🔥 VERY IMPORTANT
+currentPage = 1;
+paginateTable();
+
 }
 
 
