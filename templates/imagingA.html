@@ -554,111 +554,273 @@ tr.status-draft { background-color: #fef9e7 !important; }
 {% block body %}
 
 <div id="nav2"  class="nav2">
-    <button style="" class="add-btn" onclick="window.location.href='/popupform/'">
+    <!-- <button style="" class="add-btn" onclick="window.location.href='/popupform/'">
     <i class="fas fa-user-plus"></i> Add New
-</button>
-<button class="add-btn" id="openAddPatientPopup">
-    <i class="fas fa-user-plus"></i> Add New
-</button>
+</button> -->
+<button class="add-btn" onclick="openPatientPopup()"> <i class="fas fa-user-plus"></i>Add New</button>
+<script>
+function openPatientPopup() {
+    document.getElementById("patientPopupOverlay").style.display = "flex";
+}
+
+function closePatientPopup() {
+    document.getElementById("patientPopupOverlay").style.display = "none";
+}
+</script>
+
 
 <!-- ========================= ADD PATIENT POPUP ========================= -->
 
-<div id="addPatientOverlay" style="
-    position: fixed; inset:0;
+<!-- ===== POPUP OVERLAY ===== -->
+<div id="patientPopupOverlay" style="
+    position: fixed;
+    inset: 0;
     background: rgba(0,0,0,0.6);
-    display:none;
-    align-items:center;
-    justify-content:center;
+    display: none;
+    align-items: center;
+    justify-content: center;
     z-index: 99999;
 ">
-    <div style="
-        width:95%; max-width:430px;
-        background:white;
-        border-radius:12px;
-        padding:18px;
-        position:relative;
-        max-height:90vh;
-        overflow-y:auto;
-    ">
-        <h3 style="text-align:center; margin-top:0;">⟪ Patient Details ⟫</h3>
+<div class="modal">
+  <div class="modal-header">
+    <h2>Patient Details</h2>
 
-        <span onclick="closeAddPatient()" style="
-            position:absolute; top:8px; right:12px;
-            font-size:22px; cursor:pointer; color:#444;
-        ">×</span>
+    <!-- CLOSE BUTTON -->
+    <span onclick="closePatientPopup()" style="
+      position:absolute;
+      right:16px;
+      top:8px;
+      color:white;
+      font-size:22px;
+      cursor:pointer;">×</span>
+  </div>
 
-        <!-- FORM -->
-        <form id="patientPopupForm">
+  <form class="patient-form" id="patientPopupForm">
 
-            <!-- Patient ID -->
-            <div class="floating-label-container">
-                <label>Patient ID</label>
-                <input type="text" id="pop_patientId">
-            </div>
-
-            <!-- Name + Age + Gender -->
-            <div style="display:flex; gap:10px; align-items:center;">
-                <div class="floating-label-container" style="flex:2;">
-                    <label>Patient Name</label>
-                    <input type="text" id="pop_patientName" required>
-                </div>
-
-                <div class="floating-label-container" style="flex:1;">
-                    <label>Age</label>
-                    <input type="number" id="pop_age" required>
-                </div>
-
-                <button type="button" class="gender-btn" data-gender="M">M</button>
-                <button type="button" class="gender-btn" data-gender="F">F</button>
-                <input type="hidden" id="pop_gender">
-            </div>
-
-            <!-- History -->
-            <div class="floating-label-container">
-                <label>History</label>
-                <input type="text" id="pop_history" required>
-            </div>
-
-            <!-- Modality + Body Part -->
-            <div style="display:flex; gap:10px;">
-                <div class="floating-label-container" style="flex:1;">
-                    <label>Modality</label>
-                    <select id="pop_scanType">
-                        <option value="X-RAY">X-RAY</option>
-                        <option value="CT">CT</option>
-                        <option value="MRI">MRI</option>
-                        <option value="MG">MG</option>
-                    </select>
-                </div>
-
-                <div class="floating-label-container" style="flex:1;">
-                    <label>Body Part</label>
-                    <input type="text" id="pop_bodyPart" required>
-                </div>
-            </div>
-
-            <!-- Ref By -->
-            <div class="floating-label-container">
-                <label>Referred By</label>
-                <input type="text" id="pop_refBy" required>
-            </div>
-
-            <!-- Upload -->
-            <div class="upload-box" style="margin-top:-5px;">
-                <input type="file" id="pop_uploadScan" accept="image/*">
-                <input type="hidden" id="pop_center" value="{{ request.session.user_name }}">
-                <span class="placeholder">Upload Scan</span>
-                <i class="fas fa-upload"></i>
-            </div>
-
-            <img id="pop_preview" style="max-width:100%; margin-top:10px; display:none;">
-
-            <button type="submit" class="submit-btn" style="margin-top:12px;">
-                Submit
-            </button>
-        </form>
+    <div class="row">
+      <div class="field">
+        <label>Patient ID</label>
+        <input id="pop_patientId"  type="text" placeholder="Enter ID">
+      </div>
+      <!-- <div class="field">
+        <label>Patient ID</label>
+        <input id="pop_patientId"  type="text" placeholder="Enter ID">
+      </div> -->
     </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Patient Name</label>
+        <input id="pop_patientName" style="width:158% ;"  id="" type="text" placeholder="Full Name">
+      </div>
+
+      <div style="margin-left: 110px;" class="field">
+        <label>Age</label>
+        <input style="width: 50%;" id="pop_age" inputmode="numeric"  type="number" placeholder="Age">
+        
+      </div>
+
+      <div style="margin-right: 0px; " class="field gender">
+        <label>Gender</label>
+        <div style="border: 1px solid #d1d8e3;" class="gender-box">
+        <span style="" class="gender-btn active" data-gender="M">M</span>
+        <span class="gender-btn" data-gender="F">F</span>
+        <span class="gender-btn" data-gender="O">O</span>
+
+        <input type="hidden" id="pop_gender">
+
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="Modality">Modality</label>
+        <select style="width: 70%;" id="pop_scanType">
+            <option value="X-RAY" selected>X-RAY</option>
+            <option value="CT">CT</option>
+            <option value="MRI">MRI</option>
+            <option value="MG">MG</option>
+        </select>
+
+      </div>
+
+      <div style="margin-left: -50px;" class="field">
+        <label>Body Part</label>
+        <input style="width: 87%;" id="pop_bodyPart" type="text" placeholder="e.g. Chest">
+        
+      </div>
+
+      <div style="margin-right: 120px;" class="field">
+        <label> Clinical History</label>
+        <input style="width: 165%;" id="pop_history" type="text" placeholder="Short history">
+      </div>
+    </div>
+
+    <div class="row bottom-row">
+      <div class="field">
+        <label>Referred By</label>
+        <input style="width: 92%;" id="pop_refBy" type="text" placeholder="Doctor name">
+      </div>
+      <label style="margin-right: 50px; margin-bottom: -13px; padding:6px;" class="upload-box">
+        <input type="file" id="pop_uploadScan" hidden accept="image/*">
+        ⬆ Upload Scan
+      </label>
+
+      
+
+      <button style="padding: 10px 28px; margin-bottom: -12px;" class="submit-btn">Submit</button>
+    </div>
+    
+<img id="pop_preview" style="display:none;">
+<img id="pop_finalImage" style="display:none;">
+<input type="hidden" id="pop_center" value="{{ request.session.user_name }}">
+
+  </form>
 </div>
+</div>
+<style>
+
+
+.modal {
+  width: 570px;
+  background: #fff;
+  margin: 40px auto;
+  border-radius: 14px;
+  height: 350px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+/* Chrome, Edge, Safari */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.modal-header {
+  background: linear-gradient(90deg, #007bff , #1e88e5);
+  /* padding: 14px; */
+  text-align: center;
+  height: 30px;
+}
+
+.modal-header h2 {
+  color: #fff;
+  margin: 0;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.patient-form {
+  padding: 16px ;
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+}
+
+.field label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.field input,
+.field select {
+  /* height: 20px; */
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d0d7e2;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 2px rgba(30,136,229,0.15);
+  outline: none;
+}
+
+.gender {
+  max-width: 100px;
+}
+
+.gender-box {
+  display: flex;
+  background: #f1f4f9;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 35px;
+  margin-top: auto;
+  margin-left: -30px;
+}
+
+.gender-box span {
+  flex: 1;
+  text-align: center;
+  line-height: 40px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #555;
+}
+
+.gender-box span.active {
+  background: #007bff ;
+  color: #fff;
+}
+
+.bottom-row {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upload-box {
+  background: #f1f4f9;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1e88e5;
+  border: 1px dashed #1e88e5;
+}
+
+.upload-box:hover {
+  background: #e3f2fd;
+}
+
+.submit-btn {
+  padding: 16px 30px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #007bff , #1e88e5);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(30,136,229,0.4);
+}
+
+</style>
 
 
 
@@ -693,34 +855,29 @@ tr.status-draft { background-color: #fef9e7 !important; }
     </div>
 </div>
 
-<img id="pop_finalImage" style="display:none;">
+<!-- <img id="pop_finalImage" style="display:none;"> -->
 
 <script>
 let cropper;
 
-document.getElementById("openAddPatientPopup").onclick = () => {
-    resetPopupForm();
-    document.getElementById("addPatientOverlay").style.display = "flex";
-};
-
-function closeAddPatient() {
-    document.getElementById("addPatientOverlay").style.display = "none";
+/* OPEN / CLOSE POPUP */
+function openPatientPopup() {
+    document.getElementById("patientPopupOverlay").style.display = "flex";
+    document.getElementById("pop_gender").value = "M"; // default
+    document.getElementById("pop_scanType").value = "X-RAY";
 }
 
+function closePatientPopup() {
+    document.getElementById("patientPopupOverlay").style.display = "none";
+}
+
+/* AUTO PATIENT ID */
 function newPatientId() {
     let d = new Date();
     return `P${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;
 }
 
-function resetPopupForm() {
-    document.getElementById("patientPopupForm").reset();
-    document.getElementById("pop_preview").style.display = "none";
-    document.getElementById("pop_gender").value = "";
-    document.querySelectorAll(".gender-btn").forEach(btn => btn.classList.remove("active"));
-}
-
-
-// ---------------- GENDER ----------------
+/* GENDER */
 document.querySelectorAll(".gender-btn").forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll(".gender-btn").forEach(x => x.classList.remove("active"));
@@ -729,102 +886,80 @@ document.querySelectorAll(".gender-btn").forEach(btn => {
     };
 });
 
-// IMAGE UPLOAD + CROPPER
+/* IMAGE UPLOAD */
 document.getElementById("pop_uploadScan").addEventListener("change", function () {
     const file = this.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onload = (e) => {
-        const cropImg = document.getElementById("cropImage");
-        cropImg.src = e.target.result;
-
+        document.getElementById("cropImage").src = e.target.result;
         document.getElementById("cropEditor").style.display = "block";
 
         if (cropper) cropper.destroy();
-
-        cropper = new Cropper(cropImg, {
-            viewMode: 1,
-            autoCropArea: 1,
-        });
+        cropper = new Cropper(cropImage, { viewMode: 1, autoCropArea: 1 });
     };
-
     reader.readAsDataURL(file);
 });
 
-// FINISH CROP
+/* CROP DONE */
 function finishCrop() {
     const canvas = cropper.getCroppedCanvas();
     const base64 = canvas.toDataURL("image/jpeg", 0.7);
-
-    // final image save
     document.getElementById("pop_finalImage").src = base64;
-
-    // Preview (optional)
-    const preview = document.getElementById("pop_preview");
-    preview.src = base64;
-    preview.style.display = "block";
-
     document.getElementById("cropEditor").style.display = "none";
 }
 
-function closeCropper() {
-    document.getElementById("cropEditor").style.display = "none";
-}
-
-
-
-// ---------------- CSRF ----------------
+/* CSRF */
 function getCookie(name) {
     let cookieValue = null;
-    document.cookie.split(";").forEach(cookie => {
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + "=")) cookieValue = cookie.split("=")[1];
+    document.cookie.split(";").forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + "=")) cookieValue = c.split("=")[1];
     });
     return cookieValue;
 }
 
-
-// ---------------- SUBMIT FORM ----------------
-document.getElementById("patientPopupForm").onsubmit = function(e) {
+/* SUBMIT */
+document.getElementById("patientPopupForm").addEventListener("submit", function(e){
     e.preventDefault();
 
-    let id = document.getElementById("pop_patientId").value.trim();
-    if (id === "") id = newPatientId();
+    let pid = pop_patientId.value.trim();
+    if (!pid) pid = newPatientId();
 
     const data = {
-        patient_id: id,
-        name: document.getElementById("pop_patientName").value,
-        age: document.getElementById("pop_age").value,
-        gender: document.getElementById("pop_gender").value,
-        history: document.getElementById("pop_history").value,
-        scanType: document.getElementById("pop_scanType").value,
-        bodyPart: document.getElementById("pop_bodyPart").value,
-        refBy: document.getElementById("pop_refBy").value,
-        scan: document.getElementById("pop_finalImage").src,
-        center: document.getElementById("pop_center").value
+        patient_id: pid,
+        name: pop_patientName.value,
+        age: pop_age.value,
+        gender: pop_gender.value,
+        history: pop_history.value,
+        scanType: pop_scanType.value,
+        bodyPart: pop_bodyPart.value,
+        refBy: pop_refBy.value,
+        scan: pop_finalImage.src,
+        center: pop_center.value
     };
 
     fetch("/api/patient/add/", {
         method: "POST",
         headers: {
-            "Content-Type":"application/json",
+            "Content-Type": "application/json",
             "X-CSRFToken": getCookie("csrftoken")
         },
         body: JSON.stringify(data)
     })
-    .then(r=>r.json())
-    .then(res=>{
-        if(res.status==="success"){
-            closeAddPatient();
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === "success") {
+            closePatientPopup();
             location.reload();
         } else {
-            alert("Error: "+res.message);
+            alert(res.message);
         }
     });
-};
+});
 </script>
+
 
 
 <div class="date-chip-box" style="box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);">
