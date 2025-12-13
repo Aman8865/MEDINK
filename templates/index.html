@@ -1943,46 +1943,97 @@ document.getElementById("selectAll").addEventListener("change", function(){
 
 // datae range
 let selectedDateFilter = "ALL";
+let dayOffset = 0;   // 0 = today, 1 = yesterday ... max 7
 let tempSelectedDay = dateOnly(new Date());
 
 function dateOnly(d) {
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
+function getDateByOffset(offset) {
+    const d = new Date();
+    d.setDate(d.getDate() - offset);
+    return dateOnly(d);
+}
 function setDateFilter(type) {
-    selectedDateFilter = type;
 
-    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-    const chip = [...document.querySelectorAll(".chip")]
-        .find(x => x.textContent.toUpperCase().includes(type));
-    if (chip) chip.classList.add("active");
+    const chip = document.getElementById("dayChip");
+    const allChips = document.querySelectorAll(".date-chip-box .chip");
 
+    // remove active from all chips
+    allChips.forEach(c => c.classList.remove("active"));
+
+    // 🔹 TODAY
     if (type === "TODAY") {
-        tempSelectedDay = dateOnly(new Date());
+        dayOffset = 0;
+        selectedDateFilter = "TODAY";
+        tempSelectedDay = getDateByOffset(0);
+
+        chip.textContent = "TODAY";
+        chip.classList.add("active");
+
+        applyFilters();
+        return;
     }
 
+    // 🔹 MONTH
+    if (type === "MONTH") {
+        dayOffset = 0;
+        selectedDateFilter = "MONTH";
+
+        // MONTH chip ko active banao
+        event.target.classList.add("active");
+
+        applyFilters();
+        return;
+    }
+
+    // 🔹 RANGE (calendar se)
+    if (type === "RANGE") {
+        dayOffset = 0;
+        selectedDateFilter = "RANGE";
+
+        applyFilters();
+        return;
+    }
+
+    selectedDateFilter = type;
     applyFilters();
 }
 
-function goPrevDay() {
-    const today = dateOnly(new Date());
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+function formatChipDate(dateObj) {
+    const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    const d = dateObj.getDate();
+    const m = months[dateObj.getMonth()];
+    return `${d}-${m}`;
+}
 
-    tempSelectedDay = yesterday;
+function getDateByOffset(offset) {
+    const d = new Date();
+    d.setDate(d.getDate() - offset);
+    return dateOnly(d);
+}
+
+function goPrevDay() {
+
+    if (dayOffset >= 7) return;   // max last 7 days
+
+    dayOffset++;
+    tempSelectedDay = getDateByOffset(dayOffset);
     selectedDateFilter = "DAY-JUMP";
 
-    // UI text update
-    const dayChip = document.getElementById("dayChip");
-    dayChip.textContent = "Y-DAY";
+    const chip = document.getElementById("dayChip");
 
-    // REMOVE all active classes from date chips
-    document.querySelectorAll(".date-chip-box .chip").forEach(c => {
-        c.classList.remove("active");
-    });
+    if (dayOffset === 1) {
+        chip.textContent = "Y-DAY";          // ✅ exactly yesterday
+    } else {
+        chip.textContent = formatChipDate(tempSelectedDay); // ✅ date start
+    }
 
-    // APPLY active to YESTERDAY
-    dayChip.classList.add("active");
+    document.querySelectorAll(".date-chip-box .chip")
+        .forEach(c => c.classList.remove("active"));
+
+    chip.classList.add("active");
 
     applyFilters();
 }
@@ -1990,23 +2041,49 @@ function goPrevDay() {
 
 
 function goNextDay() {
-    tempSelectedDay = dateOnly(new Date());
-    selectedDateFilter = "TODAY";
 
-    // UI update
-    document.getElementById("dayChip").textContent = "TODAY";
+    if (dayOffset <= 0) return;   // future not allowed
 
-    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-    document.getElementById("dayChip").classList.add("active");
+    dayOffset--;
+    tempSelectedDay = getDateByOffset(dayOffset);
+
+    const chip = document.getElementById("dayChip");
+
+    if (dayOffset === 0) {
+        chip.textContent = "TODAY";
+        selectedDateFilter = "TODAY";
+    } 
+    else if (dayOffset === 1) {
+        chip.textContent = "Y-DAY";
+        selectedDateFilter = "DAY-JUMP";
+    } 
+    else {
+        chip.textContent = formatChipDate(tempSelectedDay);
+        selectedDateFilter = "DAY-JUMP";
+    }
+
+    document.querySelectorAll(".date-chip-box .chip")
+        .forEach(c => c.classList.remove("active"));
+
+    chip.classList.add("active");
 
     applyFilters();
 }
-window.onload = function() {
-    document.getElementById("dayChip").classList.add("active");
+window.onload = function () {
+
+    dayOffset = 0;
     selectedDateFilter = "TODAY";
-    tempSelectedDay = dateOnly(new Date());
+    tempSelectedDay = getDateByOffset(0);
+
+    const chip = document.getElementById("dayChip");
+    chip.textContent = "TODAY";
+    chip.classList.add("active");
+
+    filterPatients("ALL");
+    filterByScanType("ALL");
     applyFilters();
 };
+
 
 
 function openDateRange() {
@@ -2088,11 +2165,7 @@ function updateAssignLabel() {
     applyFilters();   // ⭐ Change होते ही filter चलेगा
 }
 
-window.onload = function() {
-    filterPatients("ALL");     // Status filter default
-    filterByScanType("ALL");   // 🔥 Scan filter default
-    applyFilters();
-};
+
 </script>
 </body>
 </html>
