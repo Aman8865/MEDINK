@@ -25,6 +25,52 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
 }
+.assign-dropdown {
+    width: 85px;        /* FIXED WIDTH */
+    height: 20px;        /* FIXED HEIGHT */
+    padding: 2px 6px;
+    font-size: 13px;
+    border: 1px solid #d6d5d5;
+    border-radius: 5px;
+    background: #fff;
+    cursor: pointer;
+    gap: 4px; 
+    font-size: 12px;
+
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* text truncate */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    /* custom arrow */
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%23000' height='12' viewBox='0 0 20 20' width='12' xmlns='http://www.w3.org/2000/svg'><path d='M5.5 7l4.5 4.5L14.5 7z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 5px center;  /* 🔥 arrow ko paas lao */
+    background-size: 10px;
+}
+.assign-dropdown option {
+    font-size: 12px;
+}
+.history-col {
+    width: 20px;           /* fixed width */
+    max-width: 20px;
+    
+    white-space: nowrap;    /* single line */
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    vertical-align: middle;
+}
+
 
 /* 🧭 TOP NAVBAR */
 .top-navbar {
@@ -1139,7 +1185,7 @@ function saveEdit() {
         <th class="p-2">History</th>
         <th class="p-2">Assign</th>
         <th class="p-2">Report</th>
-        <!-- <th class="p-2">TAT</th> -->
+        <th class="p-2">TAT</th>
         <th class="p-2">Amount</th>
       </tr>
     </thead>
@@ -1172,18 +1218,38 @@ function saveEdit() {
                     <strong>{{patient.body_part|upper}}</strong><br>
                     <small>{{patient.ref_by}}</small>
                 </td>
-                <td>{{patient.history}}</td>
+                <td class="history-col" title="{{ patient.history }}">
+                    {{ patient.history }}
+                </td>
+
               <td onclick="event.stopPropagation();">
-    <select class="assign-dropdown" data-patient="{{ patient.id }}" onchange="assignPatient('{{patient.id}}', this.value)">
+    <select style="border: 1px solid rgb(214, 213, 213); border-radius: 5px;" class="assign-dropdown"
+        data-patient="{{ patient.id }}"
+        onchange="assignPatient('{{patient.id}}', this.value)">
+    
+    {% if patient.assigned_to %}
+        <option value="UNASSIGN">select</option>
+    {% else %}
         <option value="">Select</option>
-        {% for r in rads %}
-            <option value="{{r.id}}" {% if patient.assigned_to and patient.assigned_to.id == r.id %}selected{% endif %}>
-                {{r.name}}
-            </option>
-        {% endfor %}
-    </select>
+    {% endif %}
+
+    {% for r in rads %}
+        <option value="{{r.id}}"
+            {% if patient.assigned_to and patient.assigned_to.id == r.id %}selected{% endif %}>
+            {{r.name}}
+        </option>
+    {% endfor %}
+</select>
+
     <br>
-    <small class="entry-time">{{patient.entry_time|date:"d/m/Y"}} | {{patient.entry_time|time:"H:i"}}</small>
+    <small class="assigned-time">
+{% if patient.assigned_time %}
+    {{ patient.assigned_time|date:"d/m/Y" }} | {{ patient.assigned_time|time:"H:i" }}
+{% else %}
+    <!-- blank when not assigned -->
+{% endif %}
+</small>
+
     <!-- show currently assigned -->
     {% if patient.assigned_to %}
       <!-- <br><small class="assigned-to-display">{{ patient.assigned_to.name }}</small> -->
@@ -1192,13 +1258,43 @@ function saveEdit() {
     {% endif %}
 </td>
                 <td>
-                    <i class="fa-regular fa-file-pdf" style="color:red; cursor:pointer; margin-right:8px;" 
-                       onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
-                    <i class="fa-regular fa-file-word" style="color:blue; cursor:pointer;" 
-                       onclick="downloadReport({{patient.id}}, 'word', event)"></i>
-                    <span class="status {{patient.status|lower}}">{{patient.status}}</span>
+                    <i class="fa-regular fa-file-pdf"
+                    style="color:red; cursor:pointer; margin-right:8px;"
+                    onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
+
+                    <i class="fa-regular fa-file-word"
+                    style="color:blue; cursor:pointer;"
+                    onclick="downloadReport({{patient.id}}, 'word', event)"></i>
+
+                    <span class="status {{patient.status|lower}}">
+                        {{ patient.status }}
+                    </span>
+
+                    {% if patient.status == 'FINAL' and patient.final_time %}
+                        <br>
+                        <small style="color:#6b7280; font-size:11px;">
+                            {{ patient.final_time|date:"d/m/Y" }} | {{ patient.final_time|time:"H:i" }}
+                        </small>
+                    {% endif %}
                 </td>
+
                 <!-- <td><span class="green-dot"></span></td> -->
+   <td>
+    {% if patient.tat %}
+        <span style="color:green; font-weight:600;">
+            {{ patient.tat }}
+        </span>
+    {% elif patient.assigned_time %}
+        <span style="color:orange; font-weight:600;">
+            Running
+        </span>
+    {% else %}
+        -
+    {% endif %}
+</td>
+
+
+
                 <td>₹100</td>
                 <!-- <td>
                     <i class="fa-solid fa-trash" style="color:red; cursor:pointer;" 
@@ -1636,7 +1732,6 @@ document.getElementById("radsSelect").addEventListener("change", function () {
 
 // all RADS assign-dropdown
 function assignPatient(patientId, radId) {
-    if (!radId) return; // nothing selected
 
     fetch(`/assign_patient/${patientId}/`, {
         method: "POST",
@@ -1644,22 +1739,22 @@ function assignPatient(patientId, radId) {
             "Content-Type": "application/json",
             "X-CSRFToken": getCookie("csrftoken"),
         },
-        body: JSON.stringify({ rad_id: radId })
+        body: JSON.stringify({
+            rad_id: radId === "UNASSIGN" ? null : radId
+        })
     })
     .then(response => {
         if (response.ok) {
-            alert("Patient assigned successfully!");
+            location.reload(); // simple & safe
         } else {
-            alert("Failed to assign patient!");
+            alert("Action failed!");
         }
     })
     .catch(err => {
         console.error(err);
-        alert("Error assigning patient!");
+        alert("Error assigning/unassigning");
     });
 }
-
-
 
 function getCookie(name) {
     let cookieValue = null;

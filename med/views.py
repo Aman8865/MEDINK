@@ -227,7 +227,7 @@ def index(request):
         rads = None
         patients = Patient.objects.filter(
             assigned_to_id=user_id
-        ).order_by('-entry_time')
+        ).order_by('-assigned_time','-entry_time')
 
     return render(request, 'index.html', {
         "user_name": user_name,
@@ -246,17 +246,56 @@ def index(request):
    
 
 @csrf_exempt
+# from django.utils import timezone
+
 def update_report(request, id):
     if request.method == 'POST':
         data = json.loads(request.body)
         try:
             patient = Patient.objects.get(id=id)
-            patient.report = data['report']
-            patient.status = data['status']
+
+            patient.report = data.get('report', patient.report)
+            patient.status = data.get('status', patient.status)
+
+            tat_text = None
+
+            # 🔥 TAT calculate only on FINAL
+            if patient.status == 'FINAL':
+
+                # Final time set only once
+                if not patient.final_time:
+                    patient.final_time = timezone.now()
+
+                if patient.assigned_time:
+                    delta = patient.final_time - patient.assigned_time
+                    total_minutes = max(1, int(delta.total_seconds() // 60))
+
+                    hours = total_minutes // 60
+                    minutes = total_minutes % 60
+
+                    tat_text = f"{hours}h {minutes}m" if hours else f"{minutes} min"
+
+                    patient.tat = tat_text   # 🔥 SAVE TAT
+            else:
+                # 🔥 agar FINAL nahi hai to TAT clear
+                patient.tat = None
+                patient.final_time = None
+
             patient.save()
-            return JsonResponse({'status': 'success'})
+
+            return JsonResponse({
+                'status': 'success',
+                'tat': patient.tat,   # 🔥 always from DB
+                'redirect': '/RADS/'
+            })
+
         except Patient.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Patient not found'})
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Patient not found'
+            })
+
+
 
 def report(request, id):
     try:
@@ -519,6 +558,7 @@ def logout_view(request):
     # views.py (kisi jagah imports ke upar)
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt  # agar aap csrf_token use nahi kar rahe toh rakh sakte ho
 
 # Add this function somewhere in views.py
@@ -553,10 +593,25 @@ def assign_patient(request, patient_id):
         return JsonResponse({'success': False, 'error': 'Patient not found'}, status=404)
 
     # Unassign
+    # Unassign
     if not rad_id:
         patient.assigned_to = None
+        patient.assigned_time = None
+
+        # 🔥 ADD THESE LINES
+        patient.status = 'UNREAD'
+        patient.tat = None      # report unread hona chahiye
+        patient.report = ''            # optional (agar report clear chahiye)
+        patient.final_time = None      # optional (agar final reset chahiye)
+
         patient.save()
-        return JsonResponse({'success': True, 'assigned_to': None})
+
+        return JsonResponse({
+            'success': True,
+            'assigned_to': None,
+            'status': 'UNREAD'
+        })
+
 
     # Assign to RADS
     try:
@@ -565,6 +620,8 @@ def assign_patient(request, patient_id):
         return JsonResponse({'success': False, 'error': 'RAD user not found'}, status=404)
 
     patient.assigned_to = rad_user
+    patient.assigned_time = timezone.now()   # ⭐ yahi main fix
+    patient.status = 'UNREAD'
     patient.save()
 
     return JsonResponse({

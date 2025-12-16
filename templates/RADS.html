@@ -489,7 +489,7 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
                     <input type="checkbox" class="rowCheckbox" data-id="{{patient.id}}" onclick="event.stopPropagation()">
 
                     <br>
-                    <small>{{patient.entry_time|date:"d/m/Y"}} | {{patient.entry_time|time:"H:i"}}</small>
+                    <small>{{ patient.assigned_time|default:patient.entry_time|date:"d/m/Y" }} | {{ patient.assigned_time|default:patient.entry_time|time:"H:i" }}</small>
                 </td>
                 <td>
                     <strong>{{patient.name}}</strong><br>
@@ -507,12 +507,26 @@ tr.status-draft  { background-color: #fef9e7 !important; }  /* cream */
                     <small>{{patient.entry_time|date:"d/m/Y"}}</small>
                 </td> -->
                 <td>
-                    <i class="fa-regular fa-file-pdf" style="color:red; cursor:pointer; margin-right:8px;" 
-                       onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
-                    <i class="fa-regular fa-file-word" style="color:blue; cursor:pointer;" 
-                       onclick="downloadReport({{patient.id}}, 'word', event)"></i>
-                    <span class="status {{patient.status|lower}}">{{patient.status}}</span>
+                    <i class="fa-regular fa-file-pdf"
+                    style="color:red; cursor:pointer; margin-right:8px;"
+                    onclick="downloadReport({{patient.id}}, 'pdf', event)"></i>
+
+                    <i class="fa-regular fa-file-word"
+                    style="color:blue; cursor:pointer;"
+                    onclick="downloadReport({{patient.id}}, 'word', event)"></i>
+
+                    <span class="status {{patient.status|lower}}">
+                        {{patient.status}}
+                    </span>
+
+                    {% if patient.status == 'FINAL' and patient.final_time %}
+                        <br>
+                        <small style="color:#6b7280; font-size:11px;">
+                            {{ patient.final_time|date:"d/m/Y" }} | {{ patient.final_time|time:"H:i" }}
+                        </small>
+                    {% endif %}
                 </td>
+
                 <td><span class="green-dot"></span></td>
                 <td>₹100</td>
                 <!-- <td>

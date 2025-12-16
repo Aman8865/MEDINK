@@ -16,6 +16,10 @@ class Patient(models.Model):
     # Changed from ImageField to TextField
     scan_image = models.TextField()
     entry_time = models.DateTimeField(auto_now_add=True)
+    final_time = models.DateTimeField(null=True, blank=True)
+    tat = models.CharField(max_length=20, null=True, blank=True) 
+    
+    assigned_time = models.DateTimeField(null=True, blank=True) 
     status = models.CharField(max_length=10, default='UNREAD')
     report = models.TextField(null=True, blank=True)
     created_by = models.ForeignKey('UserAccount', on_delete=models.CASCADE, null=True, blank=True)
