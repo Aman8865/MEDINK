@@ -60,17 +60,59 @@ body {
 .assign-dropdown option {
     font-size: 12px;
 }
-.history-col {
-    width: 20px;           /* fixed width */
+
+/* 🔹 HISTORY TOOLTIP */
+.history-tooltip {
+    position: relative;
     max-width: 20px;
-    
-    white-space: nowrap;    /* single line */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    vertical-align: middle;
+    cursor: pointer;
 }
 
+/* popup box */
+.history-tooltip .history-popup {
+    display: none;
+
+    position: fixed;   /* 🔥 FIXED – not absolute */
+
+    background: #1f2937;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 8px;
+
+    min-width: 280px;
+    max-width: 420px;
+    max-height: 220px;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    z-index: 999999;   /* 🔥 above everything */
+
+    white-space: normal;
+    word-break: break-word;
+    overflow-y: auto;
+}
+
+
+/* arrow */
+.history-tooltip .history-popup::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 18px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #1f2937 transparent;
+}
+
+/* show on hover */
+.history-tooltip:hover .history-popup {
+    display: block;
+}
 
 /* 🧭 TOP NAVBAR */
 .top-navbar {
@@ -1218,9 +1260,15 @@ function saveEdit() {
                     <strong>{{patient.body_part|upper}}</strong><br>
                     <small>{{patient.ref_by}}</small>
                 </td>
-                <td class="history-col" title="{{ patient.history }}">
-                    {{ patient.history }}
+                <td class="history-col">
+                    <div class="history-tooltip">
+                        {{ patient.history|truncatechars:35 }}
+                        <div class="history-popup">
+                            {{ patient.history }}
+                        </div>
+                    </div>
                 </td>
+
 
               <td onclick="event.stopPropagation();">
     <select style="border: 1px solid rgb(214, 213, 213); border-radius: 5px;" class="assign-dropdown"

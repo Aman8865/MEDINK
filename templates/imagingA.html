@@ -26,6 +26,65 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
 }
+/* 🔹 HISTORY TOOLTIP */
+.history-tooltip {
+    position: relative;
+    max-width: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+/* popup box */
+.history-tooltip .history-popup {
+    display: none;
+
+    position: fixed;   /* 🔥 FIXED – not absolute */
+
+    background: #1f2937;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 8px;
+
+    min-width: 280px;
+    max-width: 420px;
+    max-height: 220px;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    z-index: 999999;   /* 🔥 above everything */
+
+    white-space: normal;
+    word-break: break-word;
+    overflow-y: auto;
+}
+
+
+/* arrow */
+.history-tooltip .history-popup::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 18px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #1f2937 transparent;
+}
+
+/* show on hover */
+.history-tooltip:hover .history-popup {
+    display: block;
+}
+
+/* Cropper internal background fix */
+.cropper-container,
+.cropper-canvas,
+.cropper-wrap-box,
+.cropper-drag-box {
+    background-color: #000 !important;
+}
 
 /* 🧭 TOP NAVBAR */
 .top-navbar {
@@ -807,35 +866,79 @@ input[type=number] {
   </form>
 </div>
 </div>
-
 <!-- ===== FULLSCREEN CROP EDITOR ===== -->
 <div id="cropEditor" style="
-    display:none; 
-    position:fixed; 
+    display:none;
+    position:fixed;
     inset:0;
     background:rgba(0,0,0,0.85);
     z-index:100000;
-    padding:30px;
+
+    
+    align-items:center;
+    justify-content:center;
 ">
     <div style="
-        max-width:600px; 
-        margin:auto; 
-        background:white; 
-        padding:15px; 
-        border-radius:8px;
+        width:90%;
+        max-width:700px;
+        background:#ffffff;
+        border-radius:12px;
+        padding:16px;
+        box-shadow:0 20px 50px rgba(0,0,0,0.4);
+        display:flex;
+        flex-direction:column;
     ">
-        <img id="cropImage" style="max-width:100%; max-height:75vh;">
 
-        <div style="text-align:center; margin-top:10px;">
-            <button onclick="closeCropper()">Cancel</button>
-            <button onclick="finishCrop()" style="
-                padding:8px 18px;
-                background:#28a745; 
-                color:white; 
-                border:none; 
-                border-radius:6px;
-            ">Done</button>
+        <!-- IMAGE PREVIEW AREA -->
+        <div style="
+            height:70vh;
+            background:#111;
+            border-radius:10px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+        ">
+            <img id="cropImage" style="
+                max-width:100%;
+                max-height:100%;
+                object-fit:contain;
+            ">
         </div>
+
+        <!-- ACTION BUTTONS -->
+        <div style="
+            display:flex;
+            justify-content:center;
+            gap:12px;
+            margin-top:14px;
+        ">
+            <button onclick="closeCropper()" style="
+                padding:8px 20px;
+                border-radius:6px;
+                border:1px solid #ccc;
+                background:#f3f4f6;
+                cursor:pointer;
+                font-size:14px;
+            ">
+                Cancel
+            </button>
+
+            <button onclick="finishCrop()" style="
+                padding:8px 22px;
+                background:#28a745;
+                color:white;
+                border:none;
+                border-radius:6px;
+                font-size:14px;
+                font-weight:600;
+                cursor:pointer;
+                box-shadow:0 4px 10px rgba(40,167,69,0.35);
+            ">
+                Done
+            </button>
+        </div>
+
     </div>
 </div>
 
@@ -945,7 +1048,14 @@ input[type=number] {
                     <strong>{{patient.body_part|upper}}</strong><br>
                     <small>{{patient.ref_by}}</small>
                 </td>
-                <td>{{patient.history}}</td>
+                <td class="history-col">
+                    <div class="history-tooltip">
+                        {{ patient.history|truncatechars:35 }}
+                        <div class="history-popup">
+                            {{ patient.history }}
+                        </div>
+                    </div>
+                </td>
                 <!-- <td>
                     Dr. {{patient.ref_by}}<br>
                     <small>{{patient.entry_time|date:"d/m/Y"}}</small>
@@ -1640,7 +1750,7 @@ document.getElementById("pop_uploadScan").addEventListener("change", function ()
     const reader = new FileReader();
     reader.onload = (e) => {
         document.getElementById("cropImage").src = e.target.result;
-        document.getElementById("cropEditor").style.display = "block";
+        document.getElementById("cropEditor").style.display = "flex";
 
         if (cropper) cropper.destroy();
         cropper = new Cropper(cropImage, { viewMode: 1, autoCropArea: 1 });
