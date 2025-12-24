@@ -2,7 +2,7 @@ from urllib import request
 from django.shortcuts import render
 from django.shortcuts import render
 from django.http import JsonResponse,HttpResponse
-from .models import Patient
+from .models import Patient, Report
 from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime
@@ -137,30 +137,37 @@ def add_patient(request):
         try:
             data = json.loads(request.body)
 
-            # ⭐ Step 1 — Manual ID form से लो
             manual_id = data.get('patient_id')
 
-            # ⭐ Scan image extract karo
             scan_image = data.get('scan', '')
             if ',' in scan_image:
                 scan_image = scan_image.split(',')[1]
 
-            user_id = request.session.get('user_id')  
-            center_name = data.get('center') or request.session.get('user_name')
+            hospital_id = data.get('hospital_id')
 
-            # ⭐ Step 2 — Manual OR Auto ID logic
+            # 🏥 Hospital selection logic
+            if hospital_id:
+                hospital = UserAccount.objects.get(id=hospital_id, usertype='IMAGING')
+                center_name = hospital.name
+                created_by = hospital
+            else:
+                center_name = request.session.get('user_name')
+                user_id = request.session.get('user_id')
+                if user_id:
+                    created_by = UserAccount.objects.get(id=user_id)
+                else:
+                    created_by = None
+
+            # Patient ID
             if manual_id:
                 patient_id = manual_id
             else:
-                from datetime import datetime
-                import random
                 now = datetime.now()
-                rand = random.randint(1000, 9999)
-                patient_id = f"P{now.strftime('%Y%m%d')}-{rand}"
+                import random
+                patient_id = f"P{now.strftime('%Y%m%d')}-{random.randint(1000,9999)}"
 
-            # ⭐ Step 3 — Patient create with ID
             patient = Patient.objects.create(
-                patient_id=patient_id,     # ←⭐ important
+                patient_id=patient_id,
                 name=data.get('name'),
                 age=data.get('age'),
                 gender=data.get('gender'),
@@ -170,13 +177,14 @@ def add_patient(request):
                 ref_by=data.get('refBy'),
                 scan_image=scan_image,
                 center=center_name,
-                created_by_id=user_id
+                created_by=created_by   # ⭐ hospital user linked
             )
 
             return JsonResponse({'status': 'success', 'patient_id': patient.patient_id})
 
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
+
 
 
 from django.shortcuts import render
@@ -304,6 +312,69 @@ def report(request, id):
     except Patient.DoesNotExist:
         return render(request, 'report.html', {'error': 'Patient not found'})
     
+
+@csrf_exempt
+def get_reports(request, patient_id):
+    try:
+        patient = Patient.objects.get(id=patient_id)
+        reports = patient.reports.all().values('id', 'report_text', 'status', 'created_at', 'updated_at')
+        return JsonResponse({'reports': list(reports)})
+    except Patient.DoesNotExist:
+        return JsonResponse({'error': 'Patient not found'}, status=404)
+
+@csrf_exempt
+def create_report(request, patient_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            patient = Patient.objects.get(id=patient_id)
+            report = Report.objects.create(
+                patient=patient,
+                report_text=data.get('report_text', ''),
+                status=data.get('status', 'DRAFT'),
+                created_by=UserAccount.objects.get(id=request.session.get('user_id')) if request.session.get('user_id') else None
+            )
+            return JsonResponse({'id': report.id, 'message': 'Report created'})
+        except Patient.DoesNotExist:
+            return JsonResponse({'error': 'Patient not found'}, status=404)
+
+@csrf_exempt
+def get_report(request, report_id):
+    try:
+        report = Report.objects.get(id=report_id)
+        data = {
+            'id': report.id,
+            'report_text': report.report_text,
+            'status': report.status,
+            'created_at': report.created_at,
+            'updated_at': report.updated_at
+        }
+        return JsonResponse(data)
+    except Report.DoesNotExist:
+        return JsonResponse({'error': 'Report not found'}, status=404)
+
+@csrf_exempt
+def update_report(request, report_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            report = Report.objects.get(id=report_id)
+            report.report_text = data.get('report_text', report.report_text)
+            report.status = data.get('status', report.status)
+            report.save()
+            return JsonResponse({'message': 'Report updated'})
+        except Report.DoesNotExist:
+            return JsonResponse({'error': 'Report not found'}, status=404)
+
+@csrf_exempt
+def delete_report(request, report_id):
+    if request.method == 'DELETE':
+        try:
+            report = Report.objects.get(id=report_id)
+            report.delete()
+            return JsonResponse({'message': 'Report deleted'})
+        except Report.DoesNotExist:
+            return JsonResponse({'error': 'Report not found'}, status=404)
 
     
 @csrf_exempt
@@ -1139,4 +1210,29 @@ def save_cropped_image(request, pk):
         except Patient.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Patient not found"})
 
+
+from django.http import JsonResponse
+from .models import UserAccount
+
+def admin_hospitals_api(request):
+    print("SESSION =>", dict(request.session))
+
+    user_id = request.session.get('user_id')
+    user_type = request.session.get('user_type')
+
+    print("ADMIN ID:", user_id)
+    print("USER TYPE:", user_type)
+
+    hospitals = UserAccount.objects.filter(
+        parent_admin_id=user_id,
+        usertype='IMAGING',
+        is_active=True
+    )
+
+    print("HOSPITAL COUNT:", hospitals.count())
+
+    return JsonResponse({
+        'status': 'success',
+        'hospitals': list(hospitals.values('id','name'))
+    })
 

@@ -196,10 +196,20 @@
     <form id="patientForm">
         <div class="container">
             <h3><< Patient Details >></h3>
-            <div class="floating-label-container">
+            <div style="display:flex; gap:30px;">
+            <div class="floating-label-container" style="flex:1;">
                 <label for="patientId">Patient ID</label>
-                <input type="text" id="patientId" >
+                <input type="text" id="patientId">
             </div>
+
+            <div class="floating-label-container" style="flex:1;">
+                <label for="hospitalSelect">Hospital</label>
+                <select id="hospitalSelect" required>
+                    <option value="">Select Hospital</option>
+                </select>
+            </div>
+        </div>
+
 
             <div style="display: flex; gap: 20px;">
                 <div class="floating-label-container" style="flex: 2;">
@@ -278,6 +288,31 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+    fetch("/api/admin/hospitals/")
+        .then(res => res.json())
+        .then(data => {
+            console.log("Hospitals API:", data); // DEBUG
+
+            if (data.status === "success") {
+                const select = document.getElementById("hospitalSelect");
+
+                data.hospitals.forEach(h => {
+                    const option = document.createElement("option");
+                    option.value = h.id;
+                    option.textContent = h.name;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(err => {
+            console.error("Hospital load error:", err);
+        });
+
+});
+
+
     let cropper;
     const fileInput = document.getElementById('uploadScan');
     const placeholder = document.querySelector('.placeholder');
@@ -374,17 +409,19 @@
         }
 
         const formData = {
-            patient_id: inputId,
-            name: document.getElementById("patientName").value,
-            age: document.getElementById("age").value,
-            gender: document.getElementById("gender").value,
-            history: document.getElementById("history").value,
-            scanType: document.getElementById("scanType").value,
-            bodyPart: document.getElementById("bodyPart").value,
-            refBy: document.getElementById("refBy").value,
-            scan: finalImage.src,
-            center: document.getElementById("centerName").value
-        };
+        patient_id: inputId,
+        name: document.getElementById("patientName").value,
+        age: document.getElementById("age").value,
+        gender: document.getElementById("gender").value,
+        history: document.getElementById("history").value,
+        scanType: document.getElementById("scanType").value,
+        bodyPart: document.getElementById("bodyPart").value,
+        refBy: document.getElementById("refBy").value,
+        scan: finalImage.src,
+
+        hospital_id: document.getElementById("hospitalSelect").value // ⭐ NEW
+    };
+
 
         fetch('/api/patient/add/', {
             method: 'POST',
@@ -397,7 +434,7 @@
         .then(res => res.json())
         .then(data => {
             if (data.status === "success") {
-                window.location.href = "/imagingA/";
+                window.location.href = "/index/";
             } else {
                 alert("❌ Error: " + data.message);
             }

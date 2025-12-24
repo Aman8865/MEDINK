@@ -41,6 +41,21 @@ class Patient(models.Model):
         db_table = 'patients'
 
 
+class Report(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='reports')
+    report_text = models.TextField(blank=True)
+    status = models.CharField(max_length=10, default='DRAFT')  # DRAFT or FINAL
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey('UserAccount', on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Report for {self.patient.name} - {self.status}"
+
+
 from django.db import models
 from django.utils import timezone
 USERTYPES = (
