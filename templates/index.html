@@ -285,26 +285,6 @@ color: #0d47a1;            /* Dark Blue Icons */
     left: 0 !important;
 }
 
-/* 📱 Responsive adjustment */
-@media (max-width: 768px) {
-    .nav2 {
-        left: 55px;
-    }
-    .nav3 {
-        left: 55px;
-        top: 130px;
-    }
-}
-@media (max-width: 480px) {
-    .nav2 {
-        left: 0;
-        top: 60px;
-    }
-    .nav3 {
-        left: 0;
-        top: 120px;
-    }
-}
 
 /* ✅ Body should not scroll */
 body {
@@ -367,70 +347,6 @@ body {
     border-radius: 50%;
 }
 
-/* 📱 RESPONSIVE DESIGN */
-@media (max-width: 992px) {
-    .sidebar2 {
-        width: 55px;
-    }
-    .nav2 {
-        margin-left: 55px;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .nav3 {
-        margin-left: 55px;
-    }
-}
-
-@media (max-width: 768px) {
-    .top-navbar span {
-        font-size: 1rem;
-    }
-    .nav2 {
-        flex-direction: column;
-        gap: 6px;
-    }
-    .nav2 button {
-        width: 100%;
-    }
-    .nav3 table {
-        font-size: 11px;
-    }
-    .nav3 th, .nav3 td {
-        padding: 6px;
-    }
-    .toggle-btn {
-        top: 70px;
-        left: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .top-navbar {
-        justify-content: space-between;
-        padding: 0 10px;
-    }
-    .top-navbar span {
-        display: none;
-    }
-    .sidebar2 {
-        width: 0;
-    }
-    .nav2 {
-        margin-left: 0;
-        padding: 8px;
-    }
-    .nav3 {
-        margin-left: 0;
-    }
-    .nav3 table {
-        font-size: 10px;
-    }
-    th:nth-child(6), td:nth-child(6),
-    th:nth-child(9), td:nth-child(9) {
-        display: none; /* hide extra columns on small screen */
-    }
-}
 
 #refreshTimer {
   font-size: 14px;
@@ -1026,11 +942,14 @@ function updateRadsLabel() {
     <input type="search" id="searchInput" placeholder="Search det..."
       style="margin-left: 0px; padding: 3px 35px 5px 10px; border-radius: 3px; border: 1px solid #ccc; width: 150px; font-size: 16px;">
   </div>
+  <a href="" style="background-color: rgb(251, 250, 250);box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); border: 1px solid #ccc; color: #007bff;">
+        <i class="fa-solid fa-search"></i>
+    </a>
 <!-- </div> -->
 
 
-    <span id="refreshTimer" style="margin-left: 0px; font-weight: 500; color: white;">
-    🔄️<span id="live-seconds" style="font-weight:bold; color:white;">30s</span>
+    <span id="refreshTimer" style="margin-left: 0px; font-weight: 300; color: white;">
+    <span id="live-seconds" style="font-weight:bold; color:white;">30s</span>
 
 
 </span>
@@ -1419,9 +1338,10 @@ function paginateTable() {
     // document.getElementById("pageNumber").innerText = currentPage;
 
     document.getElementById("displaySummary").textContent =
-        totalRows === 0
-            ? " 0 – 0 of 0"
-            : ` ${startIndex + 1} – ${endIndex} of ${totalRows}`;
+    totalRows === 0
+        ? "0 – 0 of 0"
+        : `${start + 1} – ${end} of ${totalRows}`;
+
 }
 
 
@@ -1498,19 +1418,26 @@ let currentScanFilter = 'ALL';
 
 
 function filterByScanType(scanType) {
-    currentScanFilter = scanType.toUpperCase();
-    applyFilters();
 
-    // Reset all scan options
-    document.querySelectorAll(".scan-option").forEach(x => {
-        x.classList.remove("active");
+    currentScanFilter = scanType.toUpperCase();
+
+    // 🔥 UI ACTIVE UPDATE
+    updateScanActiveUI();
+
+    applyFilters();
+}
+
+function updateScanActiveUI() {
+    document.querySelectorAll(".scan-option").forEach(el => {
+        el.classList.remove("active");
     });
 
-    // Highlight clicked scan button
-    const el = [...document.querySelectorAll(".scan-option")]
-        .find(x => x.textContent.trim().toUpperCase() === scanType.toUpperCase());
+    const activeEl = [...document.querySelectorAll(".scan-option")]
+        .find(el => el.textContent.trim().toUpperCase() === currentScanFilter);
 
-    if (el) el.classList.add("active");
+    if (activeEl) {
+        activeEl.classList.add("active");
+    }
 }
 
 
@@ -2231,49 +2158,47 @@ function getDateByOffset(offset) {
 }
 function setDateFilter(type) {
 
-    const chip = document.getElementById("dayChip");
     const allChips = document.querySelectorAll(".date-chip-box .chip");
+    const dayChip = document.getElementById("dayChip");
 
-    // remove active from all chips
+    // 🔥 remove active from all
     allChips.forEach(c => c.classList.remove("active"));
 
-    // 🔹 TODAY
-    if (type === "TODAY") {
+    /* ===== ALL ===== */
+    if (type === "ALL") {
+        selectedDateFilter = "ALL";
         dayOffset = 0;
-        selectedDateFilter = "TODAY";
-        tempSelectedDay = getDateByOffset(0);
 
-        chip.textContent = "TODAY";
-        chip.classList.add("active");
+        // 🔥 ALL chip ko active banao
+        allChips[0].classList.add("active"); // first chip = ALL
 
         applyFilters();
         return;
     }
 
-    // 🔹 MONTH
-    if (type === "MONTH") {
+    /* ===== TODAY ===== */
+    if (type === "TODAY") {
+        selectedDateFilter = "TODAY";
         dayOffset = 0;
-        selectedDateFilter = "MONTH";
+        tempSelectedDay = getDateByOffset(0);
 
-        // MONTH chip ko active banao
+        dayChip.textContent = "TODAY";
+        dayChip.classList.add("active");
+
+        applyFilters();
+        return;
+    }
+
+    /* ===== MONTH ===== */
+    if (type === "MONTH") {
+        selectedDateFilter = "MONTH";
         event.target.classList.add("active");
 
         applyFilters();
         return;
     }
-
-    // 🔹 RANGE (calendar se)
-    if (type === "RANGE") {
-        dayOffset = 0;
-        selectedDateFilter = "RANGE";
-
-        applyFilters();
-        return;
-    }
-
-    selectedDateFilter = type;
-    applyFilters();
 }
+
 
 function formatChipDate(dateObj) {
     const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -2356,6 +2281,8 @@ window.onload = function () {
     filterPatients("ALL");
     filterByScanType("ALL");
     applyFilters();
+    updateScanActiveUI();   // 🔥 scan filter active wapas lao
+
 };
 
 
@@ -2438,7 +2365,6 @@ function updateAssignLabel() {
     label.textContent = select.options[select.selectedIndex].text;
     applyFilters();   // ⭐ Change होते ही filter चलेगा
 }
-
 
 </script>
 </body>
