@@ -277,6 +277,27 @@ body {
 
     <!-- LEFT: PACS VIEWER -->
     <div class="left-panel" id="leftPanel">
+        <!-- THUMBNAIL GALLERY (Left Side) -->
+        <div id="thumbnailGallery" style="
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        ">
+            <!-- Thumbnails will be inserted here -->
+        </div>
+
+        <!-- MAIN IMAGE -->
         <img id="xrayImage" src="data:image/jpeg;base64,{{ patient.scan_image }}">
 <!-- CROP CONFIRM OVERLAY -->
 <div id="cropConfirm" 
@@ -333,6 +354,10 @@ var quill;
 var reports = [];
 var currentReportId = null;
 var currentIndex = -1;
+// Multiple images support
+let patientImages = [];
+let currentImageIndex = 0;
+
 document.addEventListener('DOMContentLoaded', function() {
     quill = new Quill('#editor', {
         theme: 'snow',
@@ -355,6 +380,36 @@ document.addEventListener('DOMContentLoaded', function() {
     var initialContent = "{{ patient.report|default_if_none:"" |escapejs }}";
     quill.root.innerHTML = initialContent;
     loadReports();
+    
+    // Load images from patient data
+    try {
+        const scanData = "{{ patient.scan_image|escapejs }}";
+        // Try to parse as JSON (multiple images)
+        try {
+            patientImages = JSON.parse(scanData);
+            if (!Array.isArray(patientImages)) {
+                // If not array, make it array
+                patientImages = [patientImages];
+            }
+        } catch(e) {
+            // Single image (backward compatibility)
+            if (scanData) {
+                patientImages = [scanData];
+            } else {
+                patientImages = [];
+            }
+        }
+    } catch(e) {
+        patientImages = [];
+    }
+
+    // Render thumbnail gallery
+    renderThumbnails();
+    
+    // Load first image
+    if (patientImages.length > 0) {
+        loadImage(0);
+    }
 });
 
 // GLOBAL
@@ -364,21 +419,136 @@ let cropMode = false;
 
 // INIT CROPPER
 function initCropper() {
-    cropper = new Cropper(image, {
-        viewMode: 1,
-        dragMode: cropMode ? "crop" : "move",
-        autoCrop: cropMode,
-        autoCropArea: cropMode ? 1 : 0,  // ⭐ full crop area
-        background: false,
-        movable: !cropMode,
-        scalable: false,
-        zoomable: true,
-        cropBoxMovable: true,
-        cropBoxResizable: true
+    const image = document.getElementById("xrayImage");
+    // Wait for image to load
+    if (image.complete) {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(image, {
+            viewMode: 1,
+            dragMode: cropMode ? "crop" : "move",
+            autoCrop: cropMode,
+            autoCropArea: cropMode ? 1 : 0,  // ⭐ full crop area
+            background: false,
+            movable: !cropMode,
+            scalable: false,
+            zoomable: true,
+            cropBoxMovable: true,
+            cropBoxResizable: true
+        });
+    } else {
+        image.onload = function() {
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(image, {
+                viewMode: 1,
+                dragMode: cropMode ? "crop" : "move",
+                autoCrop: cropMode,
+                autoCropArea: cropMode ? 1 : 0,
+                background: false,
+                movable: !cropMode,
+                scalable: false,
+                zoomable: true,
+                cropBoxMovable: true,
+                cropBoxResizable: true
+            });
+        };
+    }
+}
+
+// Thumbnail gallery functions
+function renderThumbnails() {
+    const gallery = document.getElementById("thumbnailGallery");
+    if (!gallery) return;
+    
+    gallery.innerHTML = "";
+    
+    if (patientImages.length === 0) {
+        gallery.style.display = "none";
+        return;
+    }
+    
+    gallery.style.display = "flex";
+    
+    patientImages.forEach((img, index) => {
+        const thumb = document.createElement("div");
+        thumb.style.cssText = `
+            width: 80px;
+            height: 80px;
+            border: 3px solid ${index === currentImageIndex ? '#007bff' : '#555'};
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #000;
+            transition: all 0.3s;
+            position: relative;
+        `;
+        thumb.onmouseover = () => {
+            if (index !== currentImageIndex) thumb.style.transform = "scale(1.1)";
+        };
+        thumb.onmouseout = () => {
+            thumb.style.transform = "scale(1)";
+        };
+        
+        const imgEl = document.createElement("img");
+        imgEl.src = `data:image/jpeg;base64,${img}`;
+        imgEl.style.cssText = "width:100%; height:100%; object-fit:cover;";
+        imgEl.onerror = function() {
+            this.src = "data:image/jpeg;base64," + img;
+        };
+        
+        // Image number badge
+        const badge = document.createElement("div");
+        badge.style.cssText = `
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0,123,255,0.9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        `;
+        badge.textContent = index + 1;
+        thumb.appendChild(badge);
+        
+        thumb.onclick = () => loadImage(index);
+        thumb.appendChild(imgEl);
+        gallery.appendChild(thumb);
     });
 }
 
-initCropper();
+function loadImage(index) {
+    if (index < 0 || index >= patientImages.length) return;
+    
+    currentImageIndex = index;
+    const image = document.getElementById("xrayImage");
+    
+    // Update image source
+    image.src = `data:image/jpeg;base64,${patientImages[index]}`;
+    
+    // Update cropper when image loads
+    image.onload = function() {
+        if (cropper) {
+            cropper.destroy();
+        }
+        initCropper();
+    };
+    
+    // If image already loaded
+    if (image.complete) {
+        image.onload();
+    }
+    
+    // Update thumbnail borders
+    renderThumbnails();
+}
+
+// Initialize cropper after page load
+setTimeout(() => {
+    if (patientImages.length > 0) {
+        initCropper();
+    }
+}, 500);
 
 
 // ⭐⭐⭐ CROP BUTTON CLICK
@@ -430,6 +600,16 @@ document.getElementById("cropOk").onclick = () => {
 
     // Show on screen
     image.src = croppedImage;
+    
+    // Update in patientImages array
+    if (currentImageIndex < patientImages.length) {
+        // Remove data:image prefix if present
+        let imgData = croppedImage;
+        if (imgData.includes(',')) {
+            imgData = imgData.split(',')[1];
+        }
+        patientImages[currentImageIndex] = imgData;
+    }
 
     // Save to backend
     fetch(`/api/patient/{{ patient.id }}/save-cropped-image/`, {
@@ -438,7 +618,14 @@ document.getElementById("cropOk").onclick = () => {
             "Content-Type": "application/json",
             "X-CSRFToken": getCookie("csrftoken"),
         },
-        body: JSON.stringify({ scan_image: croppedImage })
+        body: JSON.stringify({ 
+            scan_image: croppedImage,
+            image_index: currentImageIndex 
+        })
+    })
+    .then(() => {
+        // Update thumbnail
+        renderThumbnails();
     });
 
     cropMode = false;

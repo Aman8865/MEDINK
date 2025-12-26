@@ -136,12 +136,32 @@ def add_patient(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            import json as json_module
 
             manual_id = data.get('patient_id')
+            scan_data = data.get('scan', '')
 
-            scan_image = data.get('scan', '')
-            if ',' in scan_image:
-                scan_image = scan_image.split(',')[1]
+            # Handle multiple images (array) or single image (backward compatibility)
+            if isinstance(scan_data, list):
+                # Multiple images - store as JSON array
+                images_list = []
+                for img in scan_data:
+                    if isinstance(img, str):
+                        # Remove data:image prefix if present
+                        if ',' in img:
+                            images_list.append(img.split(',')[1])
+                        else:
+                            images_list.append(img)
+                    else:
+                        images_list.append(str(img))
+                scan_image = json_module.dumps(images_list)
+            else:
+                # Single image (old format - backward compatibility)
+                scan_image = scan_data
+                if isinstance(scan_image, str) and ',' in scan_image:
+                    scan_image = scan_image.split(',')[1]
+                # Convert to array format for consistency
+                scan_image = json_module.dumps([scan_image]) if scan_image else json_module.dumps([])
 
             hospital_id = data.get('hospital_id')
 
@@ -175,7 +195,7 @@ def add_patient(request):
                 scan_type=data.get('scanType'),
                 body_part=data.get('bodyPart'),
                 ref_by=data.get('refBy'),
-                scan_image=scan_image,
+                scan_image=scan_image,  # JSON array of images
                 center=center_name,
                 created_by=created_by   # ⭐ hospital user linked
             )
@@ -1194,15 +1214,27 @@ import json
 def save_cropped_image(request, pk):
     if request.method == "POST":
         try:
+            import json as json_module
             patient = Patient.objects.get(id=pk)
             data = json.loads(request.body)
             cropped_img = data.get("scan_image")
+            image_index = data.get("image_index", 0)  # Which image to update
 
             # Remove base64 header
-            cropped_img = cropped_img.split(",")[1]
+            if ',' in cropped_img:
+                cropped_img = cropped_img.split(",")[1]
 
-            # Save in DB
-            patient.scan_image = cropped_img
+            # Get existing images
+            images_list = patient.get_images()
+            
+            # Update specific image or add new
+            if image_index < len(images_list):
+                images_list[image_index] = cropped_img
+            else:
+                images_list.append(cropped_img)
+            
+            # Save back as JSON
+            patient.set_images(images_list)
             patient.save()
 
             return JsonResponse({"status": "success"})
