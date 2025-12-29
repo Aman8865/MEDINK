@@ -348,12 +348,35 @@ def create_report(request, patient_id):
         data = json.loads(request.body)
         try:
             patient = Patient.objects.get(id=patient_id)
+            report_status = data.get('status', 'DRAFT')
             report = Report.objects.create(
                 patient=patient,
                 report_text=data.get('report_text', ''),
-                status=data.get('status', 'DRAFT'),
+                status=report_status,
                 created_by=UserAccount.objects.get(id=request.session.get('user_id')) if request.session.get('user_id') else None
             )
+            
+            # Update Patient status when report is FINAL
+            if report_status == 'FINAL':
+                patient.status = 'FINAL'
+                
+                # Set final_time only once
+                if not patient.final_time:
+                    patient.final_time = timezone.now()
+                
+                # Calculate TAT if assigned_time exists
+                if patient.assigned_time:
+                    delta = patient.final_time - patient.assigned_time
+                    total_minutes = max(1, int(delta.total_seconds() // 60))
+                    hours = total_minutes // 60
+                    minutes = total_minutes % 60
+                    tat_text = f"{hours}h {minutes}m" if hours else f"{minutes} min"
+                    patient.tat = tat_text
+                
+                # Update patient report text from the report
+                patient.report = report.report_text
+                patient.save()
+            
             return JsonResponse({'id': report.id, 'message': 'Report created'})
         except Patient.DoesNotExist:
             return JsonResponse({'error': 'Patient not found'}, status=404)
@@ -380,9 +403,43 @@ def update_report(request, report_id):
         try:
             report = Report.objects.get(id=report_id)
             report.report_text = data.get('report_text', report.report_text)
-            report.status = data.get('status', report.status)
+            new_status = data.get('status', report.status)
+            report.status = new_status
             report.save()
-            return JsonResponse({'message': 'Report updated'})
+            
+            # Update Patient status when report is FINAL
+            patient = report.patient
+            if new_status == 'FINAL':
+                patient.status = 'FINAL'
+                
+                # Set final_time only once
+                if not patient.final_time:
+                    patient.final_time = timezone.now()
+                
+                # Calculate TAT if assigned_time exists
+                if patient.assigned_time:
+                    delta = patient.final_time - patient.assigned_time
+                    total_minutes = max(1, int(delta.total_seconds() // 60))
+                    hours = total_minutes // 60
+                    minutes = total_minutes % 60
+                    tat_text = f"{hours}h {minutes}m" if hours else f"{minutes} min"
+                    patient.tat = tat_text
+                
+                # Update patient report text from the report
+                patient.report = report.report_text
+            else:
+                # If status is DRAFT, keep patient status as is (don't change to FINAL)
+                # Only clear TAT and final_time if needed
+                if patient.status == 'FINAL':
+                    # Don't change patient status if it's already FINAL
+                    pass
+                else:
+                    patient.tat = None
+                    patient.final_time = None
+            
+            patient.save()
+            
+            return JsonResponse({'message': 'Report updated', 'status': 'success'})
         except Report.DoesNotExist:
             return JsonResponse({'error': 'Report not found'}, status=404)
 
